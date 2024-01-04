@@ -28,10 +28,6 @@ paginate = 5
   #(default is Description or Summary metadata in the front matter)
   # rssFullText = true
 
-[services]
-  [services.disqus]
-    shortname = 'b3nj4h-github-io'
-
 [languages]
   [languages.en]
     title = "pl4int3xt"
