@@ -2,7 +2,8 @@
 layout: post
 title: Phishing Analysis
 date: '2023-10-06 22:05:05 +0300'
-image: /assets/img/cover_images/9.png
+cover: /img/cover_images/9.png
+description: "A user has received a phishing email and forwarded it to the SOC. Can you investigate the email and attachment to collect useful artifacts?"
 categories: [BTLO, Security Operations]
 tags: [BTLO, Text Editor,URL2PNG, WHOIS, Thunderbird]
 ---

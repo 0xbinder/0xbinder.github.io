@@ -2,7 +2,8 @@
 layout: post
 title: Log Analysis - Privilege Escalation
 date: '2023-10-06 11:11:46 +0300'
-image: /assets/img/cover_images/14.png
+cover: /img/cover_images/14.png
+description: "The bash history is provided to you but the recorded commands don’t appear to be related to the attack. Can you find what actually happened?"
 categories: [BTLO, CTF-Like]
 tags: [Texteditor, Bash History]
 ---

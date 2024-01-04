@@ -3,7 +3,8 @@ layout: post
 title: Network Analysis - Ransomware
 date: '2023-10-06 10:16:18 +0300'
 categories: [BTLO, Security Operations]
-image: /assets/img/cover_images/15.png
+cover: /img/cover_images/15.png
+description: "All we have is the network traffic, the ransom note, and the encrypted ender document. Do your thing Defender!​"
 tags: [BTLO, Wireshark, Tshark, Ransonmware, Teslacrypt, VirusTotal]
 ---
 
