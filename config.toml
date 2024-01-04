@@ -27,6 +27,11 @@ paginate = 5
   #(default is Description or Summary metadata in the front matter)
   # rssFullText = true
 
+[services]
+  [services.disqus]
+    shortname = 'your-disqus-shortname'
+
+
 [languages]
   [languages.en]
     title = "pl4int3xt"
