@@ -2,7 +2,8 @@
 layout: post
 title: Suspicious USB Stick
 date: '2023-10-06 11:36:55 +0300'
-image: /assets/img/cover_images/13.png
+cover: /img/cover_images/13.png
+description: "can you check the contents on the USB drive?"
 categories: [BTLO, CTF-Like]
 tags: [VirusTotal, USB, Pdf-Parser, HexDump, Magic Bytes, Pdfid]
 ---

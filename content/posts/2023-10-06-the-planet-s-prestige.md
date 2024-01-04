@@ -2,7 +2,8 @@
 layout: post
 title: The Planet's prestige
 date: '2023-10-06 21:06:45 +0300'
-image: /assets/img/cover_images/11.png
+cover: /img/cover_images/11.png
+description: "CoCanDa, a planet known as 'The Heaven of the Universe' has been having a bad year"
 categories: [BTLO, CTF-Like]
 tags: [Email Client, Text Editor, Pdf-Parser, Base64, Xlsx]
 ---

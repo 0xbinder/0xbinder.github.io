@@ -2,7 +2,8 @@
 layout: post
 title: Log Analysis - Compromised WordPress
 date: '2023-10-07 18:07:51 +0300'
-image: /assets/img/cover_images/5.png
+cover: /img/cover_images/5.png
+description: "One of our WordPress sites has been compromised but we're currently unsure how"
 categories: [BTLO, Incident Response]
 tags: [BTLO, WordPress, Grep, Awk, Uniq, Sort, Cut, Cat]
 ---

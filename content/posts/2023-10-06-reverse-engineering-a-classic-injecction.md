@@ -2,7 +2,8 @@
 layout: post
 title: Reverse Engineering - A Classic Injecction
 date: '2023-10-06 12:26:52 +0300'
-image: /assets/img/cover_images/12.png
+cover: /img/cover_images/12.png
+description: "Analyse the attached EXE sample and find answers to the following questions."
 categories: [BTLO, Reverse Engineering]
 tags: [BTLO, Reverse Engineering, Sysinternals, Powershell, Radare2, Ghidra]
 ---
