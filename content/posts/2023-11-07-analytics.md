@@ -11,7 +11,6 @@ categories: [HTB, Analytics]
 ## Machine Info
 
 > **[Analytics](https://app.hackthebox.com/machines/Analytics)** is an easy linux machine which leverages `Metabse RCE` and `Ubuntu OverLaysFs Local privesc`
-{: .prompt-info }
 
 ## ENUMERATION
 We perform a simple scan for top 100 ports
@@ -48,7 +47,7 @@ echo '10.10.11.233 analytical.htb' | sudo tee -a /etc/hosts
 
 After opening the browser we click the login button and we are directed to another subdomain. We proceed again and add it to the hosts list
 
-![img-description](/assets/img/analytical/1.png)
+![img-description](/img/analytical/1.png)
 
 ```bash
 echo '10.10.11.233 data.analytical.htb' | sudo tee -a /etc/hosts
@@ -56,7 +55,7 @@ echo '10.10.11.233 data.analytical.htb' | sudo tee -a /etc/hosts
 
 We get a metabase login page. We google for any available exploits for the service.
 
-![img-description](/assets/img/analytical/2.png)
+![img-description](/img/analytical/2.png)
 
 After some google searching i came across this [CVE-2023-38646](https://nvd.nist.gov/vuln/detail/CVE-2023-38646)
 
@@ -199,4 +198,4 @@ metalytics@analytics:~$ ./exploit
 bash-5.1#
 ```
 
-![img-description](/assets/img/analytical/3.png)
+![img-description](/img/analytical/3.png)

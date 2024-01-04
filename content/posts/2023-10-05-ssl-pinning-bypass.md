@@ -168,6 +168,6 @@ Spawned `com.yahoo.mobile.client.android.mail`. Resuming main thread!
 
 We are now able to intercept network traffic from yahoo. 
 
-![img-description](/assets/img/frida/1.png)
+![img-description](/img/frida/1.png)
 
 We can now use frida to bypass root detection the same way we did to bypass ssl pinning. To multiple bypass you just need to put multiple scripts in one file and run it.

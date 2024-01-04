@@ -18,17 +18,17 @@ sha256sum KE-CIRT_1.5.0_apkcombo.com.apk
 ### How many permissions are there on the app and how many are marked as dangerous?
 We use [mobsf live](https://mobsf.live/) to scan the app and get the details of the permissions. The dangerpus ones are 13 while all the permissions are 47
 
-![img-description](/assets/img/huwei-ca-hackathon/7.png)
+![img-description](/img/huwei-ca-hackathon/7.png)
 
 ### What is the value of the serial number of the certificate in the application?
 We can use jadx-gui to decompile the apk and check the serial number version under the apk signature
 
-![img-description](/assets/img/huwei-ca-hackathon/5.png)
+![img-description](/img/huwei-ca-hackathon/5.png)
 
 ### What is the vulnerability of the certificate used in the application?
 From mobsf scan we are able to see the vulnerability. Janus Vulnerability
 
-![img-description](/assets/img/huwei-ca-hackathon/6.png)
+![img-description](/img/huwei-ca-hackathon/6.png)
 ### What is the value of glEsVersion in the android manifest file?
 We need to first decompile the apk file using apktool
 ```bash
@@ -67,7 +67,7 @@ b1,r,msb,xy         .. text: "bBbbBBbbbbbbbbBbBBbBBBBBBBBBBbBBB"
 b1,rgb,lsb,xy       .. text: "01000001 01100100 01101101 01101001 01101110 01000000 01000000 00110010 00110000 00110011 00110000 "
 ```
 we find it is a binary encrypted file. Take the binary code and slap it in cyberchef and wait it to do its magic
-![img-description](/assets/img/huwei-ca-hackathon/3.png)
+![img-description](/img/huwei-ca-hackathon/3.png)
 
 ### What is the sha1 hash of the pcap file?
 We use sha1sum
@@ -78,22 +78,22 @@ b421a185aa64e3aeb924c9c3d02f4b09e336182f
 ### Number of packets captured in the file?
 We navigate to Statistics > Capture file properties
 
-![img-description](/assets/img/huwei-ca-hackathon/4.png)
+![img-description](/img/huwei-ca-hackathon/4.png)
 
 ### Total time taken to capture the file?
 We navigate to Statistics > Capture file properties. The elapsed time
 
-![img-description](/assets/img/huwei-ca-hackathon/2.png)
+![img-description](/img/huwei-ca-hackathon/2.png)
 
 ### At what time was the pcap image captured?
 We navigate to Statistics > Capture file properties. First packet time 
 
-![img-description](/assets/img/huwei-ca-hackathon/2.png)
+![img-description](/img/huwei-ca-hackathon/2.png)
 ### What was the software used to connect remotely to the server?
 We follow the tcp stream and come to this file. The software is PuTTY
 
-![img-description](/assets/img/huwei-ca-hackathon/1.png)
+![img-description](/img/huwei-ca-hackathon/1.png)
 ### What was the service used to connect to the server?
 On the same file we can see the service was SSH
 
-![img-description](/assets/img/huwei-ca-hackathon/1.png)
+![img-description](/img/huwei-ca-hackathon/1.png)

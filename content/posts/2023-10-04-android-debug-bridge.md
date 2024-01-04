@@ -40,14 +40,14 @@ adb install helloworld.apk
 
 You can also use -e option to send a command to an emulator or -d to send to hardware device
 
-# Set up port forwarding
+## Set up port forwarding
 You can also port forward the requests to a different port on a device. The following example sets up forawarding of host port 3187 to device port 5555
 
 ```bash
 adb forward tcp:3187 tcp:5555
 ```
 
-# Push and pull files from a device
+## Push and pull files from a device
 To copy files from a directory inside a device
 ```bash
 adb pull remote local
