@@ -2,7 +2,8 @@
 layout: post
 title: PowerShell Analysis - Keylogger
 date: '2023-10-08 20:23:20 +0300'
-image: /assets/img/cover_images/3.png
+cover: /img/cover_images/3.png
+description: "A suspicious PowerShell script was found on one of our endpoints. Can you work out what it does?"
 categories: [BTLO, Reverse Engineering]
 tags: [BTLO, Text Editor]
 ---

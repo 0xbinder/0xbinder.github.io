@@ -2,7 +2,8 @@
 layout: post
 title: Shiba Insider
 date: '2023-10-07 17:03:24 +0300'
-image: /assets/img/cover_images/7.png
+cover: /img/cover_images/7.png
+description: "Can you uncover the insider?"
 categories: [BTLO, Digital Forensics]
 tags: [BTLO, Wireshark, ExifTool, Steghide]
 ---

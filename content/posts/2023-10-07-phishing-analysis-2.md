@@ -2,7 +2,8 @@
 layout: post
 title: Phishing Analysis 2
 date: '2023-10-07 17:37:40 +0300'
-image: /assets/img/cover_images/6.png
+cover: /img/cover_images/6.png
+description: "Put your phishing analysis skils to the test by triaging and collecting information about a recent phishing campaign."
 categories: [BTLO, Security Operations]
 tags: [BTLO, Text Editor, Thunderbird, URL2PNG]
 ---
