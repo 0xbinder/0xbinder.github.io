@@ -28,20 +28,6 @@ paginate = 5
   #(default is Description or Summary metadata in the front matter)
   # rssFullText = true
 
-[params.giscus]
-  repo = "b3nj4h/b3nj4h.github.io"
-  repoID = "R_kgDOKf6AJQ"
-  category = "General"
-  categoryID = "DIC_kwDOKf6AJc4Ca4Ri"
-  mapping = "og:title"
-  reactionsEnabled = "1"
-  emitMetadata = "0"
-  inputPosition = "bottom"
-  theme = "dark"
-  lang = "en"
-  loading = "lazy"
-
-
 [languages]
   [languages.en]
     title = "pl4int3xt"
