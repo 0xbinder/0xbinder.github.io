@@ -1,4 +1,5 @@
 ---
+author: pl4int3xt
 layout: post
 title: Analytics
 date: '2023-11-07 07:40:44 +0300'

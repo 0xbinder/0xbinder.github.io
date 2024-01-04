@@ -1,4 +1,5 @@
 ---
+author: pl4int3xt
 layout: post
 title: Phishing Analysis 2
 date: '2023-10-07 17:37:40 +0300'

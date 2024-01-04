@@ -1,4 +1,5 @@
 ---
+author: pl4int3xt
 layout: post
 title: Secure Shell
 date: '2023-10-25 14:35:27 +0300'

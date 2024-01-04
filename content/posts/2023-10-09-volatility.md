@@ -1,4 +1,5 @@
 ---
+author: pl4int3xt
 layout: post
 title: Volatility
 date: '2023-10-09 19:19:00 +0300'

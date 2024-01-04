@@ -1,4 +1,5 @@
 ---
+author: pl4int3xt
 layout: post
 title: Network Analysis - Ransomware
 date: '2023-10-06 10:16:18 +0300'

@@ -1,4 +1,5 @@
 ---
+author: pl4int3xt
 layout: post
 title: Log Analysis - Privilege Escalation
 date: '2023-10-06 11:11:46 +0300'

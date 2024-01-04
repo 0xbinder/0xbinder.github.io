@@ -1,4 +1,5 @@
 ---
+author: pl4int3xt
 layout: post
 title: Log Analysis - Compromised WordPress
 date: '2023-10-07 18:07:51 +0300'

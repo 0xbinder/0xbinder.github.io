@@ -1,4 +1,5 @@
 ---
+author: pl4int3xt
 layout: post
 title: Reverse engineering apk file
 date: '2023-10-05 01:08:46 +0800'

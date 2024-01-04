@@ -1,4 +1,5 @@
 ---
+author: pl4int3xt
 layout: post
 title: Linux Forensics
 date: '2023-10-13 16:11:36 +0300'

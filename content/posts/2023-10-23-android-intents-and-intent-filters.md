@@ -1,4 +1,5 @@
 ---
+author: pl4int3xt
 layout: post
 title: Android Intents and Intent Filters
 date: '2023-10-23 05:39:12 +0300'

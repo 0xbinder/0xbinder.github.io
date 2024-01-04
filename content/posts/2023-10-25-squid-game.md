@@ -1,8 +1,9 @@
 ---
+author: pl4int3xt
 layout: post
 title: Squid Game
 date: '2023-10-25 02:45:17 +0300'
-image: /img/cover_images/35.png
+cover: /img/cover_images/35.png
 description: "Will you survive the Squid Games?"
 categories: [BTLO, CTF-Like]
 tags: [BTLO, Stegsolve, Steghide]

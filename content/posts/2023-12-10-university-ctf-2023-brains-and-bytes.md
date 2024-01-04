@@ -1,5 +1,6 @@
 ---
 layout: post
+author: pl4int3xt
 title: University CTF 2023:Brains and bytes
 date: '2023-12-10 19:40:10 +0300'
 cover: img/cover_images/47.jpg

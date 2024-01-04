@@ -1,4 +1,5 @@
 ---
+author: pl4int3xt
 layout: post
 title: Huawei and C.A Cybersecurity Hackathon October 2023
 date: '2023-11-02 11:39:04 +0300'

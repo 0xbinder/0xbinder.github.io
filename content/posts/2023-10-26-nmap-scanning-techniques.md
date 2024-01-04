@@ -1,4 +1,5 @@
 ---
+author: pl4int3xt
 layout: post
 title: Nmap Scanning Techniques
 date: '2023-10-26 12:35:11 +0300'

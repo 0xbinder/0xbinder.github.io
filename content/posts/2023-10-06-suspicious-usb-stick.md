@@ -1,4 +1,5 @@
 ---
+author: pl4int3xt
 layout: post
 title: Suspicious USB Stick
 date: '2023-10-06 11:36:55 +0300'

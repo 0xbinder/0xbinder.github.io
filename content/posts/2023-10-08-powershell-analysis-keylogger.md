@@ -1,4 +1,5 @@
 ---
+author: pl4int3xt
 layout: post
 title: PowerShell Analysis - Keylogger
 date: '2023-10-08 20:23:20 +0300'

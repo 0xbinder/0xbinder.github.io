@@ -38,7 +38,7 @@ Hello there this is pl4inT3xt A CTF player @p3rf3ctr00t, Android hacking ,Offens
 
 ## ACHIEVEMENTS AND CERTIFICATIONS
 
-[Hack The Box University CTF 2023: Brains and bytes](/assets/img/cert/HTB2023.png)
+[Hack The Box University CTF 2023: Brains and bytes](/img/cert/HTB2023.png)
 
 [Blue Team Labs Online Profile](https://blueteamlabs.online/public/user/29064d927653e1cdaad8c6)
 
@@ -50,11 +50,11 @@ Hello there this is pl4inT3xt A CTF player @p3rf3ctr00t, Android hacking ,Offens
 
 Won the Huawei, Communications Authority of kenya and Kenya CyberSecurity and Forensics Authority 2023 october hackathon -->
 
-[Digital Forensics Essentials (DFE)](/assets/img/cert/dfe.png)
+[Digital Forensics Essentials (DFE)](/img/cert/dfe.png)
 
-[Hands-on Drone Forensics](/assets/img/cert/droneforensics.png)
+[Hands-on Drone Forensics](/img/cert/droneforensics.png)
 
-[Cyber talents blue team by Trend Micro certificate](/assets/img/cert/blueteam.png)
+[Cyber talents blue team by Trend Micro certificate](/img/cert/blueteam.png)
 
 <!-- +++
 title = "About"

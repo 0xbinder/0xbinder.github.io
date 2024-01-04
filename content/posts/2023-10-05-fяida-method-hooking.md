@@ -1,4 +1,5 @@
 ---
+author: pl4int3xt
 layout: post
 title: FЯIDA - Method hooking
 date: '2023-10-05 18:01:21 +0800'

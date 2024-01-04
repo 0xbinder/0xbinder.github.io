@@ -1,4 +1,5 @@
 ---
+author: pl4int3xt
 layout: post
 title: Shiba Insider
 date: '2023-10-07 17:03:24 +0300'

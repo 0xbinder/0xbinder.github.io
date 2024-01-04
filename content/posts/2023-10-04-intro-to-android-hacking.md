@@ -1,4 +1,5 @@
 ---
+author: pl4int3xt
 layout: post
 title: Getting started with android hacking
 date: '2023-10-04 20:52:04 +0800'

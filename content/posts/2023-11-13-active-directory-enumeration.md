@@ -1,4 +1,5 @@
 ---
+author: pl4int3xt
 layout: post
 title: Active Directory Enumeration
 date: '2023-11-13 05:53:29 +0300'

@@ -1,4 +1,5 @@
 ---
+author: pl4int3xt
 layout: post
 title: Windows Forensics - Registry
 date: '2023-10-09 13:43:16 +0300'
