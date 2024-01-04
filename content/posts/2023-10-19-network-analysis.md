@@ -2,7 +2,8 @@
 layout: post
 title: Network Analysis Wireshark
 date: '2023-10-19 18:47:29 +0300'
-image: /assets/img/cover_images/32.png
+cover: /img/cover_images/32.png
+description: "Network Analysis with TCPDUMP and TSHARK"
 categories: [Forensics, Network]
 tags: [Wireshark, Tcpdump, Tshark, Port]
 ---
