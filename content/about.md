@@ -25,16 +25,9 @@ Hello there this is pl4int3xt A CTF player @p3rf3ctr00t, Android hacking ,Offens
 [CVE-2021-4045](https://github.com/B3nj4h/CVE-2021-4045.git):  🔐 "PWNTAPO: Unveiling Command Injection in TP-Link Tapo C200 Cameras (<= v1.1.16 Build 211209)" 🔓 
 ## ST4TS
 
-<table>
-  <tr>
-    <td>
-        <script src="https://www.hackthebox.eu/badge/421930"></script>
-    </td>
-    <td>
-         <script src="https://tryhackme.com/badge/1611611"></script>
-    </td>
-  </tr>
-</table>
+![Hackthebox](https://www.hackthebox.eu/badge/421930)
+
+![Tryhackme](https://tryhackme.com/badge/1611611)
 
 <a href="https://stats.hyochan.dev/en/stats/B3nj4h"><img src="https://stats.hyochan.dev/api/github-stats?login=B3nj4h" width="600" /></a>
 
