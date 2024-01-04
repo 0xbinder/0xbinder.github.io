@@ -16,7 +16,7 @@ Hello there this is pl4int3xt A CTF player @p3rf3ctr00t, Android hacking ,Offens
 
 [![My Skills](https://skillicons.dev/icons?i=rust,python,kotlin,dart,androidstudio,flutter,laravel,markdown,git,github,linux,mysql,postman)](https://skillicons.dev)
 
-## PROJ3CTS
+## PR0J3CTS
 
 [RustCrypt](https://github.com/B3nj4h/rustcrypt): Because even your files need a good, old-fashioned cloak-and-dagger routine! This Rust tool encrypts and decrypts files like a secret agent with a taste for code-breaking. Your data's new motto? 'Shhh, I'm encrypted! 🔒🕵️‍♂️
 
