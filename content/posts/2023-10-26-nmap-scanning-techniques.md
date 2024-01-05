@@ -5,7 +5,7 @@ title: Nmap Scanning Techniques
 date: '2023-10-26 12:35:11 +0300'
 cover: /img/cover_images/37.png
 description: "Nmap scanning techniques"
-categories: [Pentesting, Nmap]
+categories: [Pentesting]
 tags: [Nmap]
 ---
 ## Nmap

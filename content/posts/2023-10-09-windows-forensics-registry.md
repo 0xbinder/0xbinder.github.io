@@ -5,7 +5,7 @@ title: Windows Forensics - Registry
 date: '2023-10-09 13:43:16 +0300'
 cover: /img/cover_images/28.png
 description: "The Windows Registry is a collection of databases that contains the system's configuration data."
-categories: [Forensics, Windows]
+categories: [Forensics]
 tags: [Windows, Registry, Hives]
 ---
 

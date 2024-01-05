@@ -5,7 +5,7 @@ title: SSL Pinning bypass
 date: '2023-10-05 16:29:36 +0800'
 cover: img/cover_images/19.png
 description: "SSL pinning is a technique that helps to prevent MITM attacks by hardcoding the SSL/TLS certificate’s public key into the app, but we can bypass it using FЯIDA"
-categories: [Android hacking 101, Intro to android hacking, Intercepting network traffic]
+categories: [Android hacking 101]
 tags: [Android, Reverse Engineering, Burpsuite, https, SSL Pinning, FЯIDA]
 ---
 

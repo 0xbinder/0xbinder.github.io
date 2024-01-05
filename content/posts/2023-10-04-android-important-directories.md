@@ -5,7 +5,7 @@ title: Android important directories
 date: '2023-10-04 23:59:50 +0800'
 cover: img/cover_images/23.png
 description: "Understanding androids most important directories"
-categories: [Android hacking 101, Intro to android hacking, Android Important Directories]
+categories: [Android hacking 101]
 tags: [Android, Directories]
 ---
 

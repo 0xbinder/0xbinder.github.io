@@ -5,7 +5,7 @@ title: FЯIDA - Method hooking
 date: '2023-10-05 18:01:21 +0800'
 cover: img/cover_images/18.png
 description: "Learn how to use FЯIDA to hook methods in android applications and bypass security mechanisms"
-categories: [Android hacking 101, Intro to android hacking, FЯIDA - Method hooking]
+categories: [Android hacking 101]
 tags: [Android, Reverse Engineering, FЯIDA, Javascript, Hooking]
 ---
 

@@ -5,8 +5,8 @@ title: Android Intents and Intent Filters
 date: '2023-10-23 05:39:12 +0300'
 cover: /img/cover_images/33.png
 description: "An Intent is a messaging object you can use to request an action from another app component. They facilitate communication between components."
-categories: [Android hacking 101, Android Intents and Intent Filters]
-tags: [Intents, Intent Filters, ]
+categories: [Android hacking 101]
+tags: [Intents, Intent Filters ]
 ---
 
 ## Intents

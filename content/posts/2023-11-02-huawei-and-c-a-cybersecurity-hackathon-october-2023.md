@@ -5,7 +5,7 @@ title: Huawei and C.A Cybersecurity Hackathon October 2023
 date: '2023-11-02 11:39:04 +0300'
 cover: /img/cover_images/39.png
 description: "Huawei and C.A Cybersecurity Hackathon October 2023"
-categories: [CTF, Huawei and C.A Cybersecurity Hackathon October 2023 ]
+categories: [CTF]
 ---
 
 ## Mobile app security

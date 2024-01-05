@@ -5,7 +5,7 @@ title: Active Directory Enumeration
 date: '2023-11-13 05:53:29 +0300'
 cover: img/cover_images/44.png
 description: "Active directory Enumeration 101"
-categories: [Active Directory, Enumeration]
+categories: [Active Directory]
 ---
 
 ## Enumeration with No creds

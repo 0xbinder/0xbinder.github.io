@@ -5,7 +5,7 @@ title: Getting started with android hacking
 date: '2023-10-04 20:52:04 +0800'
 cover: img/cover_images/1.png
 description: "Android is a Linux-based open source platform developed by the Open handset Alliance (a consortium lead by Google), which serves as a mobile operating system (OS)"
-categories: [Android hacking 101, Intro to android hacking]
+categories: [Android hacking 101]
 tags: [Android]
 ---
 

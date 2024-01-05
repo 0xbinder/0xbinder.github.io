@@ -5,7 +5,7 @@ title: Hack The Boo - 2023 Practice
 date: '2023-10-26 10:02:19 +0300'
 cover: /img/cover_images/36.png
 description: "Hack The Boo 2023 Practice CTF"
-categories: [CTF, Hack The Boo Practice - 2023 ]
+categories: [CTF]
 ---
 ## Crypto
 ### Hexoding

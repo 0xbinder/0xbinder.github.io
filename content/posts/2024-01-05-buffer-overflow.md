@@ -5,7 +5,7 @@ title: Buffer overflow
 date: '2024-01-05'
 cover: img/cover_images/4.png
 description: "Learn about the basics of buffer overflow and some of the exploitation techniques"
-categories: [Binary Exploitation 101, Buffer overflow]
+categories: [Binary Exploitation 101]
 tags: [Buffer overflow, binary exploitation]
 ---
 

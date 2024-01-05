@@ -5,7 +5,7 @@ title: Android Debug Bridge
 date: '2023-10-04 22:53:39 +0800'
 cover: img/cover_images/24.png
 description: "This a command-line tool that lets you communicate directly with android device from your machine."
-categories: [Android hacking 101,Intro to android hacking, The Android Debug Bridge(ADB)]
+categories: [Android hacking 101]
 tags: [Android, ADB]
 ---
 
