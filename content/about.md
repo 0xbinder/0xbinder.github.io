@@ -1,7 +1,7 @@
 ---
 # the default layout is 'page'
 # Read my [CV](https://read.cv/b3nj4h)
-title: "About"
+title: "Ab0ut"
 author: pl4int3xt
 cover: /img/main.png
 ---
