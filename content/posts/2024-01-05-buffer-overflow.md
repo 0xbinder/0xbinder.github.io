@@ -3,8 +3,8 @@ author: pl4int3xt
 layout: post
 title: Buffer overflow
 date: '2024-01-05'
-cover: img/cover_images/24.png
-description: "Learn about the basics of buffer overflow and how to exploit it"
+cover: img/cover_images/4.png
+description: "Learn about the basics of buffer overflow and some of the exploitation techniques"
 categories: [Binary Exploitation 101, Buffer overflow]
 tags: [Buffer overflow, binary exploitation]
 ---
@@ -164,35 +164,7 @@ dafgshkjdljkewucywklbecrtktwveuityikwrntuicw
 Your favourite video games is , dafgshkjdljkewucywklbecrtktwveuityikwrntuicw
 Segmentation fault (core dumped)
 ```
-we get a segmentation fault meaning maybe we have overwritten some important variables of the code or the return address. We now need to overwrite the return address of main function with the watchdogs address function. To get the watchdogs address we can use ghidra,gdb,IDA,radare ... Let's use radare
-```shell
-~/Documents/coding/c$ r2 watchdogs
-[0x00401060]> aaa
-[x] Analyze all flags starting with sym. and entry0 (aa)
-[x] Analyze function calls (aac)
-[x] Analyze len bytes of instructions for references (aar)
-[x] Finding and parsing C++ vtables (avrr)
-[x] Type matching analysis for all functions (aaft)
-[x] Propagate noreturn information (aanr)
-[x] Use -AA or aaaa to perform additional experimental analysis.
-[0x00401060]> afl
-0x00401060    1 34           entry0
-0x004010a0    4 33   -> 31   sym.deregister_tm_clones
-0x004010d0    4 49           sym.register_tm_clones
-0x00401110    3 33   -> 32   sym.__do_global_dtors_aux
-0x00401140    1 6            entry.init0
-0x004011d0    1 9            sym._fini
-0x00401090    1 1            sym._dl_relocate_static_pie
-0x004011b4    1 25           main
-0x00401160    1 84           sym.register_favourite_game
-0x00401030    1 6            sym.imp.puts
-0x00401050    1 6            sym.imp.__isoc99_scanf
-0x00401040    1 6            sym.imp.printf
-0x00401146    1 26           sym.watchdogs
-0x00401000    3 23           sym._init
-[0x00401060]> 
-```
-Since we compiled with no pie enabled we will get the addresses and the base addresses won't change each time we run the executable. The address of watchdogs `0x00401146`. Let's get the (offset) number of characters we need to write before overwritting the return address using pwndbg. We first use cyclic to generate 50 random characters
+we get a segmentation fault meaning maybe we have overwritten some important variables of the code or the return address. Let's get the (offset) number of characters we need to write before overwritting the return address using pwndbg. We first use cyclic to generate 50 random characters
 
 ```shell
 ~/Documents/coding/c$ pwndbg watchdogs
@@ -230,7 +202,7 @@ pwndbg> cyclic -l daaaaaaa
 Finding cyclic pattern of 8 bytes: b'daaaaaaa' (hex: 0x6461616161616161)
 Found at offset 24
 ```
-We get 24. We will put 24 random chacters before overwriting the return address. Let's create a python script to automate this
+We will put 24 random characters before overwriting the return address. Let's create a python script to automate this
 ```python
 from pwn import *
 
