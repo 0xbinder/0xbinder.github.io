@@ -1,7 +1,7 @@
 ---
 author: pl4int3xt
 layout: post
-title: Buffer overflow
+title: Buffer overfl0w
 date: '2024-01-05'
 cover: img/cover_images/4.png
 description: "Learn about the basics of buffer overflow and some of the exploitation techniques"
