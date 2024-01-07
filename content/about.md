@@ -6,11 +6,11 @@ author: pl4int3xt
 cover: /img/main.png
 ---
 
-[![Typing SVG](https://readme-typing-svg.demolab.com/?lines=HI+There+I'M+pl4inT3xt;Android+Hacking;Bug+Bounty+Hunter,;Offensive+Security,;CTF+Player,;Security+Researcher,;Love+to+learn+new+stuffs&color=cyan&size=25&center=true&vCenter=true&width=600&height=100&)](https://git.io/typing-svg)
+[![Typing SVG](https://readme-typing-svg.demolab.com/?lines=Hello+W0rld+I'M+pl4inT3xt;Android+Hacking;Bug+Bounty+Hunter,;Offensive+Security,;CTF+Player,;Security+Researcher,;Love+to+learn+new+stuffs&color=cyan&size=25&center=true&vCenter=true&width=600&height=100&)](https://git.io/typing-svg)
 
 ## WH0AMI
 
-Hello there this is pl4int3xt A CTF player @p3rf3ctr00t, Android hacking ,Offensive security and a bug bounty hunter
+Hello w0rld this is pl4int3xt A CTF player @p3rf3ctr00t, Android hacking ,Offensive security and a bug bounty hunter
 
 ## SKILL5
 
