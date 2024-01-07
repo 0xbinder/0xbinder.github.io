@@ -3,7 +3,7 @@ author: pl4int3xt
 layout: post
 title: Buffer overfl0w 01
 date: '2024-01-05'
-cover: img/cover_images/4.png
+cover: img/cover_images/50.png
 description: "Learn about the basics of buffer overflow and some of the exploitation techniques"
 categories: [Binary Exploitation 101]
 tags: [Buffer overflow, binary exploitation]
