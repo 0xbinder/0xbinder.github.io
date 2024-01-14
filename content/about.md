@@ -1,9 +1,9 @@
 ---
 # the default layout is 'page'
 # Read my [CV](https://read.cv/b3nj4h)
-title: "Ab0ut"
+title: "About"
 author: pl4int3xt
-cover: /img/main.png
+cover: img/main.png
 ---
 
 <!-- [![Typing SVG](https://readme-typing-svg.demolab.com/?lines=Hello+W0rld+I'M+pl4inT3xt;Android+Hacking;Bug+Bounty+Hunter,;Offensive+Security,;CTF+Player,;Security+Researcher,;Love+to+learn+new+stuffs&color=cyan&size=25&center=true&vCenter=true&width=600&height=100&)](https://git.io/typing-svg) -->
