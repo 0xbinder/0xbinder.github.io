@@ -3,7 +3,7 @@ author: pl4int3xt
 layout: post
 title: Chainsaw
 date: '2023-10-09 20:46:58 +0300'
-cover: /img/cover_images/30.png
+// cover: /img/cover_images/30.png
 description: "Rapidly Hunt and Search Through Windows Event Logs.Chainsaw is a command-line tool that provides a fast method of running Sigma rule detection logic over event log data to highlight suspicious entries."
 categories: [Forensics]
 tags: [Chainsaw, Sigma, Event Log ID]

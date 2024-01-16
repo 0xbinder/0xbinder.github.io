@@ -3,7 +3,7 @@ author: pl4int3xt
 layout: post
 title: Intercepting network traffic
 date: '2023-10-05 14:35:29 +0800'
-cover: img/cover_images/20.png
+// cover: img/cover_images/20.png
 description: "Getting started on intercepting network traffic in android applications and manipulate requests send by the API"
 categories: [Android hacking 101]
 tags: [Android, Reverse Engineering, Burpsuite, http]

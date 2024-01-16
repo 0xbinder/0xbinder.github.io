@@ -3,7 +3,7 @@ author: pl4int3xt
 layout: post
 title: Linux Forensics
 date: '2023-10-13 16:11:36 +0300'
-cover: /img/cover_images/31.png
+// cover: /img/cover_images/31.png
 description: "Linux is the best-known and most-used open source operating system. As an operating system, Linux is software that sits underneath all of the other software on a computer, receiving requests from those programs and relaying these requests to the computer’s hardware."
 categories: [Forensics]
 tags: [Linux]
