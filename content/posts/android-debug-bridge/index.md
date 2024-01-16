@@ -2,8 +2,7 @@
 author: pl4int3xt
 layout: post
 title: Android Debug Bridge
-date: '2023-10-04 22:53:39 +0800'
-cover: img/cover_images/24.png
+date: '2023-10-04'
 description: "This a command-line tool that lets you communicate directly with android device from your machine."
 categories: [Android hacking 101]
 tags: [Android, ADB]
