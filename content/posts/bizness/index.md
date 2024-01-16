@@ -147,6 +147,8 @@ We get a login page which is running apache ofbiz and the release is 18.12 which
 
 ![img-description](/img/bizness/2.png)
 
+## Initial foothold
+
 we craft our payload to get a reverse shell as stated in this [Article]((https://vulncheck.com/blog/ofbiz-cve-2023-51467))
 
 ```shell
@@ -163,9 +165,11 @@ bash: no job control in this shell
 ofbiz@bizness:/opt/ofbiz$
 ```
 
+## Privilege escalation
+
 After running linpeas we get some interesting derby database files 
 
-```
+```shell
 ╔══════════╣ Modified interesting files in the last 5mins (limit 100)
 /var/log/auth.log
 /var/log/journal/5e1bbbd9ec5d475ca2f8372a972bd975/user-1001.journal
