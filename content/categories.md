@@ -1,5 +1,5 @@
 +++
-title = "Categorie5"
+title = "Categories"
 layout = "categories"
 url = "/categories"
 type = "categories"

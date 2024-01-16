@@ -1,5 +1,5 @@
 +++
-title = "T4gs"
+title = "Tags"
 layout = "tags"
 url = "/tags"
 type = "tags"

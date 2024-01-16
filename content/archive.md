@@ -1,5 +1,5 @@
 +++
-title = "Archiv3"
+title = "Archive"
 layout = "list"
 url = "/archive"
 type = "archive"

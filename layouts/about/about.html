@@ -1,0 +1,39 @@
+{{ define "main" }}
+  {{ $isntDefault := not (or (eq (trim $.Site.Params.contentTypeName " ") "posts") (eq (trim $.Site.Params.contentTypeName " ") "")) }}
+  {{ $contentTypeName := cond $isntDefault (string $.Site.Params.contentTypeName) "posts" }}
+
+<div style="display: flex; align-items: center; justify-content: center; flex-direction: column; margin: 0;">
+    <div style="text-align: center;">
+        <img src="/img/main.jpg" alt="Profile Image" style="width: 144px; height: 144px; border-radius: 50%; margin: 0 auto 10px; margin-top: 20px;">        
+        <div id="hackerName" style="font-size: 1.5em; font-weight: bold; margin-bottom: 10px;"></div>
+        <div style="margin-bottom: 20px;">0ffensive Security | IOT Hacking | CTF Player @p3rf3ctr00t</div>
+        <div style="font-size: 1.2em;">
+            <a href="https://twitter.com" target="_blank" style="text-decoration: none; color: inherit; margin: 0 10px;"><i class="fab fa-twitter"></i></a>
+            <a href="mailto:benjahjp@example.com" target="_blank" style="text-decoration: none; color: inherit; margin: 0 10px;"><i class="fas fa-envelope"></i></a>
+            <a href="https://linkedin.com" target="_blank" style="text-decoration: none; color: inherit; margin: 0 10px;"><i class="fab fa-linkedin"></i></a>
+            <a href="https://github.com/pl4int3xt" target="_blank" style="text-decoration: none; color: inherit; margin: 0 10px;"><i class="fab fa-github"></i></a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Simulate typing effect for the hacker name
+    const hackerNameElement = document.getElementById('hackerName');
+    const hackerName = "pl4int3xt";
+    let i = 0;
+
+    function typeHackerName() {
+        if (i < hackerName.length) {
+            hackerNameElement.innerHTML += hackerName.charAt(i);
+            i++;
+            setTimeout(typeHackerName, 200); // Adjust the typing speed (milliseconds)
+        }
+    }
+
+    // Start the typing animation when the page loads
+    window.onload = function() {
+        typeHackerName();
+    };
+</script>
+
+{{end}}
