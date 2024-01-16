@@ -1,6 +1,6 @@
-+++
-title = "About"
-layout = "about"
-url = "/about"
-type = "about"
-+++
+---
+title : "about"
+layout : "about"
+url : "/about"
+type : "about"
+---

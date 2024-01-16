@@ -43,11 +43,11 @@ paginate = 5
     dateFormatSingle = "2006-01-02"
     dateFormatList = "2006-01-02"
     # leave empty to disable, enter display text to enable
-    # lastModDisplay = ""
+    lastModDisplay = "Last Modified"
 
     [languages.en.params.logo]
       logoText = "pl4int3xt"
-      logoHomeLink = "/about"
+      logoHomeLink = "/"
     # or
     #
     # path = "/img/your-example-logo.svg"
@@ -55,9 +55,9 @@ paginate = 5
 
     [languages.en.menu]
       [[languages.en.menu.main]]
-        identifier = "posts"
-        name = "blog"
-        url = "/"
+        identifier = "about"
+        name = "about"
+        url = "/about"
       [[languages.en.menu.main]]
         identifier = "archive"
         name = "archive"
