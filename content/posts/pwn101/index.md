@@ -8,7 +8,11 @@ categories: [Pwn 101]
 tags: [binary exploitation, Tryhackme ]
 ---
 
-After decompiling the code with ghidra we get an idea that their is a possible buffer overflow in the code since `gets()` is used which is a dangerous function
+Let's download the task file
+
+![img-description](1.png)
+
+After decompiling the task file with ghidra we get an idea that their is a possible buffer overflow in the code since `gets()` is used which is a dangerous function
 
 ```c
 void main(void)
