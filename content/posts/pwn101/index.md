@@ -3,7 +3,7 @@ author: pl4int3xt
 layout: post
 title: Pwn 101 - Tryhackme
 date: '2024-01-17'
-description: "This should give you a start: 'AAAAAAAAAAA'"
+description: "Beginner level binary exploitation challenges from Tryhackme"
 categories: [Pwn 101]
 tags: [binary exploitation, Tryhackme ]
 ---
@@ -164,7 +164,7 @@ $ cat flag.txt
 [DEBUG] Sent 0xd bytes:
     b'cat flag.txt\n'
 [DEBUG] Received 0x20 bytes:
-    b"THM{7h4t's_4n_3zy_oveRflowwwww}\n"
-THM{7h4t's_4n_3zy_oveRflowwwww}
+    b"THM{REDACTED..}}\n"
+THM{REDACTED..}
 $ 
 ```
