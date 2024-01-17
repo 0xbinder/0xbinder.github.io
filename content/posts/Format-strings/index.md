@@ -2,7 +2,7 @@
 author: pl4int3xt
 layout: post
 title: F0rmat strings - Reading arbitrary memory locations
-date: '2024-01-17'
+date: '2024-01-16'
 description: "Learn how to leak values from the stack using format strings vulnerability"
 categories: [Binary Exploitation 101]
 tags: [binary exploitation]
