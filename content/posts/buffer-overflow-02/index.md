@@ -255,7 +255,7 @@ $
 ```
 
 We successfully executed our malicious shellcode.
-
+<!-- 
 ## NX Enabled
 When we enable NX our pevious script won't execute the shellcode. Let's compile our previous fallout code without execstack option
 
@@ -349,4 +349,4 @@ io.sendlineafter(b'>', payload)
 
 # Receive the flag
 io.interactive()
-```
+``` -->
