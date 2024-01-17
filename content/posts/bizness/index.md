@@ -1,7 +1,7 @@
 ---
 author: pl4int3xt
 layout: post
-title: Bizness
+title: Bizness - HTB Machine
 date: '2024-01-12'
 description: "Bizness is an easy linux machine from HTB"
 categories: [HTB]

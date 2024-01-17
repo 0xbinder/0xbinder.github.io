@@ -1,10 +1,10 @@
 ---
 author: pl4int3xt
 layout: post
-title: Buffer overfl0w 01
+title: Buffer overfl0w 01 - overwrite stack variables & execute unreachable functions
 date: '2024-01-05'
 # cover: img/cover_images/50.png
-description: "Learn about the basics of buffer overflow and some of the exploitation techniques"
+description: "Learn how to overwrite variables in the stack and access unreachable functions using buffer overflow"
 categories: [Binary Exploitation 101]
 tags: [Buffer overflow, binary exploitation]
 ---

