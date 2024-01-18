@@ -2,7 +2,7 @@
 author: pl4int3xt
 layout: post
 title: Pwn 101 - Tryhackme
-date: '2024-01-17'
+date: '2024-01-16'
 description: "Beginner level binary exploitation challenges from Tryhackme"
 categories: [Pwn 101]
 tags: [binary exploitation, Tryhackme ]
