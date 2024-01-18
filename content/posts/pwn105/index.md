@@ -51,7 +51,7 @@ void main(void){
 
 Basically `local_14` is the value of the added numbers and so we need to make sure they return a value that is less than 0
 
-> In C, the `int` data type is commonly used for representing integers. The `int` type has a finite range, typically from INT_MIN to INT_MAX. If the result of an addition, subtraction, multiplication, or any other operation exceeds this range, integer overflow occurs.
+> In C, the `int` data type is commonly used for representing integers. The `int` type has a finite range, typically from INT_MIN to INT_MAX. If you enter a number that is larger than its size it is converted into negative by the 2’s complement.The negative numbers are made by entering a number higher than the maximum
 
 We need to perform a simple `int` overflow. we know the `int` range is `-2147483647` to `2147483647`. so if we add a value to the highest `int` the sum will go to the opposite side and become a negative.
 

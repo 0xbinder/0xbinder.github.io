@@ -5,7 +5,7 @@ title: Pwn 104 - Tryhackme
 date: '2024-01-19'
 description: "Beginner level binary exploitation challenges from Tryhackme"
 categories: [Pwn 101]
-tags: [binary exploitation, Tryhackme ]
+tags: [binary exploitation, Tryhackme]
 ---
 
 Let's download the task file and decompile the binary with ghidra. `main()` has a buffer overflow in the read since `local_58` is set to 80 but `read()` reads 200 characters which are more than 80. The binary also leaks the location of the buffer.
