@@ -1,5 +1,14 @@
+---
+author: pl4int3xt
+layout: post
+title: Buffer overfl0w 03 - injecting shellcode & ret2libc
+date: '2024-01-17'
+description: "Learn how to inject shellcodes and return to libc using buffer overflow"
+categories: [Binary Exploitation 101]
+tags: [Buffer overflow, binary exploitation]
+---
 
-## shellc0de in the fall0ut
+## shellcode in the fallout
 A buffer overflow can allow us to inject our own code and make it execute incase we do not find any interesting function to jump to or variables to overwrite. We will use the code below to demonstrate the injection process.
 
 ```c
