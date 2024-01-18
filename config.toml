@@ -46,7 +46,7 @@ paginate = 5
     lastModDisplay = "Last Modified"
 
     [languages.en.params.logo]
-      logoText = "[root@pl4int3xt] #"
+      logoText = "pl4int3xt"
       logoHomeLink = "/"
     # or
     #
@@ -56,17 +56,17 @@ paginate = 5
     [languages.en.menu]
       [[languages.en.menu.main]]
         identifier = "about"
-        name = "/about"
+        name = "about"
         url = "/about"
       [[languages.en.menu.main]]
         identifier = "archive"
-        name = "/archive"
+        name = "archive"
         url = "/archive"
       [[languages.en.menu.main]]
         identifier = "categories"
-        name = "/categories"
+        name = "categories"
         url = "/categories"
       [[languages.en.menu.main]]
         identifier = "tags"
-        name = "/tags"
+        name = "tags"
         url = "/tags"
