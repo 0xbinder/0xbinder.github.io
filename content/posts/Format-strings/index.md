@@ -1,4 +1,4 @@
----
+<!-- ---
 author: pl4int3xt
 layout: post
 title: F0rmat strings - Reading arbitrary memory locations
@@ -137,4 +137,4 @@ pl4int3xt@archlinux ~/D/p/shellcode> python3 fuzz.py
 45: b'K\xe8\xff\xff\xff\x7f\n> '
 48: b'(null)\n> '
 49: b'L\x8b5\xef\x01\x1b\n> '
-```
+``` -->

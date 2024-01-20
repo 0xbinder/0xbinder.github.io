@@ -1,4 +1,4 @@
----
+<!-- ---
 author: pl4int3xt
 layout: post
 title: Buffer overfl0w 02 - ret2win & ret2win with params
@@ -284,4 +284,4 @@ io.sendlineafter(b':', payload)
 
 # Get flag
 io.interactive()
-```
+``` -->

@@ -1,4 +1,4 @@
----
+<!-- ---
 author: pl4int3xt
 layout: post
 title: Buffer overfl0w 01 - overwrite stack variables
@@ -277,4 +277,4 @@ pl4int3xt@archlinux ~/D/p/shellcode [1]> python3 lockpicker.py
 [*] Process './lockpicker' stopped with exit code -11 (SIGSEGV) (pid 25981)
  good job!!
 deadbeef
-```
+``` -->
