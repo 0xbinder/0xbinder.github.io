@@ -2,7 +2,7 @@
 author: pl4int3xt
 layout: post
 title: Knight CTF 2024
-date: '2024-01-18'
+date: '2024-01-21'
 description: "The knight CTF 2024"
 cover: /img/cover_images/49.png
 categories: [CTF]
