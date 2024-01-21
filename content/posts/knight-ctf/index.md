@@ -8,8 +8,6 @@ cover: /img/cover_images/49.png
 categories: [CTF]
 ---
 
-### Armed with wireshark swords and wit sharper than dragon scales, we triumphed at level 73 leaving fire-breathing dragons and buggy code in our wake
-
 ![img-description](6.png)
 
 ## Networking
