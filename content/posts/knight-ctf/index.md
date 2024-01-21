@@ -18,7 +18,7 @@ categories: [CTF]
 >
 > Author: 0xt4req
 
-The attacker did alot of crazy directory bruteforcing.I ignored all the packets and went direct to where he first got the initial foothold. From bash history we can see the attacker perform an internal nmap scan and found a vulnerable ftp `vsftpd-2.3.4` in the main server
+The attacker did alot of crazy directory bruteforcing.I ignored all the packets and went direct to where he first got the initial foothold. From bash history we can see the attacker performed an internal nmap scan and found a vulnerable ftp `vsftpd-2.3.4` in the main server
 
 ![img-description](1.png)
 
@@ -35,7 +35,7 @@ A simple google search displayed The CVE ID from exploit database `CVE-2011-2523
 >
 > Author: 0xt4req
 
-i just checked the code of the [CVE-2011-2523](https://www.exploit-db.com/exploits/49757) and i found that the exploit is leveraged on port `6200`
+i just checked the code from [CVE-2011-2523](https://www.exploit-db.com/exploits/49757) and i found that the exploit is leveraged on port `6200`
 
 ```python
 tn2=Telnet(host, 6200)
@@ -53,7 +53,7 @@ We can also see from wireshark we have the destination port `6200` from the pack
 > The attacker used a popular tool to gain access of the server. Can you name it?
 > Author: 0xt4req
 
-Since the exploit was a public CVE i just knew it was `metasploit` tool. But this can also be identified with the use of snort rules
+Since the exploit was a public CVE i just knew it was `metasploit` tool. But this can also be identified with the use of snort rules but i did not try it out.
 
 ```shell
 snort -r image.pcap
@@ -105,7 +105,7 @@ The admin password was also in cleartext in the post request below. `admin`
 >
 > Author: 0xt4req
 
-From the app.zip we have a `dashboard.php` with the information
+Their was a file named `app.zip` after extracting it we find `dashboard.php` with this code
 
 ```php
 <?php
@@ -127,7 +127,7 @@ We decode the msg with cyberchef and get the flag
 >
 > Author: 0xt4req
 
-From the app.zip we have a `db.php` with the information
+From the app.zip we have a `db.php` with this code
 
 ```php
 $server_name = "localhost";
@@ -140,7 +140,7 @@ $db_name = "kctf2024";
 >
 > Author: 0xt4req
 
-From the app.zip we have a `db.php` with the information
+`db.php` has the api key
 
 ```php
 $_A_p_1_k_3_Y_ = "6eea9135-2801-4560-b44c-f297b5f46f2f";
