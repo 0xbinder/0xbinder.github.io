@@ -83,7 +83,7 @@ private final void setupWebView(WebView webView) {
 >
 > a javascript interface `WebAppInterface()` is also registered
 
-In the `MainActivity.java` we also have another function `handleIntent()`
+In the `MainActivity.java` we also have `handleIntent()`
 
 ```java
 private final void handleIntent() {
