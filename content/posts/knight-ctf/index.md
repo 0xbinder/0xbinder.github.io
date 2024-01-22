@@ -51,7 +51,7 @@ We can also see from wireshark we have the destination port `6200` from the pack
 > The attacker used a popular tool to gain access of the server. Can you name it?
 > Author: 0xt4req
 
-Since the exploit was a public CVE `metasploit` is the tool that was used.
+Since the exploit was a public CVE `metasploit` is the tool that the attacker used
 
 > DISCLAIMER. The challenges were arranged in a specific order and the next challenge was only unlocked after you solved the current one. I got stuck at the hidden file challenge. After the ctf all challenges were unlocked. I realised i had some other flags for the other challenges which i could not reach. Enough talk let's continue with the other unreachable challenges which i solved but could'nt submit the flags since they were locked by the dragons
 
