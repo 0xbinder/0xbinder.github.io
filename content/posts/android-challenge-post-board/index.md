@@ -8,31 +8,16 @@ cover: /img/cover_images/51.png
 categories: [Mobile Hacking Lab]
 ---
 
-## Challenge Instructions
+## Outline
 
-> The Challenge: XSS to RCE Exploitation
->
-> Setup
->
->    You're given an Android application with a WebView component that is vulnerable to XSS and exposes a Java interface to the WebView.
->
-> Methodology
->
->    Identify the XSS vulnerability within the WebView component.
->    Craft a JavaScript payload to exploit this vulnerability.
->    Leverage the exposed Java interface through the XSS to achieve RCE.
->
-> Hints
->
->    Pay attention to how user input is handled in the WebView.
->    Explore how the Java interface is exposed to JavaScript.
->    Test various JavaScript payloads to interact with the Java interface.
->
-> Learning Outcomes
->
->    Comprehensive understanding of WebView vulnerabilities, particularly XSS.
->    Practical experience in crafting and executing XSS payloads.
->    Insights into secure coding practices for WebViews in Android.
+This challenge is designed to delve into the complexities of Android's WebView component, exploiting a Cross-Site Scripting (XSS) vulnerability to achieve Remote Code Execution (RCE). It's a great opportunity to engage with Android application security focusing on WebView security issues.
+
+## Objective
+Exploit an XSS vulnerability in a WebView component to achieve RCE in an Android application.
+
+## Skills Required
+* Understanding of Android app development, especially WebView implementation.
+* Knowledge of JavaScript and basic principles of XSS and RCE.
 
 Let's download vpn file and use adb to connect to the lab
 
