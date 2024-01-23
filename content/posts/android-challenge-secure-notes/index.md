@@ -6,7 +6,6 @@ date: '2024-05-22'
 description: "Android Content Provider Challenge"
 cover: 52.png
 useRelativeCover: true
-permalink: "/posts/:title/"
 categories: [Mobile Hacking Lab]
 ---
 
