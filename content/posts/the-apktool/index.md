@@ -3,7 +3,7 @@ author: pl4int3xt
 layout: post
 title: The apktool
 date: '2023-10-05 01:54:43 +0800'
-cover: https://apktool.org/img/social-card.png
+// cover: https://apktool.org/img/social-card.png
 description: "Learn about the apktool that allows you to assemble APK files and build them again after manipulating the smali code"
 categories: [Android hacking 101]
 tags: [Android, Reverse Engineering, Apktool]
