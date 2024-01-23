@@ -4,7 +4,9 @@ layout: post
 title: Lab - Secure Notes
 date: '2024-05-22'
 description: "Android Content Provider Challenge"
-cover: /img/cover_images/52.png
+cover: 52.png
+useRelativeCover: true
+permalink: "/posts/:title/"
 categories: [Mobile Hacking Lab]
 ---
 
