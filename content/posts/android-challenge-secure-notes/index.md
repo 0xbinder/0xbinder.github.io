@@ -2,7 +2,7 @@
 author: pl4int3xt
 layout: post
 title: Lab - Secure Notes
-date: '2024-01-22'
+date: '2024-05-22'
 description: "Android Content Provider Challenge"
 cover: /img/cover_images/52.png
 categories: [Mobile Hacking Lab]

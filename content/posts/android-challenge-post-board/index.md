@@ -117,7 +117,7 @@ private final void handleIntent() {
 }
 ```
 
-The `handleIntent()` has some simple steps. First it gets an intent checks if the action is `android.intent.action.VIEW`, the intent data is not equal to `null`, the data scheme is `postboard://` and the intent data host is `postmessage`. It then takes the path , base64 encodes it and replaces `'` with `\\` to get the message. The message is then loaded in the webview as follows `activityMainBinding2.webView.loadUrl("javascript:WebAppInterface.postMarkdownMessage('" + message + "')");`. Now based on that we can try to display any content in the webviev using `adb`. Let's try and inject some javascript code and see if it works.
+The `handleIntent()` gets an intent checks if the action is `android.intent.action.VIEW`, the intent data is not equal to `null`, the data scheme is `postboard://` and the intent data host is `postmessage`. It then takes the path , base64 decodes it and replaces `'` with `\\` to get the message. The message is then loaded in the webview as follows `activityMainBinding2.webView.loadUrl("javascript:WebAppInterface.postMarkdownMessage('" + message + "')");`. Now based on that we can try to display any content in the webviev using `adb`. Let's try and inject some javascript code and see if it works.
 
 Html code
 
@@ -198,7 +198,7 @@ private static final String SCRIPT_NAME = "cowsay.sh";
 private static String scriptPath;
 ```
 
-Now let's try to execute some commands and see. we have to call `WebAppInterface.postCowsayMessage()` with the message as the command we need to be injected. Let's craft our payload.
+Now let's try to execute some commands and see. we have to call `WebAppInterface.postCowsayMessage()` with the message as the command we need to be injected since we can execute javascript in our app. Let's craft our payload.
 
 Hmtl code
 
@@ -228,3 +228,5 @@ The ascii art is added to the cache, we can't see it in the UI unless we call `g
 There we go an XSS to RCE Exploitation.
 
 > We can also create a malicious mobile app and send the same intent to the `MainActivity` of the vulnerable app. The malicious app needs to be uploaded in the same device for it to work.
+
+![img-description](4.png)
