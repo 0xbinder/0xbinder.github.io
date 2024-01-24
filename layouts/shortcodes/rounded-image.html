@@ -1,0 +1,6 @@
+{{ $imagePath := .Get "path" }}
+{{ $borderRadius := .Get "radius" | default "10px" }}
+{{ $elevation := .Get "elevation" | default "2" }}
+{{ $shadowColor := .Get "shadowColor" | default "rgba(0, 0, 0, 0.2)" }}
+
+<img src="{{ $imagePath }}" alt="{{ .Get "alt" }}" style="border-radius: {{ $borderRadius }}; box-shadow: 0 0 {{ $elevation }}px {{ $shadowColor }};">

@@ -30,7 +30,7 @@ paginate = 5
 [languages]
   [languages.en]
     title = "pl4int3xt"
-    subtitle = ""
+    # subtitle = ""
     keywords = ""
     copyright = ""
     menuMore = "Show more"
@@ -43,7 +43,7 @@ paginate = 5
     dateFormatSingle = "2006-01-02"
     dateFormatList = "2006-01-02"
     # leave empty to disable, enter display text to enable
-    lastModDisplay = "Last Modified"
+    # lastModDisplay = "Last Modified"
 
     [languages.en.params.logo]
       logoText = "pl4int3xt"
