@@ -3,7 +3,7 @@ author: pl4int3xt
 layout: post
 title: Active Directory Enumeration
 date: '2023-11-13 05:53:29 +0300'
-cover: img/cover_images/44.png
+// cover: img/cover_images/44.png
 description: "Active directory Enumeration 101"
 categories: [Active Directory]
 ---

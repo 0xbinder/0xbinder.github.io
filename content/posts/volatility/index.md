@@ -3,7 +3,7 @@ author: pl4int3xt
 layout: post
 title: Volatility
 date: '2023-10-09'
-cover: /img/cover_images/29.png
+// cover: /img/cover_images/29.png
 description: "volatility is the world's most widely used framework for extracting digital artifacts from volatile memory (RAM) samples."
 categories: [Forensics]
 tags: [RAM, Volatility2, Volatility3]

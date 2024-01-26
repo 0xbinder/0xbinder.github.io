@@ -3,7 +3,7 @@ author: pl4int3xt
 layout: post
 title: Finding apk files
 date: '2023-10-05 00:50:00 +0800'
-cover: img/cover_images/22.png
+// cover: img/cover_images/22.png
 description: "Learn how to find apk files for pentesting"
 categories: [Android hacking 101]
 tags: [Android, Apk]
