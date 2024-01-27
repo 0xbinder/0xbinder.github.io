@@ -5,7 +5,7 @@ title: Iris ctf 2024
 date: '2024-01-06'
 cover: img/cover_images/48.png
 description: "Iris ctf 2024"
-categories: [CTF]
+categories: [Capture The Flag]
 ---
 ## Reverse Engineering
 > Rune? What's that?

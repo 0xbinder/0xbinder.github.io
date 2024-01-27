@@ -6,7 +6,7 @@ date: '2023-10-26 10:02:19 +0300'
 description: "Hack The Boo 2023 Practice CTF"
 cover: 1.jpg
 useRelativeCover: true
-categories: [Capture the flag]
+categories: [Capture tThe Flag]
 ---
 ## Crypto
 ### Hexoding

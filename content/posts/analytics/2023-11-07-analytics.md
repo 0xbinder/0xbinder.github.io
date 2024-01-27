@@ -5,7 +5,7 @@ title: Analytics
 date: '2023-11-07 07:40:44 +0300'
 // cover: img/cover_images/41.png
 description: "Analytics is an easy linux machine from HTB"
-categories: [HTB]
+categories: [Hack The Box]
 ---
 
 ## Machine Info
