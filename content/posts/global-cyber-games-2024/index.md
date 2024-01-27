@@ -6,5 +6,5 @@ date: '2024-01-28'
 description: "Global Cyber Games: New Year Mayhem 2024 CTF"
 cover: 1.png
 useRelativeCover: true
-categories: [CTF]
+categories: [Capture the flag]
 ---

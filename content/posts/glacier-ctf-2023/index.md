@@ -5,7 +5,7 @@ title: Glacier CTF 2023
 date: '2023-11-25 10:44:23 +0300'
 // cover: img/cover_images/46.png
 description: "Glacier CTF 2023"
-categories: [CTF]
+categories: [Capture the flag]
 ---
 
 > I just created my first website! You can even do some calculations! Don't forget to check out my other projects!
