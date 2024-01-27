@@ -5,7 +5,7 @@ title: BSides Nairobi 2023 Cyber Challenge
 date: '2023-11-04 12:46:04 +0300'
 // cover: /img/cover_images/40.png
 description: "Bsides Nairobi 2023 CTF"
-categories: [CTF]
+categories: [Capture The Flag]
 ---
 ## Mobile
 ### Daily blatha

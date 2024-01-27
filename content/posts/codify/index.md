@@ -5,7 +5,7 @@ title: Codify
 date: '2023-11-07 09:13:35 +0300'
 // cover: img/cover_images/42.png
 description: "Codify is an easy linux machine from HTB"
-categories: [HTB]
+categories: [Hack The Box]
 ---
 
 ## MACHINE INFO

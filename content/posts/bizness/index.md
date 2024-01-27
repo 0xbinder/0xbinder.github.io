@@ -4,7 +4,7 @@ layout: post
 title: Bizness - HTB Machine
 date: '2024-01-12'
 description: "Bizness is an easy linux machine from HTB"
-categories: [HTB]
+categories: [Hack The Box]
 ---
 
 ## MACHINE INFO

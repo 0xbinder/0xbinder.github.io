@@ -4,7 +4,7 @@ layout: post
 title: Pwn 101 - Tryhackme
 date: '2024-01-18'
 description: "Beginner level binary exploitation challenges from Tryhackme"
-categories: [Pwn 101]
+categories: [TryHackMe]
 tags: [binary exploitation, Tryhackme ]
 ---
 
