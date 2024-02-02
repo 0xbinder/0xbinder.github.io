@@ -2,7 +2,7 @@
 author: pl4int3xt
 layout: post
 title: Analytics
-date: '2023-11-07 07:40:44 +0300'
+date: '2023-11-07'
 // cover: img/cover_images/41.png
 description: "Analytics is an easy linux machine from HTB"
 categories: [Hack The Box]
@@ -47,7 +47,7 @@ echo '10.10.11.233 analytical.htb' | sudo tee -a /etc/hosts
 
 After opening the browser we click the login button and we are directed to another subdomain. We proceed again and add it to the hosts list
 
-![img-description](/img/analytical/1.png)
+![img-description](1.png)
 
 ```bash
 echo '10.10.11.233 data.analytical.htb' | sudo tee -a /etc/hosts
@@ -55,7 +55,7 @@ echo '10.10.11.233 data.analytical.htb' | sudo tee -a /etc/hosts
 
 We get a metabase login page. We google for any available exploits for the service.
 
-![img-description](/img/analytical/2.png)
+![img-description](2.png)
 
 After some google searching i came across this [CVE-2023-38646](https://nvd.nist.gov/vuln/detail/CVE-2023-38646)
 
@@ -198,4 +198,4 @@ metalytics@analytics:~$ ./exploit
 bash-5.1#
 ```
 
-![img-description](/img/analytical/3.png)
+![img-description](3.png)
