@@ -2,7 +2,7 @@
 author: pl4int3xt
 layout: post
 title: Getting started with android hacking
-date: '2023-10-04 20:52:04 +0800'
+date: '2023-10-04'
 // cover: img/cover_images/1.png
 description: "Android is a Linux-based open source platform developed by the Open handset Alliance (a consortium lead by Google), which serves as a mobile operating system (OS)"
 categories: [Android hacking 101]
@@ -12,7 +12,7 @@ tags: [Android]
 ## Getting started with android hacking
 Android is a Linux-based open source platform developed by the Open handset Alliance (a consortium lead by Google), which serves as a mobile operating system (OS). At its core, the operating system is known as Android Open Source Project (AOSP). The following are the major components of android.
 
-![img-description](/img/intro-to-android-hacking/android.png)
+![img-description](android.png)
 
 ### The Linux Kernel
 Android runtime relies on the the Linux kernel for underlying functionalities such as threading and low-level memory management.
