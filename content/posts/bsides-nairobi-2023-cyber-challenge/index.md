@@ -30,7 +30,7 @@ Starting: Intent { cmp=com.bsidesnrb.dailyblatha/.firebaseActivity }
 ```
 The app has insecure logging
 
-![img-description](/img/bsides2023/8.png)
+![img-description](8.png)
 
 We try to grep for BSidesNRB using logcat inside the AVD
 ```bash
@@ -46,7 +46,7 @@ am start -n com.bsidesnrb.dailyblatha/.sqliteActivity
 Starting: Intent { cmp=com.bsidesnrb.dailyblatha/.sqliteActivity }
 ```
 
-![img-description](/img/bsides2023/10.png)
+![img-description](10.png)
 
 The database is initialize we pull it since we know the name
 ```bash
@@ -66,7 +66,7 @@ sqlite>
 ```
 We navigate to sharedPrefsActivity and find this
 
-![img-description](/img/bsides2023/9.png)
+![img-description](9.png)
 
 We decode the string and get the third part of the flag
 ```bash
@@ -81,7 +81,7 @@ BSidesNBI{4ndro1d_db_m1sc0nf1gs_4r3_d4ng3r0usss}
 #### First method
 We get this if statement in the decompiled code. Let's try changing it in the smali code to bypass the check
 
-![img-description](/img/bsides2023/11.png)
+![img-description](11.png)
 
 decompile the app with apk tool
 ```bash
@@ -89,7 +89,7 @@ apktool d watchdog.apk
 ```
 From the decompiled app we know the package and the class
 
-![img-description](/img/bsides2023/12.png)
+![img-description](12.png)
 
 We navigate to smali > d > b.smali and locate the if statement
 
@@ -186,7 +186,7 @@ adb install watchdog.apk
 ```
 We open the app and click the button. Finally we get the flag
 
-![img-description](/img/bsides2023/13.png)
+![img-description](13.png)
 
 #### Second method
 We can use frida script to change the true variable to false using a custom script Thanks to madbit for the script 
@@ -245,13 +245,13 @@ Obfuscated boolean field set to false successfully. Field name: t
 ```
 We click move and we get the flag
 
-![img-description](/img/bsides2023/13.png)
+![img-description](13.png)
 
 ### Whatslif3
 Thou shall find what made him one with the world.
 #### This took us out? (75pts) 
 From the source code we see that the input should be a base64 decoded string check_guess
-![img-description](/img/bsides2023/3.png)
+![img-description](3.png)
 We get the string from resources and base64 decode it
 ```bash
 b3nj4h@arch ~> echo QlNpZGVzTkJJe3RoaXNfZGlkbid0X2tpbGxfdGhlbX0= | base64 -d
@@ -259,7 +259,7 @@ BSidesNBI{this_didn't_kill_them}
 ```
 We use the output as our input string and hit the submit button. We get the activity with this encoded string
 
-![img-description](/img/bsides2023/2.png)
+![img-description](2.png)
 
 We take the string and slap it in cyber chef and wait for it to do the magic. Boom there we go we get the flag `BSidesNRB{c4r3full_hubr1s_w1ll_t4k3_us_0u7}`
 
@@ -283,7 +283,7 @@ md5sum Items\ list.doc
 #### Without opening the attachment on your host machine, use an online sandbox like AnyRun to observe what happens when the document is opened. From your analysis, what CVE is associate with the attachment? (25pts)
 Open the file with virus total and navigate to community you'll get the CVE from ANY_RUN
 
-![img-description](/img/bsides2023/5.png)
+![img-description](5.png)
 
 #### What malware family is likely associated with the attachment? (25pts) 
 From the previous image we can see the malware family 
@@ -294,9 +294,9 @@ agenttesla
 #### Take a look at the malware configuration. What is the c2 Domain address? (25pts) 
 Navigate to behaviour and check under DNS resolution
 
-![img-description](/img/bsides2023/6.png)
+![img-description](6.png)
 
 #### In your opinion, what protocol do you suspect could have been leveraged on for potential exfiltration? (25pts) 
 The malware uses port 587 which is an smtp protocol port
 
-![img-description](/img/bsides2023/7.png)
+![img-description](7.png)
