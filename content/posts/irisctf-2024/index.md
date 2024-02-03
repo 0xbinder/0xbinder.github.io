@@ -118,6 +118,6 @@ Let's Gopher the code and get the flag
 Decrypted Flag: irisctf{i_r3411y_1ik3_num63r5}Nw[rV
 ```
 
-#### Why did Goku switch to Golang ? Just comment something 
+#### Why did Goku switch to Golang ?
 
-![yay](/img/iris-ctf/golang.gif)
+![yay](golang.gif)
