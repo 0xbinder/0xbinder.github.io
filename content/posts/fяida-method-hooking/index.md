@@ -59,7 +59,7 @@ We were able to bypass the Root detection.
 
 We can bypass any functions or manipulate them as long as we can reverse the apk and understand the functions and how they operate. 
 
-## FRida scripsts
+## FRida scripts
 [SSL Unpinning](https://codeshare.frida.re/@masbog/frida-android-unpinning-ssl/)
 
 [Universal bypass SSL Pinning](https://codeshare.frida.re/@pcipolloni/universal-android-ssl-pinning-bypass-with-frida/)
