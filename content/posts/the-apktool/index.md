@@ -3,7 +3,6 @@ author: pl4int3xt
 layout: post
 title: The apktool
 date: '2023-10-05 01:54:43 +0800'
-// cover: https://apktool.org/img/social-card.png
 description: "Learn about the apktool that allows you to assemble APK files and build them again after manipulating the smali code"
 categories: [Android hacking 101]
 tags: [Android, Reverse Engineering, Apktool]
@@ -12,11 +11,11 @@ tags: [Android, Reverse Engineering, Apktool]
 ## The apktool
 The main features are the ability to disassemble the APK, allowing this way to read and make changes to the source code, and then rebuild the resources back to the APK file. This lets the user change the functionality of the application. Let’s assume that we have the following application, and we want to try to bypass the Root detection.
 
-![img-description](/img/apktool/1.png)
+![img-description](1.png)
 
 To bypass we need to reverse engineer find and edit the root checker function and then recompile the apk. We will use the apktool which will provide us with [Smali]() code which is harder to read and understand. To understand the code let's check the java code from jadx first.
 
-![img-description](/img/apktool/2.png)
+![img-description](2.png)
 
 From the code above we see an if check being run to see whether the device is rooted or not. We need to edit it inorder to bypass root detection.
 ```bash
@@ -150,4 +149,4 @@ Success
 ```
 Then boom the device is not rooted. There are better ways we can do this using tools such as frida which we will talk about later.
 
-![img-description](/img/apktool/3.png)
+![img-description](3.png)
