@@ -1,7 +1,7 @@
 ---
 author: pl4int3xt
 layout: post
-title: Analytics
+title: Analytics - HTB Machine
 date: '2023-11-07'
 useRelativeCover: true
 description: "Analytics is an easy linux machine from HTB"
