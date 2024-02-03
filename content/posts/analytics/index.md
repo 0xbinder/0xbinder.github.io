@@ -3,7 +3,7 @@ author: pl4int3xt
 layout: post
 title: Analytics
 date: '2023-11-07'
-// cover: img/cover_images/41.png
+useRelativeCover: true
 description: "Analytics is an easy linux machine from HTB"
 categories: [Hack The Box]
 ---
