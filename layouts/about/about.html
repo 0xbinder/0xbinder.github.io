@@ -2,7 +2,7 @@
   {{ $isntDefault := not (or (eq (trim $.Site.Params.contentTypeName " ") "posts") (eq (trim $.Site.Params.contentTypeName " ") "")) }}
   {{ $contentTypeName := cond $isntDefault (string $.Site.Params.contentTypeName) "posts" }}
 
-<div style="display: flex; align-items: center; justify-content: center; flex-direction: column; margin: 0;">
+<div style="padding: 2%; display: flex; align-items: center; justify-content: center; flex-direction: column; margin: 0;">
     <div style="text-align: center;">
         <img src="/img/main.jpg" alt="Profile Image" style="height: 144px; border-radius: 50%; margin: 0 auto 10px; margin-top: 20px;">        
         <div id="hackerName" style="font-size: 1.5em; font-weight: bold; margin-bottom: 10px;"></div>
