@@ -2,6 +2,26 @@
   {{ $isntDefault := not (or (eq (trim $.Site.Params.contentTypeName " ") "posts") (eq (trim $.Site.Params.contentTypeName " ") "")) }}
   {{ $contentTypeName := cond $isntDefault (string $.Site.Params.contentTypeName) "posts" }}
 
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: url('/img/batman.jpg') center/cover fixed;
+      overflow: hidden;
+    }
+
+    #blurredBackground {
+      position: fixed;
+      width: 100%;
+      height: 200%;
+      backdrop-filter: blur(10px); /* Adjust the blur intensity */
+      z-index: -1;
+    }
+  </style>
+
+<div id="blurredBackground"></div>
+
 <div style="padding: 2%; display: flex; align-items: center; justify-content: center; flex-direction: column; margin: 0;">
     <div style="text-align: center;">
         <img src="/img/main.jpg" alt="Profile Image" style="height: 144px; border-radius: 50%; margin: 0 auto 10px; margin-top: 20px;">        
