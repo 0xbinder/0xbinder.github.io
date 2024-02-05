@@ -1,9 +1,8 @@
 ---
 author: pl4int3xt
 layout: post
-title: Codify
-date: '2023-11-07 09:13:35 +0300'
-// cover: img/cover_images/42.png
+title: Codify - HTB Machine
+date: '2023-11-07'
 description: "Codify is an easy linux machine from HTB"
 categories: [Hack The Box]
 ---
@@ -44,11 +43,11 @@ echo '10.10.11.239 codify.htb' | sudo tee -a /etc/hosts
 ```
 The website allows us to run javascript code
 
-![img-description](/img/codify/1.png)
+![img-description](1.png)
 
 We notice the website uses vm2
 
-![img-description](/img/codify/2.png)
+![img-description](2.png)
 
 After searching for the exploits on vm2 i came across this [CVE-2023-37466](https://github.com/advisories/GHSA-cchq-frgv-rjh5) that allows RCE
 
@@ -217,4 +216,4 @@ Password:
 root@codify:/tmp#
 ```
 
-![img-description](/img/codify/3.png)
+![img-description](3.png)

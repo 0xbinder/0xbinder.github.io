@@ -13,15 +13,15 @@ author: Chr0x6eOs
 
 We open the website and there is nothing interesting and so we try to check out the other projects 
 
-![img-description](/img/glacier-ctf-2023/1.png)
+![img-description](1.png)
 
 We are brought to this page and immediately what pops in my brain is SSTI
 
-![img-description](/img/glacier-ctf-2023/2.png)
+![img-description](2.png)
 
 I try injecting something to see the changes and indeed the website has an SSTI
 
-![img-description](/img/glacier-ctf-2023/3.png)
+![img-description](3.png)
 
 Next let's check what's in the / directory and we see the file flag.txt using the following payload
 
@@ -30,7 +30,7 @@ Next let's check what's in the / directory and we see the file flag.txt using th
 ```
 
 
-![img-description](/img/glacier-ctf-2023/4.png)
+![img-description](4.png)
 
 Next we create a payload to read the flag.txt file
 
@@ -38,5 +38,5 @@ Next we create a payload to read the flag.txt file
 {% raw %}{{request['application']['__globals__']['__builtins__']['__import__']('os')['popen']('cat /flag.txt')['read']()}}{% endraw %}
 ```
 
-![img-description](/img/glacier-ctf-2023/5.png)
+![img-description](5.png)
 

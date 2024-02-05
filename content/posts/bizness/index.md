@@ -79,7 +79,7 @@ echo '10.10.11.252 bizness.htb' | sudo tee -a /etc/hosts
 
 The website does not have much information 
 
-![img-description](/img/bizness/1.png)
+![img-description](1.png)
 
 Let's try more enumeration on the directories
 
@@ -145,7 +145,7 @@ views                   [Status: 200, Size: 9308, Words: 913, Lines: 141, Durati
 
 We get a login page which is running apache ofbiz and the release is 18.12 which has a command injection vulnerability [CVE-2023-51467](https://vulncheck.com/blog/ofbiz-cve-2023-51467)
 
-![img-description](/img/bizness/2.png)
+![img-description](2.png)
 
 ## Initial foothold
 
@@ -227,7 +227,7 @@ We have a sha1 salted hash
 
 To crack this with hashcat we first need to decode it and convert it to hex. Let's do that with cyberchef
 
-![img-description](/img/bizness/3.png)
+![img-description](3.png)
 
 ```
 cat hash
@@ -239,4 +239,4 @@ hashcat -m 110 -a 0 hash /usr/share/wordlists/rockyou.txt
 ```
 cracking the hash we get a password and we successfully login to root.
 
-![img-description](/img/bizness/4.png)
+![img-description](4.png)

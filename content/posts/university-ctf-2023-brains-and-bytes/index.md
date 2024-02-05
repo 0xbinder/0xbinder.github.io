@@ -2,7 +2,7 @@
 layout: post
 author: pl4int3xt
 title: University CTF 2023:Brains and bytes
-date: '2023-12-10 19:40:10'
+date: '2023-12-10'
 cover: img/cover_images/47.jpg
 description: "Hack the box university ctf 2023: Brains and bytes"
 categories: [Capture The Flag]
@@ -33,7 +33,7 @@ StrReverse("'DxujWO$ dnammoc- eliforPoN- ssapyb ycilopnoitucexe- neddih elytswod
 The file was suspicious, hard to read and understand "obviously because it was written by the zombies" i decided to upload it to virus total and see the behaviour.
 
 
-![img-description](/img/brains-and-bytes/1.png)
+![img-description](1.png)
 
 Process 4080 reveals the command executed by the file. it is base64 encoded and so we decode it
 ```powershell
@@ -66,7 +66,7 @@ d5dff21b17ee-1f48-5c74-c934-d73c2a63=nekot&aidem=tla?txt.refsnart/o/moc.topsppa.
 
 From the script we see that its trying to download an image from this `http://infected.zombie.htb/WJveX71agmOQ6Gw_1698762642.jpg` url and so we try to get it using our docker ip and port
 
-![img-description](/img/brains-and-bytes/2.png)
+![img-description](2.png)
 
 Next we use exiftool and find some interesting stuff.
 
@@ -98,14 +98,14 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
 This was a very large base64 string. I took the string to cyber chef for a nice "zombie recipe"
 
-![img-description](/img/brains-and-bytes/3.png)
+![img-description](3.png)
 
 We can see `MZ` meaning it is a windows executable file.So i decided to just continue scrolling and boom there's the cure to the zombie virus.
 
-![img-description](/img/brains-and-bytes/4.png)
+![img-description](4.png)
 
 These zombies really used their BRAINS to BYTE the system.
 
-![yay](/img/brains-and-bytes/joke.gif)
+![yay](joke.gif)
 
 ![img-description](/img/cert/HTB2023.png)

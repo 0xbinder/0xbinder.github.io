@@ -4,7 +4,8 @@ layout: post
 title: Knight CTF 2024
 date: '2024-01-21'
 description: "The knight CTF 2024"
-cover: /img/cover_images/49.png
+useRelativeCover: true
+cover: featured.png
 categories: [Capture The Flag]
 ---
 

@@ -2,8 +2,9 @@
 author: pl4int3xt
 layout: post
 title: 1337up
-date: '2023-11-17 14:31:24 +0300'
-cover: img/cover_images/45.jpg
+date: '2023-11-17'
+cover: featured.png
+useRelativeCover: true
 description: "1337up CTF 2023"
 categories: [Capture The Flag]
 ---
@@ -15,7 +16,7 @@ Author: CryptoCat
 
 Take the message and let cyber chef do the magic.
 
-![img-description](/img/1337/1.png)
+![img-description](1.png)
 
 ##  Flag Extraction
 > They told me I just need to extract flag but I don't know what that means?!
@@ -34,19 +35,19 @@ Author: CryptoCat
 
 The flag.zip file looks interesting let's try and find it
 
-![img-description](/img/1337/3.png)
+![img-description](3.png)
 
 Next we save this file as flag.zip in RAW format
 
-![img-description](/img/1337/4.png)
+![img-description](4.png)
 
 After opening the file it prompts us to enter a password and so we continue following the stream to see if we can get the password and here we go.
 
-![img-description](/img/1337/5.png)
+![img-description](5.png)
 
 We check the password from FTP and try to open the file but we get incorrect password. From the previous message we have the hint ```update it accordingly```. So we try 2023 instead of 2022 and boom we are able to open the file
 
-![img-description](/img/1337/2.png)
+![img-description](2.png)
 
 We read the content of the flag.txt and get the flag
 
@@ -60,19 +61,19 @@ INTIGRITI{1f_0nly_7h3r3_w45_4_53cur3_FTP}
 
 Since CryptoCat and 0xM4hm0ud decided to use a more secure way we have to dig deeper. We Follow the stream and come across their first email conversation
 
-![img-description](/img/1337/6.png)
+![img-description](6.png)
 
 We save the email file as email.ml using the RAW format and open the file with thunderbird. We find our cute cat file attachment and download it.
 
-![img-description](/img/1337/7.png)
+![img-description](7.png)
 
 I tried to use some steganography tools but found nothing so i continued following the stream and found the second email.
 
-![img-description](/img/1337/8.png)
+![img-description](8.png)
 
 I extracted the file again and opened it with Thunderbird and downloaded the attachment.
 
-![img-description](/img/1337/9.png)
+![img-description](9.png)
 
 I checked the type of file and found out it was not a jpg but a png.
 
