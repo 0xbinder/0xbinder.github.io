@@ -12,11 +12,11 @@ tags: [Android, Reverse Engineering, FЯIDA, Javascript, Hooking]
 ## FЯIDA - Method hooking
 We saw how we used the universal ssl pinning bypass script to bypass ssl pinning. We will now make our own custom script to hook a method and change it's function in runtime to bypass root detection. We will use androgoat apk.
 
-![img-description](/img/apktool/1.png)
+![img-description](/posts/the-apktool/1.png)
 
 From the reverse engineering blog we saw the isRooted() function that checks whether the device is rooted. 
 
-![img-description](/img/apktool/2.png)
+![img-description](/posts/the-apktool/2.png)
 
 We will now change the function return type to always be false using this custom script.
 ```javascript
@@ -55,7 +55,7 @@ Inside isRooted() function...
 
 We were able to bypass the Root detection. 
 
-![img-description](/img/apktool/3.png)
+![img-description](/posts/the-apktool/3.png)
 
 We can bypass any functions or manipulate them as long as we can reverse the apk and understand the functions and how they operate. 
 
