@@ -84,16 +84,6 @@ The file name was in cleartext since the `ftp` connection was not encrypted
 
 ![img-description](2.png)
 
-### Super Admin
-
-> What is the super admin password in the web application?
->
-> Author: 0xt4req
-
-The admin password was also in cleartext in the post request below. `admin`
-
-![img-description](3.png)
-
 ### Admin Flag
 
 > Can you find the Admin Flag of the web server.?
