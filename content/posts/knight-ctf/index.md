@@ -80,7 +80,7 @@ There was a file `maybeconfidential.zip`. Extracting the file we notice it was a
 >
 > Author: 0xt4req
 
-The file name was in cleartext since the `ftp` connection was not encrypted
+The file name in cleartext since the connection is not encrypted
 
 ![img-description](2.png)
 
