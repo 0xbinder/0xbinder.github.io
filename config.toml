@@ -62,11 +62,3 @@ paginate = 5
         identifier = "archive"
         name = "archive"
         url = "/archive"
-      [[languages.en.menu.main]]
-        identifier = "categories"
-        name = "categories"
-        url = "/categories"
-      [[languages.en.menu.main]]
-        identifier = "tags"
-        name = "tags"
-        url = "/tags"

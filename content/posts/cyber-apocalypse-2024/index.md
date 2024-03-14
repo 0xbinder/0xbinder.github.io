@@ -183,3 +183,4 @@ The binary gets the current time and stores it in the variable, it then seeds th
 pl4int3xt@archlinux ~/D/c/rev_lootstash> strings stash | grep 'HTB'
 HTB{n33dl3_1n_a_l00t_stack}
 ```
+![img-description](cyber-apocalypse-2024.png)
