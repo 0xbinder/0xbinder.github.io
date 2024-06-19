@@ -5,6 +5,10 @@ title: Certificates
 description: "Certificates"
 ---
 
+# Cyber apocalypse ctf 2024 certificate
+
+{{< rounded-image path="cyber-apocalypse-2024.png" alt="Certification 1" radius="20px" elevation="4" shadowColor="rgba(0, 0, 0, 0.3)" >}}
+
 # Mobile hacking labs secure notes Certificate
 
 {{< rounded-image path="mobile-hacking2.png" alt="Certification 1" radius="20px" elevation="4" shadowColor="rgba(0, 0, 0, 0.3)" >}}

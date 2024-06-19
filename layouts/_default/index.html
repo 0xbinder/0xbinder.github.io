@@ -1,23 +1,21 @@
-{{ define "body" }}
-    <body class="{{ if .Site.Params.backgroundImage }} background-image" style="background-image: url('{{ .Site.Params.backgroundImage }}');" {{ else }}"{{ end }}>
-{{ end }}
-
 {{ define "main" }}
-    <main aria-role="main">
-        <div>
-            {{ if .Site.Params.Portrait.Path }}
-               <img src="{{ .Site.Params.Portrait.Path }}" class="circle" alt="{{ .Site.Params.Portrait.Alt }}" style="max-width:{{ .Site.Params.Portrait.MaxWidth }}" />
-            {{ end }}
-
-            <h1>{{ .Site.Title }}</h1>
-
-            {{ partial "subtitle.html" . }}
-
-            {{- with .Site.Params.social }}
-                <div>
-                    {{ partial "social-icons.html" . }}
-                </div>
-            {{- end }}
-        </div>
-    </main>
+<main aria-role="main">
+  <div style="text-align: center;">
+    <h1>{{ .Site.Title }}</h1>
+    <img src="/img/main.jpg" alt="Profile Image"
+      style="height: 144px; width: 144px; border-radius: 100%; margin: 0 auto 10px; margin-top: 20px;">
+    <br>
+    {{- with .Site.Params.social }}
+    <div>
+      {{ partial "social-icons.html" . }}
+    </div>
+    {{- end }}
+    <br>
+    <div style="margin-bottom: 20px;">Android Hacking | Binary Exploitation Adventures | CTF Player @p3rf3ctr00t
+    </div>
+    <div style="margin-top: 20px;">
+      <a href="/certifications/" style="margin-right: 15px; font-size: 1.5em;">Certifications</a>
+    </div>
+  </div>
+</main>
 {{ end }}
