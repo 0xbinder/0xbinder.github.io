@@ -27,6 +27,12 @@ paginate = 5
   #(default is Description or Summary metadata in the front matter)
   # rssFullText = true
 
+[taxonomies]
+  tag = "tags"
+  category = "categories"
+  publication_type = "publication_types"
+  author = "authors"
+
 [languages]
   [languages.en]
     title = "pl4int3xt"
@@ -62,3 +68,11 @@ paginate = 5
         identifier = "archive"
         name = "archive"
         url = "/archive"
+      [[languages.en.menu.main]]
+        identifier = "categories"
+        name = "categories"
+        url = "/categories"
+      [[languages.en.menu.main]]
+        identifier = "tags"
+        name = "tags"
+        url = "/tags"
