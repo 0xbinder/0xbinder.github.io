@@ -1,21 +1,72 @@
-{{ define "main" }}
-<main aria-role="main">
-  <div style="text-align: center;">
-    <h1>{{ .Site.Title }}</h1>
-    <img src="/img/main.jpg" alt="Profile Image"
-      style="height: 144px; width: 144px; border-radius: 100%; margin: 0 auto 10px; margin-top: 20px;">
-    <br>
-    {{- with .Site.Params.social }}
-    <div>
-      {{ partial "social-icons.html" . }}
+<!DOCTYPE html>
+<html lang="{{ $.Site.Language }}">
+
+<head>
+  {{ block "title" . }}
+  <title>
+    {{ if .IsHome }}{{ $.Site.Title }}{{ with $.Site.Params.Subtitle }} —
+    {{ . }}{{ end }}{{ else }}{{ .Title }} ::
+    {{ $.Site.Title }}{{ with $.Site.Params.Subtitle }} — {{ . }}{{ end }}{{ end }}
+  </title>
+  {{ end }}
+  {{ partial "head.html" . }}
+</head>
+
+<body {{ with $.Site.Params.defaultTheme -}} class="{{ printf " %s-theme" . }}" {{- end }}>
+  <div
+    style="background-image: url('/img/background.png'); background-size: cover; background-position: center; background-repeat: no-repeat; height: 100vh; width: 100vw;">
+    <header style="padding: 20px 20px;">
+      <span class="header__inner">
+        {{ partial "logo.html" . }}
+        <span class="header__right">
+          {{ if len $.Site.Menus }}
+          {{ partial "menu.html" . }}
+          <span class="menu-trigger">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <path d="M0 0h24v24H0z" fill="none" />
+              <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
+            </svg>
+          </span>
+          {{ end }}
+          <span class="theme-toggle">
+            {{ partial "theme-icon.html" . }}
+          </span>
+        </span>
+      </span>
+    </header>
+
+
+    <div style="text-align: center;">
+      <h1>{{ .Site.Title }}</h1>
+      <img src="/img/main.jpg" alt="Profile Image"
+        style="height: 144px; width: 144px; border-radius: 100%; margin: 0 auto 10px; margin-top: 20px;">
+      <br>
+      {{- with .Site.Params.social }}
+      <div>
+        {{ partial "social-icons.html" . }}
+      </div>
+      {{- end }}
+      <br>
+      <div style="margin-bottom: 20px;">Android Hacking | Binary Exploitation Adventures | CTF Player @p3rf3ctr00t
+      </div>
+      <div style="margin-top: 20px;">
+        <a href="/certifications/" style="margin-right: 15px; font-size: 1.5em;">Certifications</a>
+      </div>
     </div>
-    {{- end }}
-    <br>
-    <div style="margin-bottom: 20px;">Android Hacking | Binary Exploitation Adventures | CTF Player @p3rf3ctr00t
-    </div>
-    <div style="margin-top: 20px;">
-      <a href="/certifications/" style="margin-right: 15px; font-size: 1.5em;">Certifications</a>
-    </div>
+
+    {{ block "footer" . }}
+    {{ partial "footer.html" . }}
+    {{ end }}
   </div>
-</main>
-{{ end }}
+
+  {{ if $.Site.GoogleAnalytics }}
+  {{ template "_internal/google_analytics.html" . }}
+  {{ end }}
+</body>
+<!-- buy me a coffee -->
+<script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"
+  data-id="pl4int3xt" data-description="Support me on Buy me a coffee!" data-message="" data-color="#ff008e"
+  data-position="Left" data-x_margin="18" data-y_margin="18">
+  </script>
+
+</html>
