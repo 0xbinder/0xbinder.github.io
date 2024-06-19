@@ -33,6 +33,30 @@ paginate = 5
   publication_type = "publication_types"
   author = "authors"
 
+###############################################################
+##### social icons
+###############################################
+
+  [[params.social]]
+    name = "twitter"
+    url  = "https://twitter.com/"
+
+  [[params.social]]
+    name = "email"
+    url  = "mailto:nobody@example.com"
+
+  [[params.social]]
+    name = "github"
+    url  = "https://github.com/"
+
+  [[params.social]]
+    name = "linkedin"
+    url  = "https://www.linkedin.com/"
+
+  [[params.social]]
+    name = "stackoverflow"
+    url  = "https://www.stackoverflow.com/"
+
 [languages]
   [languages.en]
     title = "pl4int3xt"
@@ -61,9 +85,9 @@ paginate = 5
 
     [languages.en.menu]
       [[languages.en.menu.main]]
-        identifier = "about"
-        name = "about"
-        url = "/about"
+        identifier = "posts"
+        name = "posts"
+        url = "/posts"
       [[languages.en.menu.main]]
         identifier = "archive"
         name = "archive"
