@@ -4,7 +4,7 @@ layout: post
 title: Lab - Config Editor
 date: '2024-07-03'
 description: "Welcome to the Config Editor Challenge! In this lab, you'll dive into a realistic situation involving vulnerabilities in a widely-used third-party library. Your objective is to exploit a library-induced vulnerability to achieve RCE on an Android application."
-cover: featured.png
+cover: featured.png 
 useRelativeCover: true
 categories: [Mobile Hacking Lab]
 ---
