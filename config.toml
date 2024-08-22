@@ -59,8 +59,8 @@ paginate = 5
     url  = "https://stackoverflow.com/users/17707765/muthui"
 
 [languages]
-  [languages.en]
-    title = "pl4int3xt"
+  [languages.en.params]
+    title = "Pl4int3xt"
     # subtitle = ""
     keywords = ""
     copyright = ""
