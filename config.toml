@@ -1,6 +1,6 @@
 #baseurl = "/pl4int3xt.github.io"
 languageCode = "en-us"
-paginate = 3
+paginate = 5
 
 [params]
   backgroundImage = "/img/main.jpg"
