@@ -20,13 +20,13 @@ We are given a file `Note.txt` .Opening the file we get hex code with this first
 52 49 ❌❌ 6c 26 05 00 10 00 00 00 01 00 01 00 40 1f 00 00 40 1f 00 00 01 00 08 00 64 61 74 61 48 26 05 00 80 83 91 ab cb e3
 ```
 
-After asking google some questions on the above magic bytes i came across RIFF and so i changed the first 4 hex code to match it
+The first two hex code values match with the magic bytes of RIFF.
 
 ```bash
 52 49 46 46
 ```
 
-but a RIFF file has a header section that is `52 49 46 46` then the file size in little-endian format that is `6C 26 05 00` then the format identifier `10 00 00 00`. Then we have data chunks that is `64 61 74 61` but no format chunk that was present to describe the audio encoding format and so we need to insert it manually before the data chunk. I assumed a PCM (Pulse-Code Modulation) format which is as follows.
+but a RIFF file has a header section that is `52 49 46 46` then the file size in little-endian format that is `6C 26 05 00` then the format identifier `10 00 00 00`. Then we have data chunks that is `64 61 74 61` but no format chunk that was present to describe the audio encoding format and so we need to insert it manually before the data chunk. I assumed a PCM (Pulse-Code Modulation) format.
 
 ```bash
 Offset 0x0C: 'fmt ' (66 6D 74 20)
@@ -39,7 +39,7 @@ Offset 0x20: Block align (NumChannels * BitsPerSample/8)
 Offset 0x22: Bits per sample (e.g., 8 or 16)
 ```
 
-Next i changed the file to match the above pattern
+Next we need to change the file to match the above pattern
 
 ```bash
 52 49 46 46 6C 26 05 00 57 41 56 45   ; "RIFF" + file size + "WAVE"
@@ -60,7 +60,7 @@ To this
 52 49 46 46 6C 26 05 00 57 41 56 45 66 6D 74 20 10 00 00 00 01 00 01 00 40 1F 00 00 80 3E 00 00 01 00 08 00 64 61 74 61
 ```
 
-I then created a python script to convert the hexcode to a binary file with the extension .wav
+Then create a python script to convert the hexcode to a binary file with the extension .wav
 
 ```python
 def hex_to_wav(input_file, output_file):
@@ -82,11 +82,12 @@ output_file = 'output.wav'
 hex_to_wav(input_file, output_file)
 ```
 
-I opened the file and it sounded like a morse code and so i used the above sites to get the message. 
+Opening the file it sounded like a morse code. https://morsecode.world/international/decoder/audio-decoder-adaptive.html 
 
 ![img-description](1.png)
 
-The websites gave slightly different output and i had to combine both to try and get the correct flag
+The websites gave slightly different output and i had to combine both to try and get the correct flag https://databorder.com/transfer/morse-sound-receiver/
+
 
 ![img-description](2.png)
 
@@ -99,11 +100,11 @@ After opening the challenge We get a login page for jenkins.
 
 ![img-description](3.png)
 
-i tried navigating to the http://web.challenge.bugpwn.com:8080/user/admin/ to check for any issues, i found the version of jenkins 2.441
+Navigating to http://web.challenge.bugpwn.com:8080/user/admin/ we find the version of jenkins 2.441
 
 ![img-description](4.png)
 
-I checked for public cve and i found CVE-2024-23897 https://www.exploit-db.com/exploits/51993
+Checking for public cve. Found CVE-2024-23897 https://www.exploit-db.com/exploits/51993
 
 ```python
 # Exploit Title: Jenkins 2.441 - Local File Inclusion
@@ -257,7 +258,7 @@ if __name__ == "__main__":
   main()            
 ```
 
-I tried to read `/etc/passwd` at it worked 
+Reading `/etc/passwd` 
 
 ```bash
 plaintext@archlinux ~/D/tools> python cve.py -u http://web.challenge.bugpwn.com:8080 -p "/etc/passwd"
