@@ -292,8 +292,6 @@ Using FTK Imager we use the provided password and we get the flag at `C:\\Users\
 
 ### Symphony
 
-> Analyze the file. Extensive manipulation is required to uncover what’s hidden within.
-
 We are given a file `Note.txt` .Opening the file we get hex code with this first line that appears to have some hex values stripped
 
 ```bash
@@ -373,8 +371,6 @@ The websites gave slightly different output and i had to combine both to try and
 
 ## Web
 ### Jenkins
-
-> I can not see ...!
 
 After opening the challenge We get a login page for jenkins. 
 
