@@ -90,33 +90,37 @@ checksec poj
     RUNPATH:    b'./'
 ```
 
-Decompiling with ghidra we get this function that prints the address of `write` and calls `FUN_0010115c`
+Decompiling with binary ninja we get this function that prints the address of `write` and calls `sub_115c`
 
 ```c
-void FUN_0010117d(void)
+0000117d  int32_t main(int32_t argc, char** argv, char** envp)
 
-{
-  write(1,"Africa battle CTF 2024\n",0x17);
-  printf("Write() address : %p\n",write);
-  FUN_0010115c();
-  return;
-}
+0000117d  {
+00001195      write(1, "Africa battle CTF 2024\n", 0x17);
+000011b3      printf("Write() address : %p\n", write);
+000011c4      return sub_115c();
+0000117d  }
 ```
 
-`read` gets `0x100` into `64` buffer which is `0x48` from the return address.
+`read` gets `0x100` into `buf`.
 
 ```c
-void FUN_0010115c(void)
+0000115c  ssize_t sub_115c()
 
-{
-  undefined local_48 [64];
-  
-  read(0,local_48,0x100);
-  return;
-}
+0000115c  {
+0000117c      void buf;
+0000117c      return read(0, &buf, 0x100);
+0000115c  }
 ```
 
-The offset is `72`. we extract `write` to calculate libc base. find `system` , `puts` and `/bin/sh`. finally build a rop chain to spawn shell using ret2libc.
+
+The offset is `0x40 + 0x8` = `72`
+
+```c
+00001164  488d45c0           lea     rax, [rbp-0x40 {buf}]
+```
+
+we extract `write` to calculate libc base. find `system` , `puts` and `/bin/sh`. finally build a rop chain to spawn shell using ret2libc.
 
 ```python
 from pwn import *
@@ -238,7 +242,13 @@ void kami(void)
 }
 ```
 
-The offset is `136` . So we need to extract the leaked address of `fflush` , find the address of `system`, `/bin/sh` and `puts` and lastly the gadgets to call `system(/bin/sh)`.
+Stack_80 = `0x80` and so the offset is `0x80 + 0x8` = `136`. 
+
+```c
+char acStack_80 [128];
+```
+
+So we need to extract the leaked address of `fflush` , find the address of `system`, `/bin/sh` and `puts` and lastly the gadgets to call `system(/bin/sh)`.
 
 Using ropper we get these two gadgets to use
 
@@ -317,112 +327,111 @@ plaintext@archlinux ~/D/ctf> checksec terminal
 Decompiling the code in binary ninja we get this function with a while loop
 
 ```c
-int32_t sub_804974d()
+0804974d  int32_t sub_804974d()
 
-{
-    void* const __return_addr_1 = __return_addr;
-    void* var_10 = &arg_4;
-    sub_804968c();
-    
-    while (true)
-    {
-        fflush(*(uint32_t*)stdout);
-        void* const var_2c;
-        printf("\x1b[0;32mCLI@RAVEN\x1b[0;37m# ", var_2c);
-        fflush(*(uint32_t*)stdout);
-        sub_8049648();
-        char* eax_3 = strchr(&data_804c060, 0xa);
-        
-        if (eax_3 != 0)
-            *(uint8_t*)eax_3 = 0;
-        
-        var_2c = &data_804a244;
-        char* eax_5 = strtok(&data_804c060, &data_804a244);
-        
-        if (eax_5 != 0)
-        {
-            char* eax_6 = strtok(nullptr, &data_804a244);
-            char* eax_7 = strtok(nullptr, &data_804a244);
-            
-            if (strcmp(eax_5, "show") != 0)
-            {
-                var_2c = "clear";
-                
-                if (strcmp(eax_5, "clear") != 0)
-                {
-                    var_2c = "exit";
-                    
-                    if (strcmp(eax_5, "exit") == 0)
-                        break;
-                    
-                    puts("Invalid command. Type 'show help…");
-                }
-                else
-                    sub_8049722();
-            }
-            else
-            {
-                var_2c = &data_804a24b;
-                
-                if ((strcmp(eax_6, &data_804a24b) == 0 && eax_7 == 0))
-                {
-                    sub_8049226();
-                    continue;
-                }
-                
-                var_2c = &data_804a04c;
-                
-                if ((strcmp(eax_6, &data_804a04c) == 0 && eax_7 == 0))
-                {
-                    sub_8049255();
-                    continue;
-                }
-                
-                var_2c = "down";
-                
-                if ((strcmp(eax_6, "down") == 0 && eax_7 == 0))
-                {
-                    sub_804939c();
-                    continue;
-                }
-                
-                var_2c = "logs";
-                
-                if ((strcmp(eax_6, "logs") == 0 && eax_7 == 0))
-                {
-                    sub_80494e3();
-                    continue;
-                }
-                
-                var_2c = "help";
-                
-                if ((strcmp(eax_6, "help") == 0 && eax_7 == 0))
-                {
-                    sub_80495a0();
-                    continue;
-                }
-                
-                puts("Invalid command. Type 'show help…");
-            }
-        }
-    }
-    
-    puts("Exiting...");
-    return 0;
-}
+0804974d  {
+08049754      void* const __return_addr_1 = __return_addr;
+0804975b      void* var_10 = &arg_4;
+0804976a      sub_804968c();
+0804976a      
+0804977b      while (true)
+0804977b      {
+0804977b          fflush(*(uint32_t*)stdout);
+0804978d          void* const var_2c;
+0804978d          printf("\x1b[0;32mCLI@RAVEN\x1b[0;37m# ", var_2c);
+080497a1          fflush(*(uint32_t*)stdout);
+080497a9          sub_8049648();
+080497ba          char* eax_3 = strchr(&data_804c060, 0xa);
+080497ba          
+080497c9          if (eax_3 != 0)
+080497ce              *(uint8_t*)eax_3 = 0;
+080497ce          
+080497da          var_2c = &data_804a244;
+080497e2          char* eax_5 = strtok(&data_804c060, &data_804a244);
+080497e2          
+080497f1          if (eax_5 != 0)
+080497f1          {
+08049803              char* eax_6 = strtok(nullptr, &data_804a244);
+0804981a              char* eax_7 = strtok(nullptr, &data_804a244);
+0804981a              
+0804983c              if (strcmp(eax_5, "show") != 0)
+0804983c              {
+0804992c                  var_2c = "clear";
+0804992c                  
+0804993a                  if (strcmp(eax_5, "clear") != 0)
+0804993a                  {
+0804994f                      var_2c = "exit";
+0804994f                      
+0804995d                      if (strcmp(eax_5, "exit") == 0)
+0804995d                          break;
+0804995d                      
+0804997d                      puts("Invalid command. Type 'show help…");
+0804993a                  }
+0804993a                  else
+0804993c                      sub_8049722();
+0804983c              }
+0804983c              else
+0804983c              {
+0804984b                  var_2c = &data_804a24b;
+0804984b                  
+0804985f                  if ((strcmp(eax_6, &data_804a24b) == 0 && eax_7 == 0))
+0804985f                  {
+08049861                      sub_8049226();
+08049866                      continue;
+0804985f                  }
+0804985f                  
+08049874                  var_2c = &data_804a04c;
+08049874                  
+08049888                  if ((strcmp(eax_6, &data_804a04c) == 0 && eax_7 == 0))
+08049888                  {
+0804988a                      sub_8049255();
+0804988f                      continue;
+08049888                  }
+08049888                  
+0804989d                  var_2c = "down";
+0804989d                  
+080498b1                  if ((strcmp(eax_6, "down") == 0 && eax_7 == 0))
+080498b1                  {
+080498b3                      sub_804939c();
+080498b8                      continue;
+080498b1                  }
+080498b1                  
+080498c6                  var_2c = "logs";
+080498c6                  
+080498da                  if ((strcmp(eax_6, "logs") == 0 && eax_7 == 0))
+080498da                  {
+080498dc                      sub_80494e3();
+080498e1                      continue;
+080498da                  }
+080498da                  
+080498ef                  var_2c = "help";
+080498ef                  
+08049903                  if ((strcmp(eax_6, "help") == 0 && eax_7 == 0))
+08049903                  {
+08049905                      sub_80495a0();
+0804990a                      continue;
+08049903                  }
+08049903                  
+08049916                  puts("Invalid command. Type 'show help…");
+0804983c              }
+080497f1          }
+0804977b      }
+0804977b      
+08049969      puts("Exiting...");
+0804999e      return 0;
+0804974d  }
 ```
 
 It runs this code to get the user input which uses a dangerous function 
 
 ```c
-char* sub_8049648()
+08049648  char* sub_8049648()
 
-{
-    void buf;
-    read(0, &buf, 0xc8);
-    return strcpy(&data_804c060, &buf);
-}
-
+08049648  {
+08049668      void buf;
+08049668      read(0, &buf, 0xc8);
+0804968b      return strcpy(&data_804c060, &buf);
+08049648  }
 ```
 
 We get the offset is `62`. 0x3a + 4 = 62.
