@@ -9,6 +9,70 @@ useRelativeCover: true
 categories: [Capture The Flag]
 ---
 
+## Misc
+
+### Invite
+
+Navigating to https://x.com/bug_pwn we get this
+
+![img-description](7.png)
+
+we unhex it and get this link https://bugpwn.com/invite.ini
+
+```bash
+plaintext@archlinux ~> echo "55 57 4e 59 5a 31 63 35 64 7a 52 33 55 57 51 76 5a 57 49 75 64 58 52 31 62 33 6b 76 4c 7a 70 7a 63 48 52 30 61 41 3d 3d 0a 68 74 74
+ 70 73 3a 2f 2f 62 75 67 70 77 6e 2e 63 6f 6d 2f 69 6e 76 69 74 65 2e 69 6e 69" | xxd -r -p
+UWNYZ1c5dzR3UWQvZWIudXR1b3kvLzpzcHR0aA==
+https://bugpwn.com/invite.ini⏎ 
+```
+
+The file is a base 64 encoded file
+
+```bash
+plaintext@archlinux ~/D/ctf> strings invite.ini
+H4sIAKvQ/2YC/02TW08bQQyFn+FXHCKk9iXN3C9SEjS7MytVlIsAqUKKVC1JgJRk0yahTf997VC1fUBMduzj48+eh3eTfTud7OezyV4I+rO795N90MOz/WqJH/PNdrHuRj35QfQw76br2aJ7GvVed4/90MN213azdrnu5qNet+7hbHw8PMlX9d39dcHrlpJxe397Vy5AF2+/V+1+1AuyNz4+Onyhm6Oj4XL9tOi6djUfP7S73XI+3T0OB/8+csi3drv9ud7MxqeqPZXqdD59Xcjl3eri8/nNxY35OjPm5fHq5XoflvP2k9id18/d5WJmlpfp4XkzuH++vt5/Hw7+yrCmmW6+UFObX992Y2FhGygHbxArhIzsISJMRKngJKKBzRAePkNqpIQS4C3qDJcgC3yEVMiHc6BbD9WwZiY1j2IgSFNxLp2DQimQAqlG8tAJFQUbVArJIFloh5KgakgHIRAiUkEVoBREhcZCBtQJQkMr1HR2cBVsQBAoNbyA93CF020N67iia5Ayp9cWkW6ptciapnDpKBAtqgomo2T2HCNiYGMkmA2K4r6oC0r3jkuzKwcpkSp4DeeRBDMhq7pGoHYcQ1OSg73kWjlyjCakZFvAVn+gkckouaiMcBriwIHCBBkjA4Kdk7ImZWKu0VAi9VtQEw3SSYwxVMjNARcdyADhItsNGsO068JVSLPRUILh1wpWcYr1PBobWZBKGIdMIpZjuMeaN4FGT1LUOw8u83Dpig5Bw0rmT1I68HxV4nQq4Wgomb9XtD+aDTMKd+jIss/KMzoteMcItW+4HZqg9LwANDuqSGBpKOTNCd4cc+iXBlFlNA2bTBLaM2eaIyEljFGhoXEHdss2AjNnPsShGg7+33t6hwN+iPRCD/+348lm0g1P+n28vcX6jramuflIy6YE4ez3DxG/AVECNBs5BAAA
+```
+
+We decode it into a file 
+
+```bash
+plaintext@archlinux ~/D/ctf> strings invite.ini | base64 -d > invite
+```
+
+The file is a gzip
+
+```bash
+plaintext@archlinux ~/D/ctf> file invite
+invite: gzip compressed data, last modified: Fri Oct  4 11:25:31 2024, max compression, original size modulo 2^32 1081
+```
+
+we change the extension and gunzip it
+
+```bash
+plaintext@archlinux ~/D/ctf> mv invite invite.gz
+plaintext@archlinux ~/D/ctf> gunzip invite.gz
+```
+
+THe file has a password and an encrypted hex
+
+```bash
+plaintext@archlinux ~/D/ctf> strings invite
+b'\xac\xed\x00\x05t(\x83<?xml version="1.0" encoding="utf-8" standalone="no" ?>
+<!DOCTYPE users SYSTEM >
+<users max="81">
+	<user >
+		<loginname>battlectf</loginname>
+		<password>$2a$12$ecui1lTmMWKRMR4jd44kfOkPx8leaL0tKChnNid4lNAbhr/YhPPxq</password>
+		<4cr_encrypt>05 5F 26 74 9B 8D D7 09 49 EB 61 94 5D 07 7D 13 AA E8 75 CD 6A 1E 79 12 DA 1E 8A E7 2F 5F DB 87 E4 0D D2 13 E4 82 EE 10 AC A7 3A BF 54 B2 A4 A5 36 EA 2C 16 00 89 AE B8 22 0B F5 18 CA 03 32 C8 C6 6B 58 80 EC 70 77 6E 16 5C 56 82 6F AD 0B C5 97 69 E9 B8 4E 54 90 95 BB 4D ED 87 99 98 BF EC D4 E2 8A 0D C5 76 03 89 A6 11 AB 73 67 A0 75 AE 3C 84 B6 5D 21 03 71 B8 D9 A0 3B 62 C0 5B 12 DA 5C 91 87 19 63 02 A4 3B 04 9F E0 AD 75 3E 35 C3 FB 1B 5E CB F0 5A A7 8B DF 00 8B DC 88 24 EF F4 EE CE 5C 3B F3 20 10 C2 52 DF 57 D2 59 5E 3E 46 D0 85 10 89 AC 09 07 EF C5 EE 1D 2F 89 1D 83 51 C6 52 38 13 2A D0 20 66 6D 52 B1 93 1B 21 06 9F E5 00 B7 AB 30 EB 98 7F CB 80 17 36 16 EF 73 BB 59 60 E4 4B F0 8A BD FF 85 A1 37 5D 4E C0 91 92 F2 68 C5 20 68 A0 A7 84 EB</4cr_encrypt>
+	</user>
+</users>\r\n<!-- battleCTF AFRICA 2024 -->\r\n
+```
+
+Cracking the hash with hashcat we get the password `nohara`. and we decode it with cyberchef
+
+![img-description](8.png)
+
+
 ## Pwn
 
 ### Poj
@@ -447,7 +511,6 @@ battleCTF{ret2CLI@dlresolve_a22c24101f31bb15ea7ac818364c980c3fd8ab0a9ed99f023a5c
 ### Do(ro X2 )
 
 Using FTK Imager we use the provided password and we get the flag at `C:\\Users\\Desktop\\Delano\\Documents\\Image`
-> Analyze the file. Extensive manipulation is required to uncover what’s hidden within.
 
 ### Symphony
 
@@ -527,6 +590,70 @@ The websites gave slightly different output and i had to combine both to try and
 
 
 ![img-description](2.png)
+
+## Agent 47
+
+Running xxd it looks like a corrupted png file so we need to fix it.
+
+```bash
+plaintext@archlinux ~/D/ctf> xxd Agent47 | head
+00000000: 5089 474e 0a0d 0a1a 0000 0d00 4849 5244  P.GN........HIRD
+00000010: 0000 f401 0000 f401 0608 0000 cb00 dfd6  ................
+00000020: 008a 2000 4900 4144 7854 ec5e 077d 159c  .. .I.ADxT.^.}..
+00000030: d9d5 3bfe e67d bbf6 b285 a594 8a2a 4d20  ..;..}.......*M 
+00000040: 1dec 8935 1b1a 8220 53f5 4d11 344c 14d1  ...5... S.M.4L..
+00000050: fe53 7e26 d189 5334 c6ec e912 4858 68be  .S~&..S4....HXh.
+00000060: 6834 12c4 9445 a76e f4b3 b7ad e9df e7ff  h4...E.n........
+00000070: ddcc 3455 b02a dd94 cf65 47e4 ddd6 e53b  ..4U.*...eG....;
+00000080: 679c cee6 de73 bcf6 f102 238d c1d0 f010  g....s....#.....
+00000090: 5467 22f5 0f92 9522 2204 20eb 6892 c910  Tg"...."". .h...
+```
+
+i wrote a python code to fix the image
+
+```python
+image_bytes=open('Agent47','rb').read()
+
+final=[]
+  
+for i in range(len(image_bytes)):
+    final.append(b'\x00')
+index=0
+
+while index < len(image_bytes):
+    byte=image_bytes[index]
+    new_index=0
+    if ((index % 2) == 0):
+      new_index=index+1
+    else:
+      new_index=index-1
+    final[new_index] = byte
+    index+=1
+byte_array = bytes(int(h) for h in final)
+
+with open('./agent.png', 'wb') as f:
+    f.write(byte_array)
+```
+
+Running strings on the image we get intersting string `r3FF>7s&vMzAa@1F:71d6Hc@FGD71;@1d8D;5pQehifcO`
+
+```bash 
+plaintext@archlinux ~/D/ctf> strings agent.png | tail
+<#aB
+4mHb
+!@XVP
+GLO.
+9J.&
+bU\U3
+oQtu
+RQkx
+r3FF>7s&vMzAa@1F:71d6Hc@FGD71;@1d8D;5pQehifcO
+IEND
+```
+
+Running ROT 46 we get the flag
+
+![img-description](6.png)
 
 ## Web
 ### Jenkins
