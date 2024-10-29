@@ -94,7 +94,7 @@ The address is `0x7ffc5a9cbcf0` since it is below `0x1337babe`. The offset is `7
 %hhn: Writes 1 byte to a char*.
 ```
 
-we use the following code to run the exploit by writing 4 bytes to the value of the pointer.
+we use the following code to run the exploit by writing 2 bytes to the value of the pointer.
 
 ```python
 from pwn import *
