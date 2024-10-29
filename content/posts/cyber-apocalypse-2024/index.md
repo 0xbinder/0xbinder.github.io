@@ -12,7 +12,7 @@ categories: [Capture The Flag]
 ## Pwn
 ### Delulu
 
-Reversing the binary it set `var_48` to `0x1337babe`. It then checks if it is == `0x1337beef` an calls delulu
+Reversing the binary it set `var_48` to `0x1337babe`. It then checks if it is `0x1337beef` and calls delulu
 
 ```c
 0000144a  int32_t main(int32_t argc, char** argv, char** envp)
@@ -94,7 +94,7 @@ The address is `0x7ffc5a9cbcf0` since it is below `0x1337babe`. The offset is `7
 %hhn: Writes 1 byte to a char*.
 ```
 
-we use the following code to run the exploit
+we use the following code to run the exploit by writing 4 bytes to the value of the pointer.
 
 ```python
 from pwn import *
