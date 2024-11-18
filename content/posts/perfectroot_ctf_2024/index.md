@@ -3,8 +3,7 @@ author: pl4int3xt
 layout: post
 title: p3rf3ctr00t CTF 2024
 date: '2024-11-18'
-description: ""
-# cover: featured.png 
+description: "A special CTF from P3rf3ctr00t"
 useRelativeCover: true
 categories: [Capture The Flag]
 ---
