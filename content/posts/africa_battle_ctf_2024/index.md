@@ -4,7 +4,7 @@ layout: post
 title: Africa battleCTF 2024
 date: '2024-10-18'
 description: "Only the sharpest minds will make the cut. Eight will qualify, but only one will emerge victorious."
-cover: featured.png 
+# cover: featured.png 
 useRelativeCover: true
 categories: [Capture The Flag]
 ---

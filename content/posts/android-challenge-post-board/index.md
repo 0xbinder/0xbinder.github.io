@@ -4,7 +4,7 @@ layout: post
 title: Lab - Post Board
 date: '2024-01-22'
 description: "Investigate a Android app where you can post messages with exploitable WebView functionalities."
-cover: featured.png
+# cover: featured.png
 useRelativeCover: true
 categories: [Mobile Hacking Lab]
 ---
