@@ -3,7 +3,7 @@ author: pl4int3xt
 layout: post
 title: Huawei and C.A Cybersecurity Hackathon October 2023
 date: '2023-11-02'
-cover: /img/cover_images/39.png
+# cover: /img/cover_images/39.png
 description: "Huawei and C.A Cybersecurity Hackathon October 2023"
 categories: [Capture The Flag]
 ---

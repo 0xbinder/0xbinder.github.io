@@ -5,7 +5,7 @@ title: Cyber Apocalypse 2024
 date: '2024-03-09'
 description: "Cyber apocalypse ctf 2024 Hacker royale"
 useRelativeCover: true
-cover: cover.jpg
+# cover: cover.jpg
 categories: [Capture The Flag]
 ---
 

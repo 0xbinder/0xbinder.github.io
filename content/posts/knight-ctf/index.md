@@ -5,7 +5,7 @@ title: Knight CTF 2024
 date: '2024-01-21'
 description: "The knight CTF 2024"
 useRelativeCover: true
-cover: featured.png
+# cover: featured.png
 categories: [Capture The Flag]
 ---
 

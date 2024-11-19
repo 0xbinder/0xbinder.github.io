@@ -3,7 +3,7 @@ author: pl4int3xt
 layout: post
 title: 1337up
 date: '2023-11-17'
-cover: featured.png
+# cover: featured.png
 useRelativeCover: true
 description: "1337up CTF 2023"
 categories: [Capture The Flag]
