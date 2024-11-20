@@ -26,60 +26,60 @@ Decode the string with cyber chef.
 
 ![img-description](2.png)
 
-Opening the apk requires us to input some string.
+The apk requires us to input some string.
 
 ![img-description](2_0.png)
 
-Decompiling the apk with jadx-gui we notice we only have one activity in the `AndroidManifest.xml` file;
+Decompiling the apk with jadx-gui we notice we only have one activity in the `AndroidManifest.xml` file.
 
 ```xml
-...
-<activity
-    android:theme="@style/Theme.ComposeCipher"
-    android:label="@string/app_name"
-    android:name="com.example.composecipher.MainActivity"
-    android:exported="true">
-    <intent-filter>
-        <action android:name="android.intent.action.MAIN"/>
-        <category android:name="android.intent.category.LAUNCHER"/>
-    </intent-filter>
-</activity>
-...
+    ...
+28  <activity
+29	    android:theme="@style/Theme.ComposeCipher"
+30	    android:label="@string/app_name"
+31	    android:name="com.example.composecipher.MainActivity"
+32	    android:exported="true">
+33	    <intent-filter>
+34	        <action android:name="android.intent.action.MAIN"/>
+35	        <category android:name="android.intent.category.LAUNCHER"/>
+36	    </intent-filter>
+37  </activity>
+    ...
 ```
 
 Moving on to the MainActivity we find the function being called when the compose button
-is clicked. Its simply a AES algorithm trying to compare out input with that of a AES decrypted value.
+is clicked. Its simply a AES algorithm trying to compare our input with that of a AES decrypted value.
 
 
 ```java
-...
-public static final j invoke$lambda$7$lambda$6$lambda$5(MainActivity mainActivity, V v2) {
-    h.e(mainActivity, "this$0");
-    h.e(v2, "$textState$delegate");
-    if (h.a(invoke$lambda$7$lambda$1(v2).f3737a.f2441a, MainActivityKt.access$decryptAES(new Secrets().getEncrypted(), new Secrets().getPass(), MainActivityKt.hexStringToByteArray(new Secrets().getSalt()), MainActivityKt.hexStringToByteArray(new Secrets().getIv())))) {
-        Toast.makeText(mainActivity, "Congratulations compose ninja", 0).show();
-    } else {
-        Toast.makeText(mainActivity, "You are unworthy to enter the compose", 0).show();
-    }
-    return j.f867a;
-}
-...
+     ...
+137  public static final j invoke$lambda$7$lambda$6$lambda$5(MainActivity mainActivity, V v2) {
+138	    h.e(mainActivity, "this$0");
+139	    h.e(v2, "$textState$delegate");
+140	    if (h.a(invoke$lambda$7$lambda$1(v2).f3737a.f2441a, MainActivityKt.access$decryptAES(new Secrets().getEncrypted(), new Secrets().getPass(), MainActivityKt.hexStringToByteArray(new Secrets().getSalt()), MainActivityKt.hexStringToByteArray(new Secrets().getIv())))) {
+141	        Toast.makeText(mainActivity, "Congratulations compose ninja", 0).show();
+142	    } else {
+143	        Toast.makeText(mainActivity, "You are unworthy to enter the compose", 0).show();
+144	    }
+145	    return j.f867a;
+146  }
+     ...
 ```
 
 The function takes in some values located in another class `Secrets`.
 
 ```java
-...
-public final class Secrets {
-    public static final int $stable = 8;
-    private String salt = "263BC60258FF4876";
-    private String iv = "7E892875A52C59A3B588306B13C31FBD";
-    private String pass = "jetpackninja";
-    private String encrypted = "AhtqeRhKca1XDRVAXTxqEEYNwpAo4vUqoFayhaH5vmcktJ9WbZTAOBI6e8Ubfg7u1PLfPEBILkVmZgQenapt0vzilnnh2qdSHcLiHbJnUYk=";
+    ...
+6	public final class Secrets {
+7	   public static final int $stable = 8;
+8	   private String salt = "263BC60258FF4876";
+9	   private String iv = "7E892875A52C59A3B588306B13C31FBD";
+10	   private String pass = "jetpackninja";
+11	   private String encrypted = "AhtqeRhKca1XDRVAXTxqEEYNwpAo4vUqoFayhaH5vmcktJ9WbZTAOBI6e8Ubfg7u1PLfPEBILkVmZgQenapt0vzilnnh2qdSHcLiHbJnUYk=";
     ...
 ```
 
-Next was to write a simple python script to reverse this process.
+Let's write a simple python script to reverse this process.
 
 ```python
 import base64
@@ -138,14 +138,16 @@ c0mp0s3_4nd_r3c0mpos3_y0ur_c1ph3r_1n_k0tl1n!_cf6296332
 Decompiling the apk with jadx-gui we notice that we only have one activity in the `AndroidManifest.xml` file.
 
 ```xml
-<activity
-    android:name="com.example.helloandroid.MainActivity"
-    android:exported="true">
-    <intent-filter>
-        <action android:name="android.intent.action.MAIN"/>
-        <category android:name="android.intent.category.LAUNCHER"/>
-    </intent-filter>
-</activity>
+    ...
+28  <activity
+29	    android:name="com.example.helloandroid.MainActivity"
+30	    android:exported="true">
+31	    <intent-filter>
+32	        <action android:name="android.intent.action.MAIN"/>
+33	        <category android:name="android.intent.category.LAUNCHER"/>
+34	    </intent-filter>
+35  </activity>
+    ...
 ```
 
 The main activity uses the `System.loadLibrary()` java method to load a native library `helloandroid` to the app.
@@ -153,20 +155,20 @@ The main activity uses the `System.loadLibrary()` java method to load a native l
 by the `stringFromJNI()` method. 
 
 ```java
-...
-public class MainActivity extends AbstractActivityC0137j {
     ...
-    static {
-        System.loadLibrary("helloandroid");
-    }
-    ...
-    @Override
-    public void onCreate(Bundle bundle) {
-        ...
-        this.binding.sampleText.setText(stringFromJNI());
-    }
-    public native String stringFromJNI();
-}
+10	public class MainActivity extends AbstractActivityC0137j {
+	   ...
+13	   static {
+14	       System.loadLibrary("helloandroid");
+15	   }
+       ...
+22	   @Override
+23	   public void onCreate(Bundle bundle) {
+           ...
+28	       this.binding.sampleText.setText(stringFromJNI());
+29	   }
+31	   public native String stringFromJNI();
+32	}
 ```
 
 To retrive the binary we use `apktool` to decompile the apk. and navigate to `helloandroid/lib/arm64-v8a` where 
