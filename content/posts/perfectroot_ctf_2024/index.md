@@ -180,7 +180,7 @@ apktool d helloandroid.apk
 
 Decompiling the binary with binary ninja we notice a method that was `neverCalled`. It does some logging
 `Decrypt Success`. All we have to do is call the function and check the logs. There are several ways to
-approach this; but the easy and quick way was to use frida. The other approach can be found here
+approach this; but the easy and quick way is to use frida. The other approach can be found here
  https://developer.android.com/studio/projects/add-native-code
 
 ![img-description](3_3.png)
@@ -220,108 +220,110 @@ Check for the logs to retrieve the flag.
 
 ![img-description](4.png)
 
-Opening the app we are motivated not to give up.
+Opening the app it renders a webview of our favourite song from YouTube.
 
 ![img-description](4_4.png)
 
 Decompiling the apk with jadx-gui we get a intent filter in the MainActivity.
 
 ```xml
-...
-<activity
-    android:name="com.example.spiderview.MainActivity"
-    android:exported="true">
     ...
-    <intent-filter>
-        <category android:name="android.intent.category.DEFAULT"/>
-        <category android:name="android.intent.category.BROWSABLE"/>
-        <data android:host="spiderview"/>
-        <data android:scheme="http"/>
-        <data android:scheme="https"/>
-    </intent-filter>
-</activity>
-...
+29  <activity
+30	    android:name="com.example.spiderview.MainActivity"
+31	    android:exported="true">
+        ...
+36	    <intent-filter>
+37	        <category android:name="android.intent.category.DEFAULT"/>
+38	        <category android:name="android.intent.category.BROWSABLE"/>
+39	        <data android:host="spiderview"/>
+40	        <data android:scheme="http"/>
+41	        <data android:scheme="https"/>
+42	    </intent-filter>
+43  </activity>
+    ...
 ```
 
 This MainActivity retrieves an intent and checks for two possible extras: `viewContent` and `url`. If neither is found, it tries to get the URL from the intent's data; if still not found, it defaults to loading a YouTube link in the WebView https://www.youtube.com/watch?v=dQw4w9WgXcQ. If `viewContent` is available, it loads that content as HTML into the WebView.
 
 ```java
-...
-public class MainActivity extends AbstractActivityC0156j {
     ...
-    @Override
-    public void onCreate(Bundle bundle) {
-        ...
-        Intent intent = getIntent();
-        String stringExtra = intent.getStringExtra("viewContent");
-        if (stringExtra == null) {
-            String stringExtra2 = intent.getStringExtra("url");
-            if (stringExtra2 == null && (data = intent.getData()) != null) {
-                stringExtra2 = data.toString();
-            }
-            if (stringExtra2 != null) {
-                this.webView.loadUrl(stringExtra2);
-                return;
-            } else {
-                this.webView.loadUrl("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
-                return;
-            }
-        }
-        this.webView.loadData(stringExtra, "text/html", "UTF-8");
-    }
-}
+29	public class MainActivity extends AbstractActivityC0156j {
+        ....
+61	   @Override
+62	   public void onCreate(Bundle bundle) {
+            ...
+103	       Intent intent = getIntent();
+104	       String stringExtra = intent.getStringExtra("viewContent");
+105	       if (stringExtra == null) {
+106	           String stringExtra2 = intent.getStringExtra("url");
+107	           if (stringExtra2 == null && (data = intent.getData()) != null) {
+108	               stringExtra2 = data.toString();
+109	           }
+110	           if (stringExtra2 != null) {
+111	               this.webView.loadUrl(stringExtra2);
+112	               return;
+113	           } else {
+114	               this.webView.loadUrl("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+115	               return;
+116	           }
+117	       }
+118	       this.webView.loadData(stringExtra, "text/html", "UTF-8");
+119	   }
+120	}
 ```
 
 `settings.setJavaScriptEnabled(true)` enables JavaScript execution within the WebView. safe browsing features are disabled for Android 8.0 (API level 26) and higher devices to allow for potentially insecure content to load in the WebView.`this.webView.addJavascriptInterface(new SpiderInterface(this), "SpiderView")` creates a bridge between JavaScript running in the WebView and the Android app by adding the `SpiderInterface` class as an accessible object in JavaScript under the name `SpiderView`.
 
 ```java
-...
-public class MainActivity extends AbstractActivityC0156j {
-    private WebView webView;
     ...
-    private void configureWebView() {
-        WebSettings settings = this.webView.getSettings();
-        settings.setJavaScriptEnabled(true);
-        if (Build.VERSION.SDK_INT >= 26) {
-            settings.setSafeBrowsingEnabled(false);
-        }
-        this.webView.setWebChromeClient(new WebChromeClient());
-        this.webView.setWebViewClient(new WebViewClient());
-        this.webView.addJavascriptInterface(new SpiderInterface(this), "SpiderView");
-    }
+29	public class MainActivity extends AbstractActivityC0156j {
+30	   private WebView webView;
+       ...	
+37	   private void configureWebView() {
+38	       WebSettings settings = this.webView.getSettings();
+39	       settings.setJavaScriptEnabled(true);
+40	       if (Build.VERSION.SDK_INT >= 26) {
+41	           settings.setSafeBrowsingEnabled(false);
+42	       }
+43	       this.webView.setWebChromeClient(new WebChromeClient());
+44	       this.webView.setWebViewClient(new WebViewClient());
+45	       this.webView.addJavascriptInterface(new SpiderInterface(this), "SpiderView");
+46	   }
     ...
-}
 ```
 
-`testRunCommand()` decodes a base64-encoded command checks if the command matches a list of `utility` commands.If it does, the command is blocked. If the command is not blocked, it is executed using `Runtime.getRuntime().exec()` which decodes the command.This means we can bypass this using double encoding method.
+`testRunCommand()` decodes a base64-encoded command checks if the command matches a list of `utility` commands.
+If it does, the command is blocked. If the command is not blocked, it is executed using `Runtime.getRuntime().exec()` which decodes 
+the command again.This means we can bypass this using double encoding method.
 
 ```java
-...
-public class SpiderInterface {
-    ...
-    @JavascriptInterface
-    public void testRunCommand(String str) {
-        try {
-            String trim = new String(Base64.decode(str, 0)).trim();
-            if (isUtilityCommand(trim)) {
-                ...
-                Toast.makeText(this.context, "Blocked dangerous command", 0).show();
-                return;
-            }
-            Process exec = Runtime.getRuntime().exec(new String(Base64.decode(trim, 0)).trim());
-            ...
-        }
-    }
-}
+14	public class SpiderInterface {
+       ...
+36	   @JavascriptInterface
+37	   public void testRunCommand(String str) {
+38	       try {
+39	           String trim = new String(Base64.decode(str, 0)).trim();
+40	           if (isUtilityCommand(trim)) {
+	               ...
+42	               Toast.makeText(this.context, "Blocked dangerous command", 0).show();
+43	               return;
+44	           }
+45	           Process exec = Runtime.getRuntime().exec(new String(Base64.decode(trim, 0)).trim());
+               ...
+58	       }
+           ...
+65	   }
+66	}
 ```
 
 These are the filtered commands and we are required to run one of them
 
 ```java
-private boolean isUtilityCommand(String str) {
-    String[] strArr = {"cat", "ls", "echo", "grep", "find", "head", "tail", "wc", "cp", "mv", "rm", "mkdir", "rmdir", "chmod", "chown", "ps", "top", "df", "du", "ifconfig", "ping", "curl", "wget", "scp", "ssh", "man", "nano", "vi", "sed", "awk", "sort", "uniq", "tar", "gzip", "gunzip", "zip", "unzip", "touch", "history"};
-    ...
-}
+21  private boolean isUtilityCommand(String str) {
+22	    String[] strArr = {"cat", "ls", "echo", "grep", "find", "head", "tail", "wc", "cp", "mv", "rm", "mkdir", "rmdir", "chmod", "chown", "ps", "top", "df", "du", "ifconfig", "ping", "curl", "wget", "scp", "ssh", "man", "nano", "vi", "sed", "awk", "sort", "uniq", "tar", "gzip", "gunzip", "zip", "unzip", "touch", "history"};
+        ...
+28	    return false;
+29  }
 ```
 
 Let's create our POC app to run one of the utility commands.
@@ -378,84 +380,88 @@ Opening the apk we get this screen.
 In the `AndroidManifest.xml` file we notice `HuntersPortal` is not exported, meaning it can't be launched by other apps. `HuntersService` is enabled but not exported, so it can only be used internally within the app. `MainActivity` has two intent filters, one for launching the app and one for handling `VIEW` intents from other apps.
 
 ```xml
-...
-<activity
-    android:name="com.example.hunterx.HuntersPortal"
-    android:exported="false"/>
-<service
-    android:name="com.example.hunterx.HuntersService"
-    android:enabled="true"
-    android:exported="false"/>
-<activity
-    android:name="com.example.hunterx.MainActivity"
-    android:exported="true">
-    <intent-filter>
-        <action android:name="android.intent.action.MAIN"/>
-        <category android:name="android.intent.category.LAUNCHER"/>
-    </intent-filter>
-    <intent-filter>
-        <action android:name="android.intent.action.VIEW"/>
-        <category android:name="android.intent.category.DEFAULT"/>
-    </intent-filter>
-</activity>
-...
+    ...
+28  <activity
+29	    android:name="com.example.hunterx.HuntersPortal"
+30	    android:exported="false"/>
+31  <service
+32	    android:name="com.example.hunterx.HuntersService"
+33	    android:enabled="true"
+34	    android:exported="false"/>
+35  <activity
+36	    android:name="com.example.hunterx.MainActivity"
+37	    android:exported="true">
+38	    <intent-filter>
+39	        <action android:name="android.intent.action.MAIN"/>
+40	        <category android:name="android.intent.category.LAUNCHER"/>
+41	    </intent-filter>
+42	    <intent-filter>
+43	        <action android:name="android.intent.action.VIEW"/>
+44	        <category android:name="android.intent.category.DEFAULT"/>
+45	    </intent-filter>
+46  </activity>
+    ...
 ```
 
-MainActivity retrieves the incoming intent with `getIntent()` and checks if it contains an `action` and a parcelable extra named `nextIntent`. If both conditions are met, it starts a new activity `startActivity()` using the Intent object stored in the `nextIntent` extra hence an Intent Redirection vulnerability.
+MainActivity retrieves the incoming intent with `getIntent()` and checks if it contains an `action` and a parcelable 
+extra named `nextIntent`. If both conditions are met, it starts a new activity `startActivity()` using the Intent object 
+stored in the `nextIntent` extra hence an Intent redirection vulnerability.
 
 ```java
-...
-public class MainActivity extends AbstractActivityC0156j {
     ...
-    @Override
-    public void onCreate(Bundle bundle) {
-        ...
-        Intent intent = getIntent();
-        if (intent.getAction() != null && intent.getParcelableExtra("nextIntent") != null) {
-            startActivity((Intent) intent.getParcelableExtra("nextIntent"));
-        }
-    }
-}
+16	public class MainActivity extends AbstractActivityC0156j {
+       ...	
+23	   @Override
+24	   public void onCreate(Bundle bundle) {
+           ...
+32	       Intent intent = getIntent();
+33	       if (intent.getAction() != null && intent.getParcelableExtra("nextIntent") != null) {
+34	           startActivity((Intent) intent.getParcelableExtra("nextIntent"));
+35	       }
+36	   }
+37	}
 ```
 
-The `HuntersPortal` activity retrieves the incoming intent using `getIntent()`, checks if the `action` is `ProHunter`, and if so, updates the `TextView` and also starts a service `startService()` using the `nextIntent` parcelable extra from the intent hence another Intent Redirection vulnerability.
+The `HuntersPortal` activity retrieves the incoming intent using `getIntent()`, checks if the `action` is `ProHunter`, 
+and if so, updates the `TextView` and also starts a service `startService()` using the `nextIntent` parcelable extra from 
+the intent hence another Intent redirection vulnerability.
 
 ```java
-...
-public class HuntersPortal extends AbstractActivityC0156j {
     ...
-    @Override
-    public void onCreate(Bundle bundle) {
-        ...
-        Intent intent = getIntent();
-        String action = intent.getAction();
-        if (action != null && action.equals("ProHunter")) {
-            textView.setText("This is the way of the Pro Hunters");
-            startService((Intent) intent.getParcelableExtra("nextIntent"));
-        }
-    }
-}
+17	public class HuntersPortal extends AbstractActivityC0156j {
+       ...
+24	   @Override
+25	   public void onCreate(Bundle bundle) {
+           ...
+34	       Intent intent = getIntent();
+35	       String action = intent.getAction();
+36	       if (action != null && action.equals("ProHunter")) {
+37	           textView.setText("This is the way of the Pro Hunters");
+38	           startService((Intent) intent.getParcelableExtra("nextIntent"));
+39	       }
+40	   }
+41	}
 ```
 `HuntersService` service `onStartCommand()` function checks for an incoming intent with the extra `run` and decodes its Base64 string to execute it as a command. It starts a new thread to run the command, processes its output, and logs the results while showing a success toast.
 
 ```java
-...
-public class HuntersService extends Service {
-    @Override
-    public int onStartCommand(Intent intent, int i2, int i3) {
-        Log.d("ill make sure i remove this in the production", "onStartCommand: ");
-        if (intent != null && intent.getStringExtra("run") != null) {
-            try {
-                ...
-                new Thread(new o(this, i4, Runtime.getRuntime().exec(new String(Base64.decode(intent.getStringExtra("run"), 0)).trim()))).start();
-                ...
-            } catch (IOException e2) {
-                ...
-            }
-        }
-        ...
-    }
-}
+    ...
+17	public class HuntersService extends Service {
+91	   @Override
+92	   public int onStartCommand(Intent intent, int i2, int i3) {
+93	       Log.d("ill make sure i remove this in the production", "onStartCommand: ");
+94	       if (intent != null && intent.getStringExtra("run") != null) {
+95	           try {
+96	               int i4 = 5;
+97	               new Thread(new o(this, i4, Runtime.getRuntime().exec(new String(Base64.decode(intent.getStringExtra("run"), 0)).trim()))).start();
+98	               return 1;
+99	           } catch (IOException e2) {
+                   ...
+102	           }
+103	       }
+104	       return 1;
+105	   }
+106	}
 ```
 
 Lets now create our poc apk to run a command.
@@ -526,69 +532,94 @@ We run the exploit and click the button to trigger the exploit. Intent redirecti
 kind of content provider that facilitates secure sharing of files between an app and other apps by generating content URIs for files, `android:grantUriPermissions="true"` Allows the app to grant temporary permissions to other apps for accessing the files through the FileProvider. `android:name="android.support.FILE_PROVIDER_PATHS"` Specifies that this FileProvider uses a filepaths XML resource file to define which files/directories can be shared.`android:resource="@xml/filepaths"` Points to the filepaths.xml file in the res/xml directory. This file defines the locations of the files or directories that the FileProvider can access and share.
 
 ```xml
-<activity
-    android:name="com.example.unchartedpath.UnchartedPathActivity"
-    android:exported="true"/>
-<activity
-    android:name="com.example.unchartedpath.MainActivity"
-    android:exported="true">
-    <intent-filter>
-        <action android:name="android.intent.action.MAIN"/>
-        <category android:name="android.intent.category.LAUNCHER"/>
-    </intent-filter>
-</activity>
-<provider
-    android:name="androidx.core.content.FileProvider"
-    android:exported="false"
-    android:authorities="com.unchartedpath.fileprovider"
-    android:grantUriPermissions="true">
-    <meta-data
-        android:name="android.support.FILE_PROVIDER_PATHS"
-        android:resource="@xml/filepaths"/>
-</provider>
+    ...
+28  <activity
+29	    android:name="com.example.unchartedpath.UnchartedPathActivity"
+30	    android:exported="true"/>
+31  <activity
+32	    android:name="com.example.unchartedpath.MainActivity"
+33	    android:exported="true">
+34	    <intent-filter>
+35	        <action android:name="android.intent.action.MAIN"/>
+36	        <category android:name="android.intent.category.LAUNCHER"/>
+37	    </intent-filter>
+38  </activity>
+39  <provider
+40	    android:name="androidx.core.content.FileProvider"
+41	    android:exported="false"
+42	    android:authorities="com.unchartedpath.fileprovider"
+43	    android:grantUriPermissions="true">
+44	    <meta-data
+45	        android:name="android.support.FILE_PROVIDER_PATHS"
+46	        android:resource="@xml/filepaths"/>
+47  </provider>
+    ...
 ```
-
-`path="/"` Specifies the root of the file system (/). This gives access to the entire file system, including sensitive directories such as /system, /data, and /sdcard which is dangerous.
+opening `filepaths.xml` located at `res/xml/`; `path="/"` Specifies the root of the file system (/). 
+This gives access to the entire file system, including sensitive directories such as /system, /data, and /sdcard which is dangerous.
 
 ```xml
-<?xml version="1.0" encoding="utf-8"?>
-<paths>
-    <root-path
-        name="root_files"
-        path="/"/>
-</paths>
+1   <?xml version="1.0" encoding="utf-8"?>
+2	<paths>
+3	   <root-path
+4	       name="root_files"
+5	       path="/"/>
+6	</paths>
 ```
 
-Retrieves the filename passed as an extra in the Intent that started this activity. A File object is then created pointing to a file in the app's internal files directory `getFilesDir()`, appending the filename. A custom FileProvider object `C0362d` is initialized with the app context and authority `com.unchartedpath.fileprovider`. This object manages file paths and their mappings to `content:// URIs`.If a matching root is found its Constructs a content:// URI using the root's authority `c2.f3932a` and the relative path. Lastly an Intent is created, sets the content:// URI as its data, and adds permission flags to `3`. Sets the activity result so that the caller can retrieve the URI and the permissions.
+`MainActivity` creates a SharedPreference `treasure_preference` and sets the value `Libertalia` to `false`;
 
 ```java
-...
-public class UnchartedPathActivity extends AbstractActivityC0156j {
     ...
-    @Override
-    public void onCreate(Bundle bundle) {
-        ...
-        String stringExtra = getIntent().getStringExtra("filename");
-        if (stringExtra != null) {
-            File file = new File(getFilesDir(), stringExtra);
-            C0362d c2 = FileProvider.c(this, "com.unchartedpath.fileprovider");
-            try {
-                ...
-                if (entry != null) {
-                    ...
-                    Uri build = new Uri.Builder().scheme("content").authority(c2.f3932a).encodedPath(Uri.encode((String) entry.getKey()) + '/' + Uri.encode(substring, "/")).build();
-                    Intent intent = new Intent();
-                    intent.setData(build);
-                    intent.addFlags(3);
-                    setResult(0, intent);
-                    return;
-                }
-                ...
-            } 
-        }
-        textView.setText("The path is Long and dangerous");
-    }
-}
+16	public class MainActivity extends AbstractActivityC0156j {
+       ...
+23	   @Override
+24	   public void onCreate(Bundle bundle) {
+           ...
+32	       SharedPreferences.Editor edit = getSharedPreferences("treasure_preference", 0).edit();
+33	       edit.putBoolean("Libertalia", false);
+34	       edit.apply();
+35	   }
+36	}
+```
+
+`UnchartedPathActivity` retrieves the filename passed as an extra in the Intent that started this activity. 
+A File object is then created pointing to a file in the app's internal files directory `getFilesDir()`, appending the filename.
+A custom FileProvider object `C0362d` is initialized with the app context and authority `com.unchartedpath.fileprovider`. 
+This object manages file paths and their mappings to `content:// URIs`.If a matching root is found its Constructs a content:// 
+URI using the root's authority `c2.f3932a` and the relative path. Lastly an Intent is created, sets the content:// URI as its 
+data, and adds permission flags to `3`. Sets the activity result so that the caller can retrieve the URI and the permissions.
+
+```java
+    ...
+23	public class UnchartedPathActivity extends AbstractActivityC0156j {
+       ...
+30	   @Override
+31	   public void onCreate(Bundle bundle) {
+           ...
+41	       String stringExtra = getIntent().getStringExtra("filename");
+42	       if (stringExtra != null) {
+43	           File file = new File(getFilesDir(), stringExtra);
+44	           C0362d c2 = FileProvider.c(this, "com.unchartedpath.fileprovider");
+45	           try {
+                   ...
+54	               if (entry != null) {
+                       ...
+61	                   Uri build = new Uri.Builder().scheme("content").authority(c2.f3932a).encodedPath(Uri.encode((String) entry.getKey()) + '/' + Uri.encode(substring, "/")).build();
+62	                   Intent intent = new Intent();
+63	                   intent.setData(build);
+64	                   intent.addFlags(3);
+65	                   setResult(0, intent);
+66	                   return;
+67	               }
+68	               throw new IllegalArgumentException("Failed to find configured root that contains " + canonicalPath);
+69	           } catch (IOException unused) {
+70	               throw new IllegalArgumentException("Failed to resolve canonical path for " + file);
+71	           }
+72	       }
+73	       textView.setText("The path is Long and dangerous");
+74	   }
+75	}
 ```
 
 Looking at the permissions in android studio we notice that we get both read `0x00000001` and write `0x00000002` which gives `3` . 
