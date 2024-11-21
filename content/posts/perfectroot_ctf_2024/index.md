@@ -155,7 +155,7 @@ Enter your choice: $
 
 # Android
 
-> For challenges that need a proof of concept (POC), I expected you to create an app and share the relevant code. The reason is simple: to exploit another Android app, you can’t rely on convincing a user to run ADB commands on their device. However, you can persuade them to install a legitimate-looking app from the Google Play Store and click a button that triggers the exploit.
+> For the proof of concept (POC) challenges, I expected you to create an app and share the relevant code. The reason is simple: to exploit another Android app, you can’t rely on convincing a user to run ADB commands on their device. However, you can persuade them to install a legitimate-looking app from the Google Play Store and click a button that triggers the exploit.
 
 ## Dash
 
