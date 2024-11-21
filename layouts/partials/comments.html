@@ -23,6 +23,51 @@ or whatever comment engine you want -> https://gohugo.io/content-management/comm
         async>
 </script> -->
 
+<!-- <div class="commentbox"></div>
+<script src="https://unpkg.com/commentbox.io/dist/commentBox.min.js"></script>
+<script>commentBox('5679436808585216-proj')</script> -->
+
 <div class="commentbox"></div>
 <script src="https://unpkg.com/commentbox.io/dist/commentBox.min.js"></script>
-<script>commentBox('5679436808585216-proj')</script>
+<script>
+  // Initialize commentBox
+  commentBox('5679436808585216-proj');
+
+  // Wait for the comment box iframe to load, then apply dark mode styles
+  window.addEventListener('load', function () {
+    const iframe = document.querySelector('.commentbox iframe');
+    
+    // Ensure iframe is available before applying styles
+    if (iframe) {
+      const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+
+      // Apply dark mode styles inline inside the iframe
+      const style = iframeDocument.createElement('style');
+      style.innerHTML = `
+        body {
+          background-color: #333 !important;
+          color: #ccc !important;
+        }
+        .commentbox-comments {
+          background-color: #444 !important;
+        }
+        .commentbox-comment {
+          background-color: #555 !important;
+          border-color: #666 !important;
+        }
+        .commentbox input, .commentbox textarea {
+          background-color: #222 !important;
+          color: #ccc !important;
+          border: 1px solid #444 !important;
+        }
+        .commentbox button {
+          background-color: #666 !important;
+          color: #fff !important;
+        }
+      `;
+      
+      // Append the style tag to the iframe's head
+      iframeDocument.head.appendChild(style);
+    }
+  });
+</script>

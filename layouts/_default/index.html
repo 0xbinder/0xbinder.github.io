@@ -10,6 +10,22 @@
   </title>
   {{ end }}
   {{ partial "head.html" . }}
+  <style>
+    body {
+      background-color: rgb(0, 0, 0);
+      color: rgb(255, 255, 255);
+    }
+
+    code,
+    pre {
+      color: rgb(200, 200, 200);
+      /* Light gray for code */
+      background-color: rgb(41, 39, 39);
+      /* Dark background for code */
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+  </style>
 </head>
 
 <body {{ with $.Site.Params.defaultTheme -}} class="{{ printf " %s-theme" . }}" {{- end }}>
