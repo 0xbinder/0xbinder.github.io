@@ -644,7 +644,7 @@ data, and adds permission flags to `3`. Sets the activity result so that the cal
 ```
 
 Looking at the permissions in android studio we notice that we get both read `0x00000001` and write `0x00000002` which gives `3` . 
-This means we can read and write any file in the whole system of android where this app is installed.
+This means we can read and write any file in the whole file system of android where this app is installed.
 
 ![img-description](6_4.png)
 
