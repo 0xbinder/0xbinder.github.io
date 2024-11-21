@@ -108,4 +108,4 @@ These zombies really used their BRAINS to BYTE the system.
 
 ![yay](joke.gif)
 
-![img-description](/img/cert/HTB2023.png)
+<!-- ![img-description](/img/cert/HTB2023.png) -->

@@ -216,4 +216,4 @@ Password:
 root@codify:/tmp#
 ```
 
-![img-description](3.png)
+<!-- ![img-description](3.png) -->

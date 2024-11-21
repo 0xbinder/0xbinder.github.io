@@ -230,4 +230,4 @@ There we go an XSS to RCE Exploitation.
 
 > We can also create a malicious mobile app and send the same intent to the `MainActivity` of the vulnerable app. The malicious app needs to be uploaded in the same device for it to work.
 
-![img-description](4.png)
+<!-- ![img-description](4.png) -->
