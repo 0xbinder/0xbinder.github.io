@@ -811,7 +811,7 @@ Further investigating the code at Line number `53` we notice a field of an objec
 76	}
 ```
 
-Blutter tools creates a frida script automatically for us named `blutter_frida.js`.  We set `const fn_addr` to `0x29ce0c` at line number 6 to the address loading the object; and leave the rest of the code as it is.
+Blutter tools creates a frida script automatically for us named `blutter_frida.js`.  We set `const fn_addr` to `0x29ce0c` at line number `6` to the address loading the object.
 
 ```js
    ...
