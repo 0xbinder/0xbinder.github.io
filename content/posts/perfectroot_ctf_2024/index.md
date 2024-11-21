@@ -101,8 +101,7 @@ Finally what we have to do is calculate the distance between `rax_2` and `rax_3`
 `theForce()` function using the buffer overflow. Since the pointers are leaked all we have to do is 
 `int_function_address - int_data_address` to get the offset.
 
-```python
-  GNU nano 8.2                                                               exploit.py                                                                         
+```python                                                                      
 from pwn import *
 
 filename = "heap_wars"
