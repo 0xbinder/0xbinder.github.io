@@ -189,7 +189,7 @@ We open the app and click the button. Finally we get the flag
 ![img-description](13.png)
 
 #### Second method
-We can use frida script to change the true variable to false using a custom script Thanks to madbit for the script 
+We can use frida script to change the true variable to false using a custom script
 ```javascript
 Java.perform(function () {
     var MainActivity = Java.use('com.bsidesnrb.watchdog.MainActivity');

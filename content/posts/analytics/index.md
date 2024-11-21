@@ -198,4 +198,4 @@ metalytics@analytics:~$ ./exploit
 bash-5.1#
 ```
 
-![img-description](3.png)
+<!-- ![img-description](3.png) -->

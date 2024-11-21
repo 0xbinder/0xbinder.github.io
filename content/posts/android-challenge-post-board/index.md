@@ -4,7 +4,7 @@ layout: post
 title: Lab - Post Board
 date: '2024-01-22'
 description: "Investigate a Android app where you can post messages with exploitable WebView functionalities."
-cover: featured.png
+# cover: featured.png
 useRelativeCover: true
 categories: [Mobile Hacking Lab]
 ---
@@ -230,4 +230,4 @@ There we go an XSS to RCE Exploitation.
 
 > We can also create a malicious mobile app and send the same intent to the `MainActivity` of the vulnerable app. The malicious app needs to be uploaded in the same device for it to work.
 
-![img-description](4.png)
+<!-- ![img-description](4.png) -->

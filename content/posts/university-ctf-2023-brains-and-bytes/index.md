@@ -3,7 +3,7 @@ layout: post
 author: pl4int3xt
 title: University CTF 2023:Brains and bytes
 date: '2023-12-10'
-cover: img/cover_images/47.jpg
+# cover: img/cover_images/47.jpg
 description: "Hack the box university ctf 2023: Brains and bytes"
 categories: [Capture The Flag]
 ---
@@ -108,4 +108,4 @@ These zombies really used their BRAINS to BYTE the system.
 
 ![yay](joke.gif)
 
-![img-description](/img/cert/HTB2023.png)
+<!-- ![img-description](/img/cert/HTB2023.png) -->

@@ -3,7 +3,7 @@ author: pl4int3xt
 layout: post
 title: Iris ctf 2024
 date: '2024-01-06'
-cover: img/cover_images/48.png
+# cover: img/cover_images/48.png
 description: "Iris ctf 2024"
 categories: [Capture The Flag]
 ---
