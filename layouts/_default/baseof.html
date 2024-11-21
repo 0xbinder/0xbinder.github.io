@@ -1,35 +1,55 @@
 <!DOCTYPE html>
 <html lang="{{ $.Site.Language }}">
-  <head>
-    {{ block "title" . }}
-      <title>
-        {{ if .IsHome }}{{ $.Site.Title }}{{ with $.Site.Params.Subtitle }} —
-        {{ . }}{{ end }}{{ else }}{{ .Title }} ::
-        {{ $.Site.Title }}{{ with $.Site.Params.Subtitle }} — {{ . }}{{ end }}{{ end }}
-      </title>
-    {{ end }}
-    {{ partial "head.html" . }}
-  </head>
-  <body {{ with $.Site.Params.defaultTheme -}} class="{{ printf "%s-theme" . }}" {{- end }}>
-    <div class="container">
-      {{ partial "header.html" . }}
 
-      <div class="content">
-        {{ block "main" . }} {{ end }}
-      </div>
+<head>
+  {{ block "title" . }}
+  <title>
+    {{ if .IsHome }}{{ $.Site.Title }}{{ with $.Site.Params.Subtitle }} —
+    {{ . }}{{ end }}{{ else }}{{ .Title }} ::
+    {{ $.Site.Title }}{{ with $.Site.Params.Subtitle }} — {{ . }}{{ end }}{{ end }}
+  </title>
+  {{ end }}
+  {{ partial "head.html" . }}
 
-      {{ block "footer" . }}
-        {{ partial "footer.html" . }}
-      {{ end }}
+  <style>
+    body {
+      background-color: rgb(0, 0, 0);
+      color: rgb(255, 255, 255);
+    }
+
+    code,
+    pre {
+      color: rgb(200, 200, 200);
+      /* Light gray for code */
+      background-color: rgb(41, 39, 39);
+      /* Dark background for code */
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+
+<body {{ with $.Site.Params.defaultTheme -}} class="{{ printf " %s-theme" . }}" {{- end }}>
+  <div class="container">
+    {{ partial "header.html" . }}
+
+    <div class="content">
+      {{ block "main" . }} {{ end }}
     </div>
 
-    {{ if $.Site.Config.Services.GoogleAnalytics.ID }}
-      {{ template "_internal/google_analytics.html" . }}
+    {{ block "footer" . }}
+    {{ partial "footer.html" . }}
     {{ end }}
-  </body>
-    <!-- buy me a coffee -->
-    <script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"
-      data-id="pl4int3xt" data-description="Support me on Buy me a coffee!" data-message=""
-      data-color="#ff008e" data-position="Left" data-x_margin="18" data-y_margin="18">
-    </script>
+  </div>
+
+  {{ if $.Site.Config.Services.GoogleAnalytics.ID }}
+  {{ template "_internal/google_analytics.html" . }}
+  {{ end }}
+</body>
+<!-- buy me a coffee -->
+<script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"
+  data-id="pl4int3xt" data-description="Support me on Buy me a coffee!" data-message="" data-color="#ff008e"
+  data-position="Left" data-x_margin="18" data-y_margin="18">
+  </script>
+
 </html>
