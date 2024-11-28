@@ -9,6 +9,8 @@ useRelativeCover: true
 categories: [Mobile Hacking Lab]
 ---
 
+![img-description](featured.png)
+
 ## Introduction
 Welcome to the Cyclic Scanner Challenge! This lab is designed to mimic real-world scenarios where vulnerabilities within Android services lead to exploitable situations. Participants will have the opportunity to exploit these vulnerabilities to achieve remote code execution (RCE) on an Android device.
 ## Objective

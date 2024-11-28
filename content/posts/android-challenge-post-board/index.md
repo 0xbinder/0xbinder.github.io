@@ -9,6 +9,8 @@ useRelativeCover: true
 categories: [Mobile Hacking Lab]
 ---
 
+![img-description](featured.png)
+
 ## Outline
 
 This challenge is designed to delve into the complexities of Android's WebView component, exploiting a Cross-Site Scripting (XSS) vulnerability to achieve Remote Code Execution (RCE). It's a great opportunity to engage with Android application security focusing on WebView security issues.
