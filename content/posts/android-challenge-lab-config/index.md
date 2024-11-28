@@ -9,6 +9,8 @@ useRelativeCover: true
 categories: [Mobile Hacking Lab]
 ---
 
+![img-description](featured.png)
+
 ## Introduction
 
 Welcome to the Config Editor Challenge! In this lab, you'll dive into a realistic situation involving vulnerabilities in a widely-used third-party library. Your objective is to exploit a library-induced vulnerability to achieve RCE on an Android application.
