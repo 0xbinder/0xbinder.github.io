@@ -1,5 +1,5 @@
 ---
-author: pl4int3xt
+author: 0xbinder
 layout: post
 title: SSL Pinning bypass
 date: '2023-10-05 16:29:36 +0800'

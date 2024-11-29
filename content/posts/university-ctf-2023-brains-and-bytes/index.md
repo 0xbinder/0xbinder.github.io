@@ -1,6 +1,6 @@
 ---
 layout: post
-author: pl4int3xt
+author: 0xbinder
 title: University CTF 2023:Brains and bytes
 date: '2023-12-10'
 # cover: img/cover_images/47.jpg

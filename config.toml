@@ -1,4 +1,4 @@
-#baseurl = "/pl4int3xt.github.io"
+#baseurl = "/0xbinder.github.io"
 languageCode = "en-us"
 paginate = 5
 
@@ -37,7 +37,7 @@ paginate = 5
 
   [[params.social]]
     name = "twitter"
-    url  = "https://twitter.com/pl4int3xt_404"
+    url  = "https://twitter.com/0xbinder_404"
 
   [[params.social]]
     name = "email"
@@ -45,7 +45,7 @@ paginate = 5
 
   [[params.social]]
     name = "github"
-    url  = "https://github.com/pl4int3xt"
+    url  = "https://github.com/0xbinder"
 
   [[params.social]]
     name = "linkedin"
@@ -74,7 +74,7 @@ paginate = 5
     # lastModDisplay = "Last Modified"
 
     [languages.en.params.logo]
-      logoText = "pl4int3xt"
+      logoText = "0xbinder"
       logoHomeLink = "/"
     # or
     #

