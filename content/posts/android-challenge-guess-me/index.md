@@ -1,5 +1,5 @@
 ---
-author: pl4int3xt
+author: 0xbinder
 layout: post
 title: Lab - Guess Me
 date: '2024-11-28'

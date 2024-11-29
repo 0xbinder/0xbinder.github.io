@@ -1,5 +1,5 @@
 ---
-author: pl4int3xt
+author: 0xbinder
 layout: post
 title: Africa battleCTF 2024
 date: '2024-10-18'

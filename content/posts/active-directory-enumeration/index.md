@@ -1,5 +1,5 @@
 ---
-author: pl4int3xt
+author: 0xbinder
 layout: post
 title: Active Directory Enumeration
 date: '2023-11-13 05:53:29 +0300'
@@ -145,7 +145,7 @@ kerbrute userenum -d INLANEFREIGHT.LOCAL --dc 172.16.5.5 jsmith.txt -o valid_ad_
 ```
 ### NTLM Creds
 ```bash
-sudo mount -t cifs -o 'user=pl4int3xt' //10.10.10.100/Department /mnt/sync
+sudo mount -t cifs -o 'user=0xbinder' //10.10.10.100/Department /mnt/sync
 ls /mnt/sync -laR
 ```
 [smcacls documentation](https://lists.samba.org/archive/samba-technical/2010-June/071390.html)
@@ -237,7 +237,7 @@ sudo umount ~/Documents/target-NFS/
 ```
 ## RDP pth
 ```bash
-xfreerdp /v:172.16.5.35 /u:mlefay /p:'Plain Human work!' /drive:linux,/home/pl4int3xt /dynamic-resolution
+xfreerdp /v:172.16.5.35 /u:mlefay /p:'Plain Human work!' /drive:linux,/home/0xbinder /dynamic-resolution
 xfreerdp /u:cry0l1t3 /p:"P455w0rd!" /v:10.129.201.248
 rdesktop -u admin -p password123 192.168.2.143
 HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Lsa   DisableRestrictedAdmin

@@ -1,5 +1,5 @@
 ---
-author: pl4int3xt
+author: 0xbinder
 layout: post
 title: BSides Nairobi 2023 Cyber Challenge
 date: '2023-11-04 12:46:04 +0300'

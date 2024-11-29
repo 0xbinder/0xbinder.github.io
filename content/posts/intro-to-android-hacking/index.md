@@ -1,5 +1,5 @@
 ---
-author: pl4int3xt
+author: 0xbinder
 layout: post
 title: Getting started with android hacking
 date: '2023-10-04'

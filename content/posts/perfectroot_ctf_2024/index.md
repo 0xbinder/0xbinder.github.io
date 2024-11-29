@@ -1,5 +1,5 @@
 ---
-author: pl4int3xt
+author: 0xbinder
 layout: post
 title: p3rf3ctr00t CTF 2024
 date: '2024-11-18'

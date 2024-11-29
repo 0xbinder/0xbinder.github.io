@@ -1,5 +1,5 @@
 ---
-author: pl4int3xt
+author: 0xbinder
 layout: post
 title: Glacier CTF 2023
 date: '2023-11-25 10:44:23 +0300'

