@@ -1,4 +1,4 @@
----
+<!-- ---
 author: 0xbinder
 layout: post
 title: Lab - Note Keeper
@@ -57,7 +57,7 @@ public static final void showDialogue$lambda$1(EditText $ed_title, EditText $ed_
 }
 ```
 
-https://gnutoolchains.com/android/
+https://github.com/kruglinski/gdbserver
 
 ```
 adb push gdbserver /data/local/tmp
@@ -67,6 +67,47 @@ adb push gdbserver /data/local/tmp
 plaintext@archlinux ~/D/mobilehackinglabs> adb shell ps | grep com.mobilehackinglab.notekeeper
 u0_a451      29500  1034 5258252 100468 0                   0 S com.mobilehackinglab.notekeeper
 ```
+
+```
+gdbserver :1337 --attach 434
+```
+
+In order to find debug information/symbols you’ll need all libraries in your device/emulator to be copied to your PC. Gdb will need them later on.
+
+```
+plaintext@archlinux ~/D/mobilehackinglabs> adb pull /system/lib ./dbglib/
+```
+
+```
+plaintext@archlinux ~/D/mobilehackinglabs> cp com.mobilehackinglab.notekeeper/lib/arm64-v8a/libnotekeeper.so ./dbglib/lib/
+```
+
+```
+adb forward tcp:1337 tcp:1337
+```
+
+Launch the app, but do not trigger the execution of the native code. Become root, disable SELinux and attach gdb to the running process of your app with packagename 
+
+```
+adb shell
+# su
+# setenforce 0
+```
+
+```
+target remote :1337 
+```
+
+```
+set solib-search-path ~/dbgtmp/lib
+info sharedlibrary
+```
+
+```
+break
+```
+
+https://github.com/SaberMod/android_prebuilts_gcc_linux-x86_arm_sabermod-arm-linux-androideabi-4.9/blob/master/bin/arm-linux-androideabi-gdb
 
 ```c
 undefined8 Java_com_mobilehackinglab_notekeeper_MainActivity_parse(_JNIEnv *param_1,undefined8 param_2,_jstring *param_3){
@@ -100,4 +141,4 @@ undefined8 Java_com_mobilehackinglab_notekeeper_MainActivity_parse(_JNIEnv *para
   }
   return local_28;
 }
-```
+``` -->
