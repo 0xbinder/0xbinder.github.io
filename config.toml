@@ -1,100 +1,100 @@
 #baseurl = "/0xbinder.github.io"
 languageCode = "en-us"
+[pagination]
 paginate = 5
-
 [params]
-  backgroundImage = "/img/main.jpg"
-  # dir name of your blog content (default is `content/posts`).
-  # the list of set content will show up on your index page (baseurl).
-  contentTypeName = "posts"
+backgroundImage = "/img/main.jpg"
+# dir name of your blog content (default is `content/posts`).
+# the list of set content will show up on your index page (baseurl).
+contentTypeName = "posts"
 
-  # OS theme is default when not provided, but you can force it to "light" or "dark"
-  defaultTheme = "dark"
+# OS theme is default when not provided, but you can force it to "light" or "dark"
+defaultTheme = "dark"
 
-  # if you set this to 0, only submenu trigger will be visible
-  showMenuItems = 6
+# if you set this to 0, only submenu trigger will be visible
+showMenuItems = 6
 
-  # Show reading time in minutes for posts
-  showReadingTime = true
+# Show reading time in minutes for posts
+showReadingTime = true
 
-  # Show table of contents at the top of your posts (defaults to false)
-  # Alternatively, add this param to post front matter for specific posts
-  # toc = true
+# Show table of contents at the top of your posts (defaults to false)
+# Alternatively, add this param to post front matter for specific posts
+# toc = true
 
-  # Show full page content in RSS feed items
-  #(default is Description or Summary metadata in the front matter)
-  # rssFullText = true
+# Show full page content in RSS feed items
+#(default is Description or Summary metadata in the front matter)
+# rssFullText = true
 
 [taxonomies]
-  tag = "tags"
-  category = "categories"
-  publication_type = "publication_types"
-  author = "authors"
+tag = "tags"
+category = "categories"
+publication_type = "publication_types"
+author = "authors"
 
 ###############################################################
 ##### social icons
 ###############################################
 
-  [[params.social]]
-    name = "twitter"
-    url  = "https://twitter.com/0xbinder_404"
+[[params.social]]
+name = "twitter"
+url = "https://twitter.com/0xbinder_404"
 
-  [[params.social]]
-    name = "email"
-    url  = "mailto:benjahjp@gmail.com"
+[[params.social]]
+name = "email"
+url = "mailto:benjahjp@gmail.com"
 
-  [[params.social]]
-    name = "github"
-    url  = "https://github.com/0xbinder"
+[[params.social]]
+name = "github"
+url = "https://github.com/0xbinder"
 
-  [[params.social]]
-    name = "linkedin"
-    url  = "https://www.linkedin.com/in/benjamin-muthui"
+[[params.social]]
+name = "linkedin"
+url = "https://www.linkedin.com/in/benjamin-muthui"
 
-  [[params.social]]
-    name = "stackoverflow"
-    url  = "https://stackoverflow.com/users/17707765/muthui"
+[[params.social]]
+name = "stackoverflow"
+url = "https://stackoverflow.com/users/17707765/muthui"
 
 [languages]
-  [languages.en.params]
-    title = "0xBinder"
-    # subtitle = ""
-    keywords = ""
-    copyright = ""
-    menuMore = "Show more"
-    writtenBy = "Written by"
-    readMore = "Read more"
-    readOtherPosts = "Read other posts"
-    newerPosts = "Newer posts"
-    olderPosts = "Older posts"
-    minuteReadingTime = "min read"
-    dateFormatSingle = "2006-01-02"
-    dateFormatList = "2006-01-02"
-    # leave empty to disable, enter display text to enable
-    # lastModDisplay = "Last Modified"
+[languages.en.params]
+title = "0xBinder"
+# subtitle = ""
+keywords = ""
+copyright = ""
+menuMore = "Show more"
+writtenBy = "Written by"
+readMore = "Read more"
+readOtherPosts = "Read other posts"
+newerPosts = "Newer posts"
+olderPosts = "Older posts"
+minuteReadingTime = "min read"
+dateFormatSingle = "2006-01-02"
+dateFormatList = "2006-01-02"
+# leave empty to disable, enter display text to enable
+# lastModDisplay = "Last Modified"
 
-    [languages.en.params.logo]
-      logoText = "0xbinder"
-      logoHomeLink = "/"
-    # or
-    #
-    # path = "/img/your-example-logo.svg"
-    # alt = "Your example logo alt text"
+[languages.en.params.logo]
+logoText = "0xbinder"
+logoHomeLink = "/"
+# or
+#
+# path = "/img/your-example-logo.svg"
+# alt = "Your example logo alt text"
 
-    [languages.en.menu]
-      [[languages.en.menu.main]]
-        identifier = "posts"
-        name = "posts"
-        url = "/posts"
-      [[languages.en.menu.main]]
-        identifier = "archive"
-        name = "archive"
-        url = "/archive"
-      [[languages.en.menu.main]]
-        identifier = "categories"
-        name = "categories"
-        url = "/categories"
-      [[languages.en.menu.main]]
-        identifier = "tags"
-        name = "tags"
-        url = "/tags"
+[languages.en.menu]
+[[languages.en.menu.main]]
+identifier = "posts"
+name = "posts"
+url = "/posts"
+[[languages.en.menu.main]]
+identifier = "archive"
+name = "archive"
+url = "/archive"
+[[languages.en.menu.main]]
+identifier = "categories"
+name = "categories"
+url = "/categories"
+[[languages.en.menu.main]]
+identifier = "tags"
+name = "tags"
+url = "/tags"
