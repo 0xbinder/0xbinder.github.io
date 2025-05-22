@@ -11,8 +11,6 @@ categories: [Capture The Flag]
 # ANDROID
 ## Inviscible
 
-https://github.com/0xbinder/BitCTF-2025/raw/refs/heads/main/invincible.aab
-
 We are provided with an Android App Bundle `invincible.aab`, a publishing format introduced by Google. Unlike APK files, it is not directly installable because it serves as a bundle of compiled code and resources. Its purpose is to allow Google Play to generate optimized APKs tailored to each user's device.
 
 We have to convert the `aab` to `apk` for direct installation. To do that we use a tool called `bundletool` you can learn more about the tool here https://developer.android.com/tools/bundletool.
@@ -280,8 +278,6 @@ Invincible? Bro, even Eve could’ve solved this blindfolded.
 ![yay](1.gif)
 
 ## Watcher
-
-https://github.com/0xbinder/BitCTF-2025/raw/refs/heads/main/watcher.apk
 
 Let's decompile the apk with `jadx-gui` and checkout the `AndroidManifest.xml` file. We notice an exported service `com.example.watcher.WatcherService` and the `MainActivity`
 
@@ -763,8 +759,6 @@ Running that we get the result back
 ![img-desc](3.png)
 
 ## Pain
-
-https://github.com/0xbinder/BitCTF-2025/raw/refs/heads/main/invincible.aab
 
 Just as the invincible challenge we have an app bundle. `pain.aab`. We need to convert it to `apk` using bundletool `bundletool build-apks --bundle=pain.aab --output=./pain/myapp.apks --mode=universal`
 
