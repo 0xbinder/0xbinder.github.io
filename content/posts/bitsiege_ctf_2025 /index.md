@@ -771,7 +771,7 @@ Just as the invincible challenge we have an app bundle. `pain.aab`. We need to c
 we then unzip the `myapp.apks` file.
 
 ```bash
-~/Downloads/invincible
+~/Downloads/pain
 ❯ unzip myapp.apks
 Archive:  myapp.apks
  extracting: toc.pb
