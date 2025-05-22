@@ -10,20 +10,20 @@ categories: [Capture The Flag]
 ## Mobile
 ### Daily blatha
 Every day blatha. One part here, another there.
-#### You got all my journals? (150pts) 
-Use frida to get the name of the app or any other way 
+#### You got all my journals? (150pts)
+Use frida to get the name of the app or any other way
 ```bash
 b3nj4h@arch ~> frida-ps -aU
- PID  Name               Identifier               
+ PID  Name               Identifier
 ----  -----------------  -------------------------
-6010  Email              com.android.email        
-6386  Google Play Store  com.android.vending      
-5402  Messaging          com.android.messaging    
-5975  Phone              com.android.dialer       
-5632  Superuser          com.genymotion.superuser 
+6010  Email              com.android.email
+6386  Google Play Store  com.android.vending
+5402  Messaging          com.android.messaging
+5975  Phone              com.android.dialer
+5632  Superuser          com.genymotion.superuser
 6254  dailyblatha        com.bsidesnrb.dailyblatha
 ```
-we spawn the firebase activity with activity manager 
+we spawn the firebase activity with activity manager
 ```bash
 am start -n com.bsidesnrb.dailyblatha/.firebaseActivity
 Starting: Intent { cmp=com.bsidesnrb.dailyblatha/.firebaseActivity }
@@ -42,7 +42,7 @@ and we get the first piece of the flag
 ```
 Next we open the sqlite activity to spawn the database
 ```bash
-am start -n com.bsidesnrb.dailyblatha/.sqliteActivity  
+am start -n com.bsidesnrb.dailyblatha/.sqliteActivity
 Starting: Intent { cmp=com.bsidesnrb.dailyblatha/.sqliteActivity }
 ```
 
@@ -58,11 +58,11 @@ b3nj4h@arch > sqlite3 bsidesnrb.db
 SQLite version 3.43.2 2023-10-10 12:14:04
 Enter ".help" for usage hints.
 sqlite> .tables
-android_metadata  flag            
+android_metadata  flag
 sqlite> select * from flag
    ...> ;
 1|flag2|_db_m1sc0nf1gs
-sqlite> 
+sqlite>
 ```
 We navigate to sharedPrefsActivity and find this
 
@@ -115,7 +115,7 @@ We navigate to smali > d > b.smali and locate the if statement
     move-result-object p1
 ```
 
-We change the if-eqz to if-nez 
+We change the if-eqz to if-nez
 ```bash
     .line 17
     if-nez p1, :cond_0
@@ -143,20 +143,20 @@ We then generate a key
 ```bash
 keytool -genkey -keystore whoami.keystore -keyalg RSA -keysize 2048 -validity 1000
 -alias whoami
-Enter keystore password:  
-Re-enter new password: 
+Enter keystore password:
+Re-enter new password:
 What is your first and last name?
-  [Unknown]:  
+  [Unknown]:
 What is the name of your organizational unit?
-  [Unknown]:  
+  [Unknown]:
 What is the name of your organization?
-  [Unknown]:  
+  [Unknown]:
 What is the name of your City or Locality?
-  [Unknown]:  
+  [Unknown]:
 What is the name of your State or Province?
-  [Unknown]:  
+  [Unknown]:
 What is the two-letter country code for this unit?
-  [Unknown]:  
+  [Unknown]:
 Is CN=Unknown, OU=Unknown, O=Unknown, L=Unknown, ST=Unknown, C=Unknown correct?
   [no]:  yes
 
@@ -176,7 +176,7 @@ Make sure you get this at the end
 
 jar signed.
 
-Warning: 
+Warning:
 The signer's certificate is self-signed.
 ```
 We unistall the old apk and install the new one
@@ -238,7 +238,7 @@ frida -l bypass -f com.bsidesnrb.watchdog -U
    . . . .   More info at https://frida.re/docs/home/
    . . . .
    . . . .   Connected to Pixel 2 (id=127.0.0.1:6555)
-Spawned `com.bsidesnrb.watchdog`. Resuming main thread!                 
+Spawned `com.bsidesnrb.watchdog`. Resuming main thread!
 [Pixel 2::com.bsidesnrb.watchdog ]-> Field f1258t not found. Attempting to find the obfuscated field name.
 Field name: t, Type: boolean
 Obfuscated boolean field set to false successfully. Field name: t
@@ -249,7 +249,7 @@ We click move and we get the flag
 
 ### Whatslif3
 Thou shall find what made him one with the world.
-#### This took us out? (75pts) 
+#### This took us out? (75pts)
 From the source code we see that the input should be a base64 decoded string check_guess
 ![img-description](3.png)
 We get the string from resources and base64 decode it
@@ -268,13 +268,13 @@ We take the string and slap it in cyber chef and wait for it to do the magic. Bo
 ### Mystique
 Start by analyzing this email.
 
-#### Who is the sender of this email?  (25pts) 
+#### Who is the sender of this email?  (25pts)
 cat the file and grep for the X-Sender
 ```bash
 cat infected.eml | grep -i X-Sender
 X-Sender: 2export@ekofood.com.tr
 ```
-#### What is the md5sum of the email attachment? (25pts) 
+#### What is the md5sum of the email attachment? (25pts)
 Download the attachment with thunderbird and check the md5sum hash
 ```bash
 md5sum Items\ list.doc
@@ -285,18 +285,18 @@ Open the file with virus total and navigate to community you'll get the CVE from
 
 ![img-description](5.png)
 
-#### What malware family is likely associated with the attachment? (25pts) 
-From the previous image we can see the malware family 
+#### What malware family is likely associated with the attachment? (25pts)
+From the previous image we can see the malware family
 ```
 agenttesla
 ```
 
-#### Take a look at the malware configuration. What is the c2 Domain address? (25pts) 
+#### Take a look at the malware configuration. What is the c2 Domain address? (25pts)
 Navigate to behaviour and check under DNS resolution
 
 ![img-description](6.png)
 
-#### In your opinion, what protocol do you suspect could have been leveraged on for potential exfiltration? (25pts) 
+#### In your opinion, what protocol do you suspect could have been leveraged on for potential exfiltration? (25pts)
 The malware uses port 587 which is an smtp protocol port
 
 ![img-description](7.png)
