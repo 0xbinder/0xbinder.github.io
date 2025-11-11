@@ -452,7 +452,13 @@ safe_execute_command("whoami > /tmp/test; # AAAA...<address_bytes>");
 
 ### Step 5: Command Execution
 
-The `safe_execute_command` function receives our full payload string and passes it to `system()`. While the first 72 bytes are garbage, the shell command parser skips the invalid characters and executes the valid command at the end!
+The `safe_execute_command` function receives our full payload string and passes it to `system()`. `; #` shell commenting:
+
+- The shell executes: `whoami > /tmp/test`
+- Everything after` # `is treated as a comment and ignored
+- The padding characters and binary address bytes don't crash the shell
+
+This allows clean command execution despite the binary garbage in the payload.
 
 ## Building the Exploit
 
