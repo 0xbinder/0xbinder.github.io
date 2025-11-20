@@ -47,8 +47,6 @@ After booting, you'll see a login screen. You can login with two accounts:
 - **root:root**
 - **user:user**
 
-The vulnerable driver is accessible via `/proc/tryout` with world-readable/writable permissions (0666).
-
 ## Understanding the Driver: A Simple Test
 
 Before diving into vulnerabilities, let's write a simple program to understand how the driver works. This will help us see what's happening under the hood.
