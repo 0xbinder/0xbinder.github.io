@@ -1,4 +1,4 @@
-<!-- ---
+---
 author: 0xbinder
 layout: post
 title: Kernel Net
@@ -107,7 +107,7 @@ int main() {
     struct model_metadata meta;
     
     printf("[*] Opening device %s\n", DEVICE_PATH);
-    fd = open(DEVICE_PATH, O_RDWR);
+    fd = open(DEVICE_PATH, O_RDONLY);
     if (fd < 0) {
         perror("open");
         return 1;
@@ -137,6 +137,41 @@ int main() {
     return 0;
 }
 ```
+Compile the binary statically to avoid GLIBC version error
+
+```bash
+aarch64-linux-gnu-gcc -static -o test test.c
+```
+copy the binary to our machine
+
+```bash
+  scp -P 10023 test mhl@localhost:/tmp/
+```
+The tests works well and we are able to send a valid request successfully
+
+```bash
+$ ./test
+[*] Opening device /dev/kern-net
+[*] Sending valid LOAD_MODEL_DATA
+[+] Valid request successful
+$ 
+```
+
+## Vulnerability Analysis
+The bug is in the `LOAD_MODEL_DATA` case of `knet_ioctl()`:
+
+```c
+strcpy(mdata->model_desc, user_data->model_desc);
+```
+
+This is a stack buffer overflow vulnerability because:
+
+* `user_buffer[0x500]` is allocated on the stack
+* `user_data->model_desc` is at an offset within this buffer (96 bytes based on the struct)
+* `strcpy()` has no bounds checking - it copies until it hits a null terminator
+* An attacker can provide a `model_desc` longer than 96 bytes, overflowing the `mdata->model_desc` buffer
+
+Since `mdata` is allocated with `kmalloc()`, overflowing `model_desc` will corrupt heap metadata or adjacent kernel objects.
 
 ```c
 #include <linux/module.h>
@@ -271,4 +306,4 @@ module_exit(knet_exit);
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Hack the Kernel");
 MODULE_DESCRIPTION("Hack All the Kernels");
-``` -->
+```
