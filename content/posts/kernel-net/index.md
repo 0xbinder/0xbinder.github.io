@@ -1,4 +1,4 @@
----
+<!-- ---
 author: 0xbinder
 layout: post
 title: Kernel Net
@@ -306,4 +306,4 @@ module_exit(knet_exit);
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Hack the Kernel");
 MODULE_DESCRIPTION("Hack All the Kernels");
-```
+``` -->

