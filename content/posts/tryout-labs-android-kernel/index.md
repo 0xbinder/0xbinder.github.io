@@ -427,32 +427,8 @@ The exploit uses a clever technique called "heap feng shui" - carefully arrangin
 ### Let's Break Down What Happens
 
 #### Step 1 & 2: Create and Free (Setting the Trap)
-```
-After CREATE_MSG (id=69):
-┌────────────────────────────────────────────────┐
-│ Kernel Memory Slot #X (kmalloc-128):           │
-│                                                │
-│ msgs[69] ──► [Message Object]                  │
-│              ┌────────────┬──────────────┐     │
-│              │ log_func   │ secret_func  │     │
-│              │ (kernel_   │ (priv_esc)   │     │
-│              │  log addr) │  addr)       │     │
-│              └────────────┴──────────────┘     │
-└────────────────────────────────────────────────┘
 
-After DELETE_MSG:
-┌────────────────────────────────────────────────┐
-│ Kernel Memory Slot #X (kmalloc-128):           │
-│                                                │
-│ msgs[69] ──► [FREED MEMORY]                    │
-│              ┌────────────┬──────────────┐     │
-│              │ ????????   │ ????????     │     │
-│              │ (garbage)  │ (garbage)    │     │
-│              └────────────┴──────────────┘     │
-│                                                │
-│    BUG: msgs[69] still points here!            │
-└────────────────────────────────────────────────┘
-```
+![alt text](image.png)
 
 #### Step 3: Finding priv_esc Address
 
@@ -463,16 +439,8 @@ ffff800008e50000 t priv_esc	[tryoutlab]
 ```
 
 This address `ffff800008e50000` is our golden ticket! In little-endian format (how ARM64 stores multi-byte values):
-```
-Address: 0xffff800008e50000
 
-Byte-by-byte breakdown:
-┌────┬────┬────┬────┬────┬────┬────┬────┐
-│ 00 │ 00 │ e5 │ 08 │ 00 │ 80 │ ff │ ff │  (Little-endian)
-└────┴────┴────┴────┴────┴────┴────┴────┘
-  ^                                    ^
-  Least significant byte              Most significant byte
-```
+![alt text](image-1.png)
 
 #### Step 4: The Memory Swap (The Magic Trick)
 ```c
@@ -483,33 +451,8 @@ ioctl(fd, CREATE_BUF, request);
 ```
 
 What happens in kernel memory:
-```
-Before CREATE_BUF:
-┌────────────────────────────────────────────────┐
-│ Slot #X: [FREED - available]                   │
-│          ┌────────────┬──────────────┐         │
-│          │ ????????   │ ????????     │         │
-│          └────────────┴──────────────┘         │
-│                                                │
-│ msgs[69] still points here (dangling!)         │
-└────────────────────────────────────────────────┘
 
-After CREATE_BUF:
-┌────────────────────────────────────────────────┐
-│ Slot #X: [Buffer Data - but msgs[69] thinks    │
-│           this is still a message object!]     │
-│          ┌────────────┬──────────────┐         │
-│          │ 0xffff8000 │ "rest of     │         │
-│          │ 08e50000   │  buffer..."  │         │
-│          └────────────┴──────────────┘         │
-│              ▲                                 │
-│              │                                 │
-│              └─ This will be read as log_func! │
-│                                                │
-│ msgs[69] ──► Points here                       │
-│ buffers[69] ──► Points here too                │
-└────────────────────────────────────────────────┘
-```
+![alt text](image-2.png)
 
 **The Confusion**: 
 - The kernel's buffer system thinks this is buffer data
@@ -524,37 +467,8 @@ printf("uid: %d\n", getuid());     // UID: 0 (root!)
 ```
 
 What the kernel does when LOG_MSG is called:
-```
-Kernel's execution flow:
-┌─────────────────────────────────────────────┐
-│ 1. Get message: obj = msgs[69]              │
-│                       ↓                     │
-│    Points to our buffer data!               │
-└─────────────────────────────────────────────┘
-                     ↓
-┌─────────────────────────────────────────────┐
-│ 2. Read function pointer:                   │
-│    func_ptr = obj->log_func                 │
-│             = first 8 bytes of buffer       │
-│             = 0xffff800008e50000            │
-│             = ADDRESS OF priv_esc()!        │
-└─────────────────────────────────────────────┘
-                     ↓
-┌─────────────────────────────────────────────┐
-│ 3. Call the function:                       │
-│    func_ptr(obj->id);                       │
-│    ↓                                        │
-│    Jumps to priv_esc() instead of           │
-│    kernel_log()!                            │
-└─────────────────────────────────────────────┘
-                     ↓
-┌─────────────────────────────────────────────┐
-│ 4. priv_esc() executes:                     │
-│    commit_creds(prepare_kernel_cred(NULL))  │
-│    ↓                                        │
-│    Our process becomes ROOT!                │
-└─────────────────────────────────────────────┘
-```
+
+![alt text](image-3.png)
 
 Full `exploit.c` code 
 
@@ -654,30 +568,8 @@ Since `msgs[msg_id]` is never cleared, calling `DELETE_MSG` again will:
 4. Crash the system
 
 **Visualizing the Double Free:**
-```
-Step 1: CREATE_MSG (id=69)
-┌────────────────────────────────────┐
-│ msgs[69] ──► [Message Object]      │
-│              Valid allocation      │
-└────────────────────────────────────┘
 
-Step 2: First DELETE_MSG (id=69)
-┌────────────────────────────────────┐
-│ msgs[69] ──► [FREED MEMORY]        │
-│              Memory returned to    │
-│              kernel allocator      │
-│              BUT pointer remains!  │
-└────────────────────────────────────┘
-
-Step 3: Second DELETE_MSG (id=69) 
-┌────────────────────────────────────┐
-│ msgs[69] ──► [ALREADY FREED!]      │
-│              Freeing freed memory  │
-│              = DOUBLE FREE!        │
-│              Corrupts allocator    │
-│              System CRASH!         │
-└────────────────────────────────────┘
-```
+![alt text](image-4.png)
 
 **Proof of Concept - Double Free:**
 
