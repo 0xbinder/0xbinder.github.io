@@ -331,3 +331,168 @@ t_1t_0v3rfl0ws}
 POST
 application/json
 ```
+
+## Broke lesnor 
+
+![alt text](image-11.png)
+
+Reversing the binary with ghidra. We find an interesting function `_flag` and try to analyze it deeply. The code initializes the XOR key as `0x5a`. However, it checks if the pointer to `_flag` matches the actual address of the function. In a normal execution flow, this is always true. Therefore, the real key used for decryption is `0x5b`.
+
+```c
+void _flag(void)
+
+{
+  undefined8 uVar1;
+  ulong uVar2;
+  undefined8 extraout_x1;
+  long lVar3;
+  byte bVar4;
+  undefined1 auVar5 [16];
+  undefined *local_70;
+  undefined8 local_68;
+  code *local_60;
+  undefined *puStack_58;
+  undefined8 local_50;
+  byte local_47 [30];
+  undefined1 local_29;
+  long local_28;
+  
+  lVar3 = 0;
+  local_28 = *(long *)PTR____stack_chk_guard_1000100b8;
+  bVar4 = 0x5a;
+  if (DAT_1000157d0 == _flag) {
+    bVar4 = 0x5b;
+  }
+  do {
+    local_47[lVar3] = bVar4 ^ (&DAT_10000e0d8)[lVar3];
+    lVar3 = lVar3 + 1;
+  } while (lVar3 != 0x1e);
+  local_29 = 0;
+  _NSLog(&cf_FLAG:%s);
+  _objc_msgSend$stringWithUTF8String:(&_OBJC_CLASS_$_NSString,extraout_x1,local_47);
+  auVar5 = _objc_retainAutoreleasedReturnValue();
+  uVar1 = auVar5._0_8_;
+  uVar2 = _objc_msgSend$hasPrefix:(uVar1,auVar5._8_8_,&cf_MHL{);
+  if ((uVar2 & 1) != 0) {
+    local_70 = PTR___NSConcreteStackBlock_1000100a0;
+    local_68 = 0xc2000000;
+    local_60 = ___flag_block_invoke;
+    puStack_58 = &___block_descriptor_40_e8_32s_e5_v8_?0l;
+    local_50 = _objc_retain(uVar1);
+    _dispatch_async(PTR___dispatch_main_q_1000100c0,&local_70);
+    _objc_release(local_50);
+  }
+  _objc_release(uVar1);
+  if (*(long *)PTR____stack_chk_guard_1000100b8 != local_28) {
+                    /* WARNING: Subroutine does not return */
+    ___stack_chk_fail();
+  }
+  return;
+}
+```
+
+To be absolutely sure about the key derivation, we looked at the ARM64 assembly instructions. The logic was even clearer here.The `cinc` (Conditional Increment) instruction says: "If the comparison was equal (EQ), increment `w9` by 1."
+
+> `0x5A + 1 = 0x5B`
+
+```c
+100004104 a9 83 1e f8     stur       x9,[x29, #local_28]
+100004108 89 00 00 b0     adrp       x9,0x100015000
+10000410c 29 e9 43 f9     ldr        x9,[x9, #0x7d0]=>DAT_1000157d0
+100004110 0a 00 00 90     adrp       x10,0x100004000
+100004114 4a 91 03 91     add        x10,x10,#0xe4
+100004118 3f 01 0a eb     cmp        x9,x10
+10000411c 49 0b 80 52     mov        w9,#0x5a
+100004120 29 15 89 1a     cinc       w9,w9,eq
+```
+Further down, we see the XOR operation
+
+```c
+100004124 4a 00 00 d0     adrp       x10,0x10000e000
+100004128 4a 61 03 91     add        x10,x10,#0xd8
+10000412c ab df 00 d1     sub        x11,x29,#0x37
+				LAB_100004130                                   XREF[1]:     100004144(j)  
+100004130 4c 69 68 38     ldrb       w12,[x10, x8, LSL ]=>DAT_10000e0d8               = 16h
+																				= 13h
+100004134 2c 01 0c 4a     eor        w12,w9,w12
+100004138 6c 69 28 38     strb       w12,[x11, x8, LSL ]=>local_47
+```
+
+The C code pointed us to the encrypted data source: `&DAT_10000e0d8`. We navigate to address `10000e0d8` in Ghidra's data section to retrieve the raw bytes.
+
+```c
+						DAT_10000e0d8                                   XREF[1]:     _flag:100004130(R)  
+10000e0d8 16              undefined1 16h
+						DAT_10000e0d9                                   XREF[1]:     _flag:100004130(R)  
+10000e0d9 13              undefined1 13h
+10000e0da 17              ??         17h
+10000e0db 20              ??         20h     
+10000e0dc 3d              ??         3Dh    =
+10000e0dd 6b              ??         6Bh    k
+10000e0de 29              ??         29h    )
+10000e0df 36              ??         36h    6
+10000e0e0 3a              ??         3Ah    :
+10000e0e1 2f              ??         2Fh    /
+10000e0e2 04              ??         04h
+10000e0e3 28              ??         28h    (
+10000e0e4 2f              ??         2Fh    /
+10000e0e5 29              ??         29h    )
+10000e0e6 6a              ??         6Ah    j
+10000e0e7 35              ??         35h    5
+10000e0e8 3c              ??         3Ch    <
+10000e0e9 04              ??         04h
+10000e0ea 6f              ??         6Fh    o
+10000e0eb 28              ??         28h    (
+10000e0ec 37              ??         37h    7
+10000e0ed 29              ??         29h    )
+10000e0ee 04              ??         04h
+10000e0ef 39              ??         39h    9
+10000e0f0 22              ??         22h    "
+10000e0f1 2b              ??         2Bh    +
+10000e0f2 3a              ??         3Ah    :
+10000e0f3 28              ??         28h    (
+10000e0f4 28              ??         28h    (
+10000e0f5 26              ??         26h    &
+10000e0f6 00              ??         00h
+10000e0f7 00              ??         00h
+```
+With the raw bytes and the Key `(0x5B)` we identified from the assembly `cinc` instruction, the final step was a simple XOR operation.
+
+```python
+def solve_flag():
+    # 1. The Encrypted Bytes extracted from Ghidra (DAT_10000e0d8)
+    encrypted_bytes = [
+        0x16, 0x13, 0x17, 0x20, 0x3d, 0x6b, 0x29, 0x36,
+        0x3a, 0x2f, 0x04, 0x28, 0x2f, 0x29, 0x6a, 0x35,
+        0x3c, 0x04, 0x6f, 0x28, 0x37, 0x29, 0x04, 0x39,
+        0x22, 0x2b, 0x3a, 0x28, 0x28, 0x26
+    ]
+
+    # 2. The Key derived from the 'cinc' assembly instruction (0x5A + 1)
+    xor_key = 0x5B
+
+    # 3. Decryption Loop
+    decrypted_chars = []
+    for byte in encrypted_bytes:
+        # XOR operation as seen in the C pseudo-code
+        decrypted_char = chr(byte ^ xor_key)
+        decrypted_chars.append(decrypted_char)
+
+    # 4. Join and Print
+    flag = "".join(decrypted_chars)
+    print(f"[*] Decryption Key: {hex(xor_key)}")
+    print(f"[*] Flag: {flag}")
+
+if __name__ == "__main__":
+    solve_flag()
+```
+
+Running the script produces the final flag
+
+```bash
+python solv.py 
+[*] Decryption Key: 0x5b
+[*] Flag: MHL{f0rmat_str1ng_4slr_bypass}
+```
+
+
