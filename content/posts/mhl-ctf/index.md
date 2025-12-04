@@ -279,6 +279,7 @@ Finally the activity is launched with the flag
 ![alt text](image-3.png)
 
 # iOS
+
 ## Link Liar
 
 ![alt text](image-7.png)
@@ -287,6 +288,10 @@ We unzip the `ipa` file as usual
 
 ```bash
 unzip Linkliar.ipa
+```
+
+```bash
+plistutil -i Info.plist -o Info.xml
 ```
 
 We check the `Info.xml`. to see is there is anything interesting but none
