@@ -8,7 +8,7 @@ useRelativeCover: true
 categories: [Kernel exploitation]
 ---
 
-# CVE-2019-2215: Android Binder Use-After-Free Vulnerability - A Deep Dive
+# CVE-2019-2215: Android Binder Use-After-Free Vulnerability - A Deep Dive (Static analysis)
 
 ## Introduction
 
