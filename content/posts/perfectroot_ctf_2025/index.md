@@ -5,6 +5,7 @@ title: p3rf3ctr00t CTF 2025
 date: '2025-12-10'  
 description: "A special CTF from P3rf3ctr00t"
 useRelativeCover: true
+cover: featured.png
 categories: [Capture The Flag]
 ---
 
