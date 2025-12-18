@@ -3,7 +3,7 @@ author: 0xbinder
 layout: post
 title: NahamCon Winter CTF
 date: '2025-12-18'  
-description: " From: Dec 17th, 2025 11:00 pm Africa/Nairobi To: Dec 18th, 2025 11:00 pm Africa/Nairobi"
+description: "NahamCon Winter CTF 2025"
 useRelativeCover: true
 categories: [Capture The Flag]
 ---
