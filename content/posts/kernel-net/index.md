@@ -137,7 +137,7 @@ int main() {
     return 0;
 }
 ```
-Compile the binary statically to avoid GLIBC version error
+Compile the binary statically to avoid GLIBC errors
 
 ```bash
 aarch64-linux-gnu-gcc -static -o test test.c
