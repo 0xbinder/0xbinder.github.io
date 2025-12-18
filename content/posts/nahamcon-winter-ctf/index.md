@@ -8,7 +8,7 @@ useRelativeCover: true
 categories: [Capture The Flag]
 ---
 
-![alt text](image-5.png)
+![alt text](logo.png)
 
 ## Mobile
 
